@@ -1,0 +1,69 @@
+<HTML><TITLE>timer.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>timer.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// timer.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Data structures to emulate a hardware timer.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	A hardware timer generates a CPU interrupt every X milliseconds.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	This means it can be used for implementing time-slicing, or for<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	having a thread go to sleep for a specific period of time. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	We emulate a hardware timer by scheduling an interrupt to occur<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	every time stats-&gt;totalTicks has increased by TimerTicks.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	In order to introduce some randomness into time-slicing, if "doRandom"<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	is set, then the interrupt comes after a random number of ticks.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  DO NOT CHANGE -- part of the machine emulation<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef TIMER_H<FONT COLOR="#000000">
+<A NAME="TIMER_H"></A><FONT COLOR="#007700">#define TIMER_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="utility_h.html">utility.h</A>"<FONT COLOR="#000000">
+
+<A NAME="Timer"></A><FONT COLOR="#990000">// The following class defines a hardware timer. <FONT COLOR="#000000">
+class Timer {
+  public:
+    <A HREF="timer_cc.html#Timer.Timer">Timer</A>(<A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A> timerHandler, int callArg, bool doRandom);
+				<FONT COLOR="#990000">// Initialize the timer, to call the interrupt<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// handler "timerHandler" every time slice.<FONT COLOR="#000000">
+    ~Timer() {}
+
+<FONT COLOR="#990000">// Internal routines to the timer emulation -- DO NOT call these<FONT COLOR="#000000">
+
+    void <A HREF="timer_cc.html#Timer.TimerExpired">TimerExpired</A>();	<FONT COLOR="#990000">// called internally when the hardware<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// timer generates an interrupt<FONT COLOR="#000000">
+
+    int <A HREF="timer_cc.html#Timer.TimeOfNextInterrupt">TimeOfNextInterrupt</A>();  <FONT COLOR="#990000">// figure out when the timer will generate<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// its next interrupt <FONT COLOR="#000000">
+
+  private:
+    bool <A NAME="Timer.randomize">randomize</A>;		<FONT COLOR="#990000">// set if we need to use a random timeout delay<FONT COLOR="#000000">
+    <A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A> <A NAME="Timer.handler">handler</A>;	<FONT COLOR="#990000">// timer interrupt handler <FONT COLOR="#000000">
+    int <A NAME="Timer.arg">arg</A>;			<FONT COLOR="#990000">// argument to pass to interrupt handler<FONT COLOR="#000000">
+
+};
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// TIMER_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

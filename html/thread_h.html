@@ -1,0 +1,166 @@
+<HTML><TITLE>thread.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>thread.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// thread.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Data structures for managing threads.  A thread represents<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	sequential execution of code within a program.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	So the state of a thread includes the program counter,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	the processor registers, and the execution stack.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Note that because we allocate a fixed size stack for each<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	thread, it is possible to overflow the stack -- for instance,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	by recursing to too deep a level.  The most common reason<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	for this occuring is allocating large data structures<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	on the stack.  For instance, this will cause problems:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		void foo() { int buf[1000]; ...}<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Instead, you should allocate all data structures dynamically:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		void foo() { int *buf = new int[1000]; ...}<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Bad things happen if you overflow the stack, and in the worst <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	case, the problem may not be caught explicitly.  Instead,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	the only symptom may be bizarre segmentation faults.  (Of course,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	other problems can cause seg faults, so that isn't a sure sign<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	that your thread stacks are too small.)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	One thing to try if you find yourself with seg faults is to<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	increase the size of thread stack -- ThreadStackSize.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  	In this interface, forking a thread takes two steps.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	We must first allocate a data structure for it: "t = new Thread".<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Only then can we do the fork: "t-&gt;fork(f, arg)".<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef THREAD_H<FONT COLOR="#000000">
+<A NAME="THREAD_H"></A><FONT COLOR="#007700">#define THREAD_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="utility_h.html">utility.h</A>"<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef USER_PROGRAM<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "machine.h"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "addrspace.h"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+<A NAME="MachineStateSize"></A><FONT COLOR="#990000">// CPU register state to be saved on context switch.  <FONT COLOR="#000000">
+<FONT COLOR="#990000">// The SPARC and MIPS only need 10 registers, but the Snake needs 18.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// For simplicity, this is just the max over all architectures.<FONT COLOR="#000000">
+<FONT COLOR="#007700">#define MachineStateSize 18 <FONT COLOR="#000000">
+
+
+<A NAME="StackSize"></A><FONT COLOR="#990000">// Size of the thread's private execution stack.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// WATCH OUT IF THIS ISN'T BIG ENOUGH&#33;&#33;&#33;&#33;&#33;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#define StackSize	(4 * 1024)	<FONT COLOR="#990000">// in words<FONT COLOR="#000000"><FONT COLOR="#000000">
+
+
+<A NAME="ThreadStatus"></A><FONT COLOR="#990000">// Thread state<FONT COLOR="#000000">
+enum ThreadStatus { <A NAME="JUST_CREATED">JUST_CREATED</A>, <A NAME="RUNNING">RUNNING</A>, <A NAME="READY">READY</A>, <A NAME="BLOCKED">BLOCKED</A> };
+
+<FONT COLOR="#990000">// external function, dummy routine whose sole job is to call Thread::Print<FONT COLOR="#000000">
+extern void <A HREF="thread_cc.html#ThreadPrint">ThreadPrint</A>(int arg);	 
+
+<A NAME="Thread"></A><FONT COLOR="#990000">// The following class defines a "thread control block" -- which<FONT COLOR="#000000">
+<FONT COLOR="#990000">// represents a single thread of execution.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  Every thread has:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//     an execution stack for activation records ("stackTop" and "stack")<FONT COLOR="#000000">
+<FONT COLOR="#990000">//     space to save CPU registers while not running ("machineState")<FONT COLOR="#000000">
+<FONT COLOR="#990000">//     a "status" (running/ready/blocked)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    <FONT COLOR="#000000">
+<FONT COLOR="#990000">//  Some threads also belong to a user address space; threads<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  that only run in the kernel have a NULL address space.<FONT COLOR="#000000">
+
+<TABLE><TR><TD WIDTH="10%"><A HREF="http://www.mcs.vuw.ac.nz/cgi-bin/comp305/Threads.cgi?home=file:/home/lido1/petriedavi/305Comp/project2/nachos/html/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A><TD VALIGN=TOP>An Introduction to Nachos Threads</TR></TABLE>class Thread {
+  private:
+    <FONT COLOR="#990000">// NOTE: DO NOT CHANGE the order of these first two members.<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// THEY MUST be in this position for SWITCH to work.<FONT COLOR="#000000">
+    int* <A NAME="Thread.stackTop">stackTop</A>;			 <FONT COLOR="#990000">// the current stack pointer<FONT COLOR="#000000">
+    int <A NAME="Thread.machineState">machineState</A>[<A HREF="thread_h.html#MachineStateSize">MachineStateSize</A>];  <FONT COLOR="#990000">// all registers except for stackTop<FONT COLOR="#000000">
+
+  public:
+    <A HREF="thread_cc.html#Thread.Thread">Thread</A>(char* debugName);		<FONT COLOR="#990000">// initialize a Thread <FONT COLOR="#000000">
+    ~<A HREF="thread_cc.html#Thread.~Thread">Thread</A>(); 				<FONT COLOR="#990000">// deallocate a Thread<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// NOTE -- thread being deleted<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// must not be running when delete <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// is called<FONT COLOR="#000000">
+
+    <FONT COLOR="#990000">// basic thread operations<FONT COLOR="#000000">
+
+    void <A HREF="thread_cc.html#Thread.Fork">Fork</A>(<A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A> func, int arg); 	<FONT COLOR="#990000">// Make thread run (*func)(arg)<FONT COLOR="#000000">
+    void <A HREF="thread_cc.html#Thread.Yield">Yield</A>();  				<FONT COLOR="#990000">// Relinquish the CPU if any <FONT COLOR="#000000">
+						<FONT COLOR="#990000">// other thread is runnable<FONT COLOR="#000000">
+    void <A HREF="thread_cc.html#Thread.Sleep">Sleep</A>();  				<FONT COLOR="#990000">// Put the thread to sleep and <FONT COLOR="#000000">
+						<FONT COLOR="#990000">// relinquish the processor<FONT COLOR="#000000">
+    void <A HREF="thread_cc.html#Thread.Finish">Finish</A>();  				<FONT COLOR="#990000">// The thread is done executing<FONT COLOR="#000000">
+    
+    void <A HREF="thread_cc.html#Thread.CheckOverflow">CheckOverflow</A>();   			<FONT COLOR="#990000">// Check if thread has <FONT COLOR="#000000">
+						<FONT COLOR="#990000">// overflowed its stack<FONT COLOR="#000000">
+    void <A NAME="Thread.setStatus">setStatus</A>(<A HREF="thread_h.html#ThreadStatus">ThreadStatus</A> st) { status = st; }
+    char* <A NAME="Thread.getName">getName</A>() { return (name); }
+    void <A NAME="Thread.Print">Print</A>() { printf("%s, ", name); }
+
+  private:
+    <FONT COLOR="#990000">// some of the private data for this class is listed above<FONT COLOR="#000000">
+    
+    int* <A NAME="Thread.stack">stack</A>; 	 		<FONT COLOR="#990000">// Bottom of the stack <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// NULL if this is the main thread<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// (If NULL, don't deallocate stack)<FONT COLOR="#000000">
+    <A HREF="thread_h.html#ThreadStatus">ThreadStatus</A> <A NAME="Thread.status">status</A>;		<FONT COLOR="#990000">// ready, running or blocked<FONT COLOR="#000000">
+    char* <A NAME="Thread.name">name</A>;
+
+    void <A HREF="thread_cc.html#Thread.StackAllocate">StackAllocate</A>(<A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A> func, int arg);
+    					<FONT COLOR="#990000">// Allocate a stack for thread.<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// Used internally by Fork()<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef USER_PROGRAM<FONT COLOR="#000000">
+<FONT COLOR="#990000">// A thread running a user program actually has *two* sets of CPU registers -- <FONT COLOR="#000000">
+<FONT COLOR="#990000">// one for its state while executing user code, one for its state <FONT COLOR="#000000">
+<FONT COLOR="#990000">// while executing kernel code.<FONT COLOR="#000000">
+
+    int <A NAME="Thread.userRegisters">userRegisters</A>[NumTotalRegs];	<FONT COLOR="#990000">// user-level CPU register state<FONT COLOR="#000000">
+
+  public:
+    void <A HREF="thread_cc.html#Thread.SaveUserState">SaveUserState</A>();		<FONT COLOR="#990000">// save user-level register state<FONT COLOR="#000000">
+    void <A HREF="thread_cc.html#Thread.RestoreUserState">RestoreUserState</A>();		<FONT COLOR="#990000">// restore user-level register state<FONT COLOR="#000000">
+
+    AddrSpace *<A NAME="Thread.space">space</A>;			<FONT COLOR="#990000">// User code this thread is running.<FONT COLOR="#000000">
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+};
+
+<FONT COLOR="#990000">// Magical machine-dependent routines, defined in switch.s<FONT COLOR="#000000">
+
+extern "C" {
+<FONT COLOR="#990000">// First frame on thread execution stack; <FONT COLOR="#000000">
+<FONT COLOR="#990000">//   	enable interrupts<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	call "func"<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	(when func returns, if ever) call ThreadFinish()<FONT COLOR="#000000">
+void ThreadRoot();
+
+<FONT COLOR="#990000">// Stop running oldThread and start running newThread<FONT COLOR="#000000">
+void SWITCH(<A HREF="thread_h.html#Thread">Thread</A> *oldThread, <A HREF="thread_h.html#Thread">Thread</A> *newThread);
+}
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// THREAD_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

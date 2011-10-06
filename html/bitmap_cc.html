@@ -1,0 +1,177 @@
+<HTML><TITLE>bitmap.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>bitmap.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 13:33:49 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// bitmap.c <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Routines to manage a bitmap -- an array of bits each of which<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	can be either on or off.  Represented as an array of integers.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="bitmap_h.html">bitmap.h</A>"<FONT COLOR="#000000">
+
+<A NAME="BitMap.BitMap"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// BitMap::BitMap<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Initialize a bitmap with "nitems" bits, so that every bit is clear.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	it can be added somewhere on a list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"nitems" is the number of bits in the bitmap.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="bitmap_h.html#BitMap">BitMap</A>::BitMap(int nitems) 
+{ 
+    <A HREF="bitmap_h.html#BitMap.numBits">numBits</A> = nitems;
+    <A HREF="bitmap_h.html#BitMap.numWords">numWords</A> = <A HREF="utility.h.html#divRoundUp">divRoundUp</A>(<A HREF="bitmap_h.html#BitMap.numBits">numBits</A>, <A HREF="bitmap_h.html#BitsInWord">BitsInWord</A>);
+    <A HREF="bitmap_h.html#BitMap.map">map</A> = new unsigned int[<A HREF="bitmap_h.html#BitMap.numWords">numWords</A>];
+    for (int i = 0; i &lt; <A HREF="bitmap_h.html#BitMap.numBits">numBits</A>; i++) 
+        <A HREF="bitmap_cc.html#BitMap.Clear">Clear</A>(i);
+}
+
+<A NAME="BitMap.~BitMap"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// BitMap::~BitMap<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	De-allocate a bitmap.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="bitmap_h.html#BitMap">BitMap</A>::~BitMap()
+{ 
+    delete <A HREF="bitmap_h.html#BitMap.map">map</A>;
+}
+
+<A NAME="BitMap.Mark"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// BitMap::Set<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Set the "nth" bit in a bitmap.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"which" is the number of the bit to be set.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="bitmap_h.html#BitMap">BitMap</A>::Mark(int which) 
+{ 
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>(which &gt;= 0 &amp&amp; which &lt; <A HREF="bitmap_h.html#BitMap.numBits">numBits</A>);
+    <A HREF="bitmap_h.html#BitMap.map">map</A>[which / <A HREF="bitmap_h.html#BitsInWord">BitsInWord</A>] |= 1 &lt&lt; (which % <A HREF="bitmap_h.html#BitsInWord">BitsInWord</A>);
+}
+    
+<A NAME="BitMap.Clear"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// BitMap::Clear<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Clear the "nth" bit in a bitmap.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"which" is the number of the bit to be cleared.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void  <A HREF="bitmap_h.html#BitMap">BitMap</A>::Clear(int which) 
+{
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>(which &gt;= 0 &amp&amp; which &lt; <A HREF="bitmap_h.html#BitMap.numBits">numBits</A>);
+    <A HREF="bitmap_h.html#BitMap.map">map</A>[which / <A HREF="bitmap_h.html#BitsInWord">BitsInWord</A>] &amp;= ~(1 &lt&lt; (which % <A HREF="bitmap_h.html#BitsInWord">BitsInWord</A>));
+}
+
+<A NAME="BitMap.Test"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// BitMap::Test<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Return TRUE if the "nth" bit is set.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"which" is the number of the bit to be tested.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+bool  <A HREF="bitmap_h.html#BitMap">BitMap</A>::Test(int which)
+{
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>(which &gt;= 0 &amp&amp; which &lt; <A HREF="bitmap_h.html#BitMap.numBits">numBits</A>);
+    
+    if (<A HREF="bitmap_h.html#BitMap.map">map</A>[which / <A HREF="bitmap_h.html#BitsInWord">BitsInWord</A>] &amp; (1 &lt&lt; (which % <A HREF="bitmap_h.html#BitsInWord">BitsInWord</A>)))
+	return TRUE;
+    else
+	return FALSE;
+}
+
+<A NAME="BitMap.Find"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// BitMap::Find<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Return the number of the first bit which is clear.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	As a side effect, set the bit (mark it as in use).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	(In other words, find and allocate a bit.)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	If no bits are clear, return -1.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+int  <A HREF="bitmap_h.html#BitMap">BitMap</A>::Find() 
+{
+    for (int i = 0; i &lt; <A HREF="bitmap_h.html#BitMap.numBits">numBits</A>; i++)
+	if (!<A HREF="bitmap_cc.html#BitMap.Test">Test</A>(i)) {
+	    <A HREF="bitmap_cc.html#BitMap.Mark">Mark</A>(i);
+	    return i;
+	}
+    return -1;
+}
+
+<A NAME="BitMap.NumClear"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// BitMap::NumClear<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Return the number of clear bits in the bitmap.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	(In other words, how many bits are unallocated?)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+int  <A HREF="bitmap_h.html#BitMap">BitMap</A>::NumClear() 
+{
+    int count = 0;
+
+    for (int i = 0; i &lt; <A HREF="bitmap_h.html#BitMap.numBits">numBits</A>; i++)
+	if (!<A HREF="bitmap_cc.html#BitMap.Test">Test</A>(i)) count++;
+    return count;
+}
+
+<A NAME="BitMap.Print"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// BitMap::Print<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Print the contents of the bitmap, for debugging.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Could be done in a number of ways, but we just print the &#35;'s of<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	all the bits that are set in the bitmap.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="bitmap_h.html#BitMap">BitMap</A>::Print() 
+{
+    printf("Bitmap set:\n"); 
+    for (int i = 0; i &lt; <A HREF="bitmap_h.html#BitMap.numBits">numBits</A>; i++)
+	if (<A HREF="bitmap_cc.html#BitMap.Test">Test</A>(i))
+	    printf("%d, ", i);
+    printf("\n"); 
+}
+
+<A NAME="BitMap.FetchFrom"></A><FONT COLOR="#990000">// These aren't needed until the FILESYS assignment<FONT COLOR="#000000">
+
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// BitMap::FetchFromFile<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Initialize the contents of a bitmap from a Nachos file.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"file" is the place to read the bitmap from<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="bitmap_h.html#BitMap">BitMap</A>::FetchFrom(<A HREF="openfile_h.html#OpenFile">OpenFile</A> *file) 
+{
+    file-&gt;ReadAt((char *)<A HREF="bitmap_h.html#BitMap.map">map</A>, <A HREF="bitmap_h.html#BitMap.numWords">numWords</A> * sizeof(unsigned), 0);
+}
+
+<A NAME="BitMap.WriteBack"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// BitMap::WriteBack<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Store the contents of a bitmap to a Nachos file.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"file" is the place to write the bitmap to<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="bitmap_h.html#BitMap">BitMap</A>::WriteBack(<A HREF="openfile_h.html#OpenFile">OpenFile</A> *file)
+{
+   file-&gt;WriteAt((char *)<A HREF="bitmap_h.html#BitMap.map">map</A>, <A HREF="bitmap_h.html#BitMap.numWords">numWords</A> * sizeof(unsigned), 0);
+}
+</PRE>
+</BODY></HTML>

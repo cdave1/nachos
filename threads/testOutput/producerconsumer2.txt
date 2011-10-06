@@ -1,0 +1,455 @@
+
+*** COMP 305 Project ***
+Enter "-pc" for Producer Consumer or "-bt" for Bridge Test.
+
+*** Producer 0 added "H" to buffer
+
+*** Producer 1 added "H" to buffer
+
+*** Producer 2 added "H" to buffer
+
+*** Producer 3 added "H" to buffer
+
+*** Producer 4 added "H" to buffer
+
+*** Producer 5 added "H" to buffer
+
+*** Producer 6 added "H" to buffer
+
+*** Producer 7 added "H" to buffer
+
+*** Producer 8 added "H" to buffer
+
+*** Producer 9 added "H" to buffer
+
+*** Consumer 0 took "H" from buffer
+
+*** Consumer 1 took "H" from buffer
+
+*** Producer 0 added "e" to buffer
+
+*** Producer 2 added "e" to buffer
+
+*** Consumer 0 took "H" from buffer
+
+*** Producer 6 added "e" to buffer
+
+*** Consumer 2 took "H" from buffer
+
+*** Consumer 4 took "H" from buffer
+
+*** Producer 5 added "e" to buffer
+
+*** Consumer 5 took "H" from buffer
+
+*** Producer 7 added "e" to buffer
+
+*** Consumer 7 took "H" from buffer
+
+*** Consumer 5 took "H" from buffer
+
+*** Consumer 8 took "H" from buffer
+
+*** Producer 7 added "l" to buffer
+
+*** Consumer 8 took "H" from buffer
+
+*** Producer 0 added "l" to buffer
+
+*** Producer 7 added "l" to buffer
+
+*** Producer 4 added "e" to buffer
+
+*** Producer 7 added "o" to buffer
+
+*** Consumer 0 took "e" from buffer
+
+*** Producer 4 added "l" to buffer
+
+*** Consumer 3 took "e" from buffer
+
+*** Consumer 0 took "e" from buffer
+
+*** Consumer 4 took "e" from buffer
+
+*** Consumer 3 took "e" from buffer
+
+*** Consumer 0 took "l" from buffer
+
+*** Producer 5 added "l" to buffer
+
+*** Consumer 3 took "l" from buffer
+
+*** Producer 8 added "e" to buffer
+
+*** Consumer 9 took "l" from buffer
+
+*** Consumer 5 took "e" from buffer
+
+*** Consumer 9 took "o" from buffer
+
+*** Producer 8 added "l" to buffer
+
+*** Producer 1 added "e" to buffer
+
+*** Producer 3 added "e" to buffer
+
+*** Consumer 9 took "l" from buffer
+
+*** Producer 0 added "l" to buffer
+
+*** Producer 3 added "l" to buffer
+
+*** Producer 7 added " " to buffer
+
+*** Consumer 9 took "l" from buffer
+
+*** Producer 6 added "l" to buffer
+
+*** Producer 0 added "o" to buffer
+
+*** Producer 9 added "e" to buffer
+
+*** Consumer 0 took "e" from buffer
+
+*** Consumer 1 took "l" from buffer
+
+*** Producer 5 added "l" to buffer
+
+*** Producer 3 added "l" to buffer
+
+*** Consumer 7 took "e" from buffer
+
+*** Producer 2 added "l" to buffer
+
+*** Consumer 7 took "e" from buffer
+
+*** Producer 1 added "l" to buffer
+
+*** Consumer 2 took "l" from buffer
+
+*** Consumer 9 took "l" from buffer
+
+*** Consumer 6 took " " from buffer
+
+*** Producer 4 added "l" to buffer
+
+*** Producer 6 added "l" to buffer
+
+*** Producer 1 added "l" to buffer
+
+*** Consumer 4 took "l" from buffer
+
+*** Consumer 9 took "o" from buffer
+
+*** Producer 2 added "l" to buffer
+
+*** Producer 0 added " " to buffer
+
+*** Consumer 6 took "e" from buffer
+
+*** Consumer 0 took "l" from buffer
+
+*** Producer 9 added "l" to buffer
+
+*** Producer 6 added "o" to buffer
+
+*** Consumer 2 took "l" from buffer
+
+*** Producer 7 added "W" to buffer
+
+*** Consumer 3 took "l" from buffer
+
+*** Consumer 1 took "l" from buffer
+
+*** Consumer 9 took "l" from buffer
+
+*** Consumer 8 took "l" from buffer
+
+*** Producer 5 added "o" to buffer
+
+*** Producer 0 added "W" to buffer
+
+*** Producer 8 added "l" to buffer
+
+*** Producer 3 added "o" to buffer
+
+*** Consumer 0 took "l" from buffer
+
+*** Producer 3 added " " to buffer
+
+*** Consumer 7 took "l" from buffer
+
+*** Producer 6 added " " to buffer
+
+*** Consumer 3 took " " from buffer
+
+*** Consumer 9 took "l" from buffer
+
+*** Consumer 3 took "o" from buffer
+
+*** Producer 1 added "o" to buffer
+
+*** Producer 5 added " " to buffer
+
+*** Producer 1 added " " to buffer
+
+*** Consumer 1 took "W" from buffer
+
+*** Producer 0 added "o" to buffer
+
+*** Consumer 1 took "o" from buffer
+
+*** Producer 1 added "W" to buffer
+
+*** Consumer 1 took "W" from buffer
+
+*** Consumer 2 took "l" from buffer
+
+*** Producer 1 added "o" to buffer
+
+*** Consumer 7 took "o" from buffer
+
+*** Producer 9 added "l" to buffer
+
+*** Consumer 9 took " " from buffer
+
+*** Consumer 7 took " " from buffer
+
+*** Consumer 3 took "o" from buffer
+
+*** Consumer 7 took " " from buffer
+
+*** Consumer 6 took " " from buffer
+
+*** Producer 8 added "o" to buffer
+
+*** Consumer 6 took "o" from buffer
+
+*** Producer 8 added " " to buffer
+
+*** Consumer 5 took "W" from buffer
+
+*** Consumer 6 took "o" from buffer
+
+*** Consumer 0 took "l" from buffer
+
+*** Producer 8 added "W" to buffer
+
+*** Producer 7 added "o" to buffer
+
+*** Consumer 5 took "o" from buffer
+
+*** Consumer 4 took " " from buffer
+
+*** Consumer 8 took "W" from buffer
+
+*** Consumer 4 took "o" from buffer
+
+*** Producer 1 added "r" to buffer
+
+*** Producer 2 added "o" to buffer
+
+*** Producer 1 added "l" to buffer
+
+*** Consumer 9 took "r" from buffer
+
+*** Producer 2 added " " to buffer
+
+*** Consumer 7 took "o" from buffer
+
+*** Producer 0 added "r" to buffer
+
+*** Consumer 6 took "l" from buffer
+
+*** Producer 0 added "l" to buffer
+
+*** Consumer 7 took " " from buffer
+
+*** Consumer 1 took "r" from buffer
+
+*** Consumer 6 took "l" from buffer
+
+*** Producer 4 added "o" to buffer
+
+*** Producer 0 added "d" to buffer
+
+*** Producer 8 added "o" to buffer
+
+*** Consumer 7 took "o" from buffer
+
+*** Consumer 8 took "d" from buffer
+
+*** Consumer 4 took "o" from buffer
+
+*** Producer 9 added "o" to buffer
+
+*** Consumer 4 took "o" from buffer
+
+*** Producer 2 added "W" to buffer
+
+*** Consumer 0 took "W" from buffer
+
+*** Producer 3 added "W" to buffer
+
+*** Producer 7 added "r" to buffer
+
+*** Producer 3 added "o" to buffer
+
+*** Consumer 9 took "W" from buffer
+
+*** Producer 4 added " " to buffer
+
+*** Consumer 9 took "r" from buffer
+
+*** Consumer 5 took "o" from buffer
+
+*** Producer 8 added "r" to buffer
+
+*** Producer 6 added "W" to buffer
+
+*** Consumer 5 took " " from buffer
+
+*** Producer 4 added "W" to buffer
+
+*** Consumer 7 took "r" from buffer
+
+*** Producer 8 added "l" to buffer
+
+*** Consumer 9 took "W" from buffer
+
+*** Producer 5 added "W" to buffer
+
+*** Producer 8 added "d" to buffer
+
+*** Producer 2 added "o" to buffer
+
+*** Consumer 8 took "W" from buffer
+
+*** Producer 2 added "r" to buffer
+
+*** Consumer 6 took "l" from buffer
+
+*** Producer 7 added "l" to buffer
+
+*** Producer 2 added "l" to buffer
+
+*** Consumer 2 took "W" from buffer
+
+*** Consumer 6 took "d" from buffer
+
+*** Consumer 8 took "o" from buffer
+
+*** Consumer 5 took "r" from buffer
+
+*** Consumer 6 took "l" from buffer
+
+*** Producer 1 added "d" to buffer
+
+*** Producer 4 added "o" to buffer
+
+*** Consumer 4 took "l" from buffer
+
+*** Consumer 6 took "d" from buffer
+
+*** Consumer 7 took "o" from buffer
+
+*** Producer 6 added "o" to buffer
+
+*** Consumer 1 took "o" from buffer
+
+*** Producer 5 added "o" to buffer
+
+*** Consumer 7 took "o" from buffer
+
+*** Producer 3 added "r" to buffer
+
+*** Producer 4 added "r" to buffer
+
+*** Producer 7 added "d" to buffer
+
+*** Consumer 8 took "r" from buffer
+
+*** Producer 5 added "r" to buffer
+
+*** Consumer 3 took "r" from buffer
+
+*** Producer 6 added "r" to buffer
+
+*** Consumer 8 took "d" from buffer
+
+*** Producer 2 added "d" to buffer
+
+*** Producer 6 added "l" to buffer
+
+*** Consumer 1 took "r" from buffer
+
+*** Producer 9 added " " to buffer
+
+*** Consumer 9 took "r" from buffer
+
+*** Producer 6 added "d" to buffer
+
+*** Consumer 2 took "d" from buffer
+
+*** Consumer 6 took "l" from buffer
+
+*** Consumer 2 took " " from buffer
+
+*** Consumer 0 took "d" from buffer
+
+*** Producer 5 added "l" to buffer
+
+*** Consumer 4 took "l" from buffer
+
+*** Producer 5 added "d" to buffer
+
+*** Consumer 1 took "d" from buffer
+
+*** Producer 9 added "W" to buffer
+
+*** Consumer 0 took "W" from buffer
+
+*** Producer 4 added "l" to buffer
+
+*** Consumer 4 took "l" from buffer
+
+*** Producer 4 added "d" to buffer
+
+*** Consumer 3 took "d" from buffer
+
+*** Producer 9 added "o" to buffer
+
+*** Consumer 3 took "o" from buffer
+
+*** Producer 9 added "r" to buffer
+
+*** Producer 3 added "l" to buffer
+
+*** Consumer 3 took "r" from buffer
+
+*** Consumer 2 took "l" from buffer
+
+*** Producer 9 added "l" to buffer
+
+*** Consumer 2 took "l" from buffer
+
+*** Producer 9 added "d" to buffer
+
+*** Producer 3 added "d" to buffer
+
+*** Consumer 9 took "d" from buffer
+
+*** Consumer 2 took "d" from buffer
+
+No threads ready or runnable, and no pending interrupts.
+Assuming the program completed.
+Machine halting!
+
+Ticks: total 10794, idle 74, system 10720, user 0
+Disk I/O: reads 0, writes 0
+Console I/O: reads 0, writes 0
+Paging: faults 0
+Network I/O: packets received 0, sent 0
+
+Cleaning up...

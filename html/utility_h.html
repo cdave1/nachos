@@ -1,0 +1,105 @@
+<HTML><TITLE>utility.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>utility.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// utility.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Miscellaneous useful definitions, including debugging routines.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	The debugging routines allow the user to turn on selected<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	debugging messages, controllable from the command line arguments<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	passed to Nachos (-d).  You are encouraged to add your own<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	debugging flags.  The pre-defined debugging flags are:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	'+' -- turn on all debug messages<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   	't' -- thread system<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   	's' -- semaphores, locks, and conditions<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   	'i' -- interrupt emulation<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   	'm' -- machine emulation (USER_PROGRAM)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   	'd' -- disk emulation (FILESYS)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   	'f' -- file system (FILESYS)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   	'a' -- address spaces (USER_PROGRAM)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   	'n' -- network emulation (NETWORK)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef UTILITY_H<FONT COLOR="#000000">
+<A NAME="UTILITY_H"></A><FONT COLOR="#007700">#define UTILITY_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+
+<FONT COLOR="#990000">// Miscellaneous useful routines<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include &lt;bool.h&gt;<FONT COLOR="#000000">
+					 	<FONT COLOR="#990000">// Boolean values.  <FONT COLOR="#000000">
+						<FONT COLOR="#990000">// This is the same definition <FONT COLOR="#000000">
+						<FONT COLOR="#990000">// as in the g++ library.<FONT COLOR="#000000">
+
+<A NAME="min"></A><FONT COLOR="#007700">#define min(a,b)  (((a) &lt; (b)) ? (a) : (b))<FONT COLOR="#000000">
+<A NAME="max"></A><FONT COLOR="#007700">#define max(a,b)  (((a) &gt; (b)) ? (a) : (b))<FONT COLOR="#000000">
+
+<A NAME="divRoundDown"></A><FONT COLOR="#990000">// Divide and either round up or down <FONT COLOR="#000000">
+<FONT COLOR="#007700">#define divRoundDown(n,s)  ((n) / (s))<FONT COLOR="#000000">
+<A NAME="divRoundUp"></A><FONT COLOR="#007700">#define divRoundUp(n,s)    (((n) / (s)) + ((((n) % (s)) &gt; 0) ? 1 : 0))<FONT COLOR="#000000">
+
+<A NAME="VoidFunctionPtr"></A><FONT COLOR="#990000">// This declares the type "VoidFunctionPtr" to be a "pointer to a<FONT COLOR="#000000">
+<FONT COLOR="#990000">// function taking an integer argument and returning nothing".  With<FONT COLOR="#000000">
+<FONT COLOR="#990000">// such a function pointer (say it is "func"), we can call it like this:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	(*func) (17);<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// This is used by Thread::Fork and for interrupt handlers, as well<FONT COLOR="#000000">
+<FONT COLOR="#990000">// as a couple of other places.<FONT COLOR="#000000">
+
+typedef void (*VoidFunctionPtr)(int arg); 
+<A NAME="VoidNoArgFunctionPtr"></A>typedef void (*VoidNoArgFunctionPtr)(); 
+
+
+<FONT COLOR="#990000">// Include interface that isolates us from the host machine system library.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Requires definition of bool, and VoidFunctionPtr<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="sysdep_h.html">sysdep.h</A>"				<FONT COLOR="#000000">
+
+<FONT COLOR="#990000">// Interface to debugging routines.<FONT COLOR="#000000">
+
+extern void <A HREF="utility_cc.html#DebugInit">DebugInit</A>(char* flags);	<FONT COLOR="#990000">// enable printing debug messages<FONT COLOR="#000000">
+
+extern bool <A HREF="utility_cc.html#DebugIsEnabled">DebugIsEnabled</A>(char flag); 	<FONT COLOR="#990000">// Is this debug flag enabled?<FONT COLOR="#000000">
+
+extern void <A HREF="utility_cc.html#DEBUG">DEBUG</A> (char flag, char* format, ...);  	<FONT COLOR="#990000">// Print debug message <FONT COLOR="#000000">
+							<FONT COLOR="#990000">// if flag is enabled<FONT COLOR="#000000">
+
+<A NAME="ASSERT"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// ASSERT<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      If condition is false,  print a message and dump core.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Useful for documenting assumptions in the code.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	NOTE: needs to be a &#35;define, to be able to print the location <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	where the error occurred.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#007700">#define ASSERT(condition)                                                     \<FONT COLOR="#000000">
+    if (!(condition)) {                                                       \
+        fprintf(stderr, "Assertion failed: line %d, file \"%s\"\n",           \
+                __LINE__, __FILE__);                                          \
+	fflush(stderr);							      \
+        <A HREF="sysdep_cc.html#Abort">Abort</A>();                                                              \
+    }
+
+
+<FONT COLOR="#007700">#endif UTILITY_H<FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

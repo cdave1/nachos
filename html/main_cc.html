@@ -1,0 +1,188 @@
+<HTML><TITLE>main.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>main.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<A NAME="MAIN"></A><FONT COLOR="#990000">// main.cc <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Bootstrap code to initialize the operating system kernel.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Allows direct calls into internal operating system functions,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	to simplify debugging and testing.  In practice, the<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	bootstrap code would just initialize data structures,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	and start a user program to print the login prompt.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Most of this file is not needed until later assignments.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Usage: nachos -d &lt;debugflags&gt; -rs &lt;random seed &#35;&gt;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		-s -x &lt;nachos file&gt; -c &lt;consoleIn&gt; &lt;consoleOut&gt;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		-f -cp &lt;unix file&gt; &lt;nachos file&gt;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		-p &lt;nachos file&gt; -r &lt;nachos file&gt; -l -D -t<FONT COLOR="#000000">
+<FONT COLOR="#990000">//              -n &lt;network reliability&gt; -m &lt;machine id&gt;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//              -o &lt;other machine id&gt;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//              -z<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -d causes certain debugging messages to be printed (cf. utility.h)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -rs causes Yield to occur at random (but repeatable) spots<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -z prints the copyright message<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  USER_PROGRAM<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -s causes user programs to be executed in single-step mode<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -x runs a user program<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -c tests the console<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  FILESYS<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -f causes the physical disk to be formatted<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -cp copies a file from UNIX to Nachos<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -p prints a Nachos file to stdout<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -r removes a Nachos file from the file system<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -l lists the contents of the Nachos directory<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -D prints the contents of the entire file system <FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -t tests the performance of the Nachos file system<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  NETWORK<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -n sets the network reliability<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -m sets this machine's host id (needed for the network)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    -o runs a simple test of the Nachos network software<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  NOTE -- flags are ignored until the relevant assignment.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  Some of the flags are interpreted here; some in system.cc.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#define MAIN<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#undef MAIN<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="utility_h.html">utility.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+
+
+<FONT COLOR="#990000">// External functions used by this file<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef CHANGED<FONT COLOR="#000000">
+extern void <A HREF="producerconsumer_cc.html#ProducerConsumer">ProducerConsumer</A>(void);
+extern void <A HREF="bridgetest_cc.html#BridgeTest">BridgeTest</A>(void);
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+extern void ThreadTest(void), Copy(char *unixFile, char *nachosFile);
+extern void Print(char *file), PerformanceTest(void);
+extern void StartProcess(char *file), ConsoleTest(char *in, char *out);
+extern void MailTest(int networkID);
+
+<A NAME="main"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// main<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Bootstrap the operating system kernel.  <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Check command line arguments<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Initialize data structures<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	(optionally) Call test procedure<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"argc" is the number of command line arguments (including the name<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		of the command) -- ex: "nachos -d +" -&gt; argc = 3 <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"argv" is an array of strings, one for each command line argument<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		ex: "nachos -d +" -&gt; argv = {"nachos", "-d", "+"}<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+int main(int argc, char **argv)
+{
+    int argCount;			<FONT COLOR="#990000">// the number of arguments <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// for a particular command<FONT COLOR="#000000">
+
+    <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Entering main");
+    (void) <A HREF="system_cc.html#Initialize">Initialize</A>(argc, argv);
+    
+<FONT COLOR="#007700">#ifdef THREADS<FONT COLOR="#000000">
+<FONT COLOR="#007700">    #ifdef CHANGED<FONT COLOR="#000000">
+    printf("\n*** COMP 305 Project ***\nEnter \"-pc\" for Producer Consumer or \"-bt\"");
+    printf(" for Bridge Test.\n\n");
+<FONT COLOR="#007700">    #endif<FONT COLOR="#000000">
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+    for (argc--, argv++; argc &gt; 0; argc -= argCount, argv += argCount) {
+	argCount = 1;
+
+<FONT COLOR="#007700">#ifdef CHANGED<FONT COLOR="#000000">
+	if (!strcmp(*argv, "-pc"))
+	  <A HREF="producerconsumer_cc.html#ProducerConsumer">ProducerConsumer</A>();
+	if (!strcmp(*argv, "-bt"))
+	  <A HREF="bridgetest_cc.html#BridgeTest">BridgeTest</A>();
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+        if (!strcmp(*argv, "-z"))               <FONT COLOR="#990000">// print copyright<FONT COLOR="#000000">
+            printf (<A HREF="copyright_h.html#copyright">copyright</A>);
+<FONT COLOR="#007700">#ifdef USER_PROGRAM<FONT COLOR="#000000">
+        if (!strcmp(*argv, "-x")) {        	<FONT COLOR="#990000">// run a user program<FONT COLOR="#000000">
+	    <A HREF="utility_h.html#ASSERT">ASSERT</A>(argc &gt; 1);
+            StartProcess(*(argv + 1));
+            argCount = 2;
+        } else if (!strcmp(*argv, "-c")) {      <FONT COLOR="#990000">// test the console<FONT COLOR="#000000">
+	    if (argc == 1)
+	        ConsoleTest(NULL, NULL);
+	    else {
+		<A HREF="utility_h.html#ASSERT">ASSERT</A>(argc &gt; 2);
+	        ConsoleTest(*(argv + 1), *(argv + 2));
+	        argCount = 3;
+	    }
+	    <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.Halt">Halt</A>();		<FONT COLOR="#990000">// once we start the console, then <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// Nachos will loop forever waiting <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// for console input<FONT COLOR="#000000">
+	}
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// USER_PROGRAM<FONT COLOR="#000000"><FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef FILESYS<FONT COLOR="#000000">
+	if (!strcmp(*argv, "-cp")) { 		<FONT COLOR="#990000">// copy from UNIX to Nachos<FONT COLOR="#000000">
+	    <A HREF="utility_h.html#ASSERT">ASSERT</A>(argc &gt; 2);
+	    Copy(*(argv + 1), *(argv + 2));
+	    argCount = 3;
+	} else if (!strcmp(*argv, "-p")) {	<FONT COLOR="#990000">// print a Nachos file<FONT COLOR="#000000">
+	    <A HREF="utility_h.html#ASSERT">ASSERT</A>(argc &gt; 1);
+	    Print(*(argv + 1));
+	    argCount = 2;
+	} else if (!strcmp(*argv, "-r")) {	<FONT COLOR="#990000">// remove Nachos file<FONT COLOR="#000000">
+	    <A HREF="utility_h.html#ASSERT">ASSERT</A>(argc &gt; 1);
+	    <A HREF="system_cc.html#fileSystem">fileSystem</A>-&gt;Remove(*(argv + 1));
+	    argCount = 2;
+	} else if (!strcmp(*argv, "-l")) {	<FONT COLOR="#990000">// list Nachos directory<FONT COLOR="#000000">
+            <A HREF="system_cc.html#fileSystem">fileSystem</A>-&gt;List();
+	} else if (!strcmp(*argv, "-D")) {	<FONT COLOR="#990000">// print entire filesystem<FONT COLOR="#000000">
+            <A HREF="system_cc.html#fileSystem">fileSystem</A>-&gt;Print();
+	} else if (!strcmp(*argv, "-t")) {	<FONT COLOR="#990000">// performance test<FONT COLOR="#000000">
+            PerformanceTest();
+	}
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// FILESYS<FONT COLOR="#000000"><FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef NETWORK<FONT COLOR="#000000">
+        if (!strcmp(*argv, "-o")) {
+	    <A HREF="utility_h.html#ASSERT">ASSERT</A>(argc &gt; 1);
+            <A HREF="sysdep_cc.html#Delay">Delay</A>(2); 				<FONT COLOR="#990000">// delay for 2 seconds<FONT COLOR="#000000">
+						<FONT COLOR="#990000">// to give the user time to <FONT COLOR="#000000">
+						<FONT COLOR="#990000">// start up another nachos<FONT COLOR="#000000">
+            MailTest(atoi(*(argv + 1)));
+            argCount = 2;
+        }
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// NETWORK<FONT COLOR="#000000"><FONT COLOR="#000000">
+    }
+
+    <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_cc.html#Thread.Finish">Finish</A>();	<FONT COLOR="#990000">// NOTE: if the procedure "main" <FONT COLOR="#000000">
+				<FONT COLOR="#990000">// returns, then the program "nachos"<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// will exit (as any other normal program<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// would).  But there may be other<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// threads on the ready list.  We switch<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// to those threads by saying that the<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// "main" thread is finished, preventing<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// it from returning.<FONT COLOR="#000000">
+    return(0);			<FONT COLOR="#990000">// Not reached...<FONT COLOR="#000000">
+}
+</PRE>
+</BODY></HTML>

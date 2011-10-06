@@ -1,0 +1,117 @@
+<HTML><TITLE>filesys.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>filesys.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 13:33:49 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// filesys.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Data structures to represent the Nachos file system.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	A file system is a set of files stored on disk, organized<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	into directories.  Operations on the file system have to<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	do with "naming" -- creating, opening, and deleting files,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	given a textual file name.  Operations on an individual<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"open" file (read, write, close) are to be found in the OpenFile<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	class (openfile.h).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	We define two separate implementations of the file system. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	The "STUB" version just re-defines the Nachos file system <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	operations as operations on the native UNIX file system on the machine<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	running the Nachos simulation.  This is provided in case the<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	multiprogramming and virtual memory assignments (which make use<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	of the file system) are done before the file system assignment.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	The other version is a "real" file system, built on top of <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	a disk simulator.  The disk is simulated using the native UNIX <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	file system (in a file named "DISK"). <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	In the "real" implementation, there are two key data structures used <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	in the file system.  There is a single "root" directory, listing<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	all of the files in the file system; unlike UNIX, the baseline<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	system does not provide a hierarchical directory structure.  <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	In addition, there is a bitmap for allocating<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	disk sectors.  Both the root directory and the bitmap are themselves<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	stored as files in the Nachos file system -- this causes an interesting<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	bootstrap problem when the simulated disk is initialized. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef FS_H<FONT COLOR="#000000">
+<A NAME="FS_H"></A><FONT COLOR="#007700">#define FS_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="openfile_h.html">openfile.h</A>"<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef FILESYS_STUB 		<FONT COLOR="#990000">// Temporarily implement file system calls as <FONT COLOR="#000000"><FONT COLOR="#000000">
+				<FONT COLOR="#990000">// calls to UNIX, until the real file system<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// implementation is available<FONT COLOR="#000000">
+<A NAME="FileSystem"></A>class FileSystem {
+  public:
+    FileSystem(bool format) {}
+
+    bool <A NAME="FileSystem.Create">Create</A>(char *name, int initialSize) { 
+	int fileDescriptor = OpenForWrite(name);
+
+	if (fileDescriptor == -1) return FALSE;
+	Close(fileDescriptor); 
+	return TRUE; 
+	}
+
+    <A HREF="openfile_h.html#OpenFile">OpenFile</A>* <A NAME="FileSystem.Open">Open</A>(char *name) {
+	  int fileDescriptor = OpenForReadWrite(name, FALSE);
+
+	  if (fileDescriptor == -1) return NULL;
+	  return new OpenFile(fileDescriptor);
+      }
+
+    bool <A NAME="FileSystem.Remove">Remove</A>(char *name) { return <A HREF="sysdep.cc.html#Unlink">Unlink</A>(name) == 0; }
+
+};
+
+<FONT COLOR="#007700">#else <FONT COLOR="#990000">// FILESYS<FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="FileSystem"></A>class FileSystem {
+  public:
+    FileSystem(bool format);		<FONT COLOR="#990000">// Initialize the file system.<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// Must be called *after* "synchDisk" <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// has been initialized.<FONT COLOR="#000000">
+    					<FONT COLOR="#990000">// If "format", there is nothing on<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// the disk, so initialize the directory<FONT COLOR="#000000">
+    					<FONT COLOR="#990000">// and the bitmap of free blocks.<FONT COLOR="#000000">
+
+    bool <A HREF="filesys_h.html#FileSystem.Create">Create</A>(char *name, int initialSize);  	
+					<FONT COLOR="#990000">// Create a file (UNIX creat)<FONT COLOR="#000000">
+
+    <A HREF="openfile_h.html#OpenFile">OpenFile</A>* <A HREF="filesys_h.html#FileSystem.Open">Open</A>(char *name); 	<FONT COLOR="#990000">// Open a file (UNIX open)<FONT COLOR="#000000">
+
+    bool <A HREF="filesys_h.html#FileSystem.Remove">Remove</A>(char *name);  		<FONT COLOR="#990000">// Delete a file (UNIX unlink)<FONT COLOR="#000000">
+
+    void List();			<FONT COLOR="#990000">// List all the files in the file system<FONT COLOR="#000000">
+
+    void Print();			<FONT COLOR="#990000">// List all the files and their contents<FONT COLOR="#000000">
+
+  private:
+   <A HREF="openfile_h.html#OpenFile">OpenFile</A>* <A NAME="FileSystem.freeMapFile">freeMapFile</A>;		<FONT COLOR="#990000">// Bit map of free disk blocks,<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// represented as a file<FONT COLOR="#000000">
+   <A HREF="openfile_h.html#OpenFile">OpenFile</A>* <A NAME="FileSystem.directoryFile">directoryFile</A>;		<FONT COLOR="#990000">// "Root" directory -- list of <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// file names, represented as a file<FONT COLOR="#000000">
+};
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// FILESYS<FONT COLOR="#000000"><FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// FS_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

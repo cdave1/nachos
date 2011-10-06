@@ -1,0 +1,163 @@
+<HTML><TITLE>scheduler.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>scheduler.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// scheduler.cc <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Routines to choose the next thread to run, and to dispatch to<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	that thread.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	These routines assume that interrupts are already disabled.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	If interrupts are disabled, we can assume mutual exclusion<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	(since we are on a uniprocessor).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	NOTE: We can't use Locks to provide mutual exclusion here, since<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	if we needed to wait for a lock, and the lock was busy, we would <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	end up calling FindNextToRun(), and that would put us in an <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	infinite loop.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Very simple implementation -- no priorities, straight FIFO.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Might need to be improved in later assignments.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="scheduler_h.html">scheduler.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+
+<A NAME="Scheduler.Scheduler"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Scheduler::Scheduler<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Initialize the list of ready but not running threads to empty.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="scheduler_h.html#Scheduler">Scheduler</A>::Scheduler()
+{ 
+    <A HREF="scheduler_h.html#Scheduler.readyList">readyList</A> = new <A HREF="list_h.html#List">List</A>; 
+} 
+
+<A NAME="Scheduler.~Scheduler"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Scheduler::~Scheduler<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	De-allocate the list of ready threads.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="scheduler_h.html#Scheduler">Scheduler</A>::~Scheduler()
+{ 
+    delete <A HREF="scheduler_h.html#Scheduler.readyList">readyList</A>; 
+} 
+
+<A NAME="Scheduler.ReadyToRun"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Scheduler::ReadyToRun<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Mark a thread as ready, but not running.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Put it on the ready list, for later scheduling onto the CPU.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"thread" is the thread to be put on the ready list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="scheduler_h.html#Scheduler">Scheduler</A>::ReadyToRun (<A HREF="thread_h.html#Thread">Thread</A> *thread)
+{
+    <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Putting thread %s on ready list.\n", thread-&gt;getName());
+
+    thread-&gt;setStatus(<A HREF="thread_h.html#READY">READY</A>);
+    <A HREF="scheduler_h.html#Scheduler.readyList">readyList</A>-&gt;<A HREF="list_cc.html#List.Append">Append</A>((void *)thread);
+}
+
+<A NAME="Scheduler.FindNextToRun"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Scheduler::FindNextToRun<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Return the next thread to be scheduled onto the CPU.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	If there are no ready threads, return NULL.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Side effect:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Thread is removed from the ready list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="thread_h.html#Thread">Thread</A> * <A HREF="scheduler_h.html#Scheduler">Scheduler</A>::FindNextToRun ()
+{
+    return (<A HREF="thread_h.html#Thread">Thread</A> *)<A HREF="scheduler_h.html#Scheduler.readyList">readyList</A>-&gt;<A HREF="list_cc.html#List.Remove">Remove</A>();
+}
+
+<A NAME="Scheduler.Run"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Scheduler::Run<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Dispatch the CPU to nextThread.  Save the state of the old thread,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	and load the state of the new thread, by calling the machine<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	dependent context switch routine, SWITCH.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Note: we assume the state of the previously running thread has<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	already been changed from running to blocked or ready (depending).<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Side effect:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	The global variable currentThread becomes nextThread.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"nextThread" is the thread to be put into the CPU.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="scheduler_h.html#Scheduler">Scheduler</A>::Run (<A HREF="thread_h.html#Thread">Thread</A> *nextThread)
+{
+    <A HREF="thread_h.html#Thread">Thread</A> *oldThread = <A HREF="system_cc.html#currentThread">currentThread</A>;
+    
+<FONT COLOR="#007700">#ifdef USER_PROGRAM			<FONT COLOR="#990000">// ignore until running user programs <FONT COLOR="#000000"><FONT COLOR="#000000">
+    if (<A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.space">space</A> != NULL) {	<FONT COLOR="#990000">// if this thread is a user program,<FONT COLOR="#000000">
+        <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_cc.html#Thread.SaveUserState">SaveUserState</A>(); <FONT COLOR="#990000">// save the user's CPU registers<FONT COLOR="#000000">
+	<A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.space">space</A>-&gt;SaveState();
+    }
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+    
+    oldThread-&gt;CheckOverflow();		    <FONT COLOR="#990000">// check if the old thread<FONT COLOR="#000000">
+					    <FONT COLOR="#990000">// had an undetected stack overflow<FONT COLOR="#000000">
+
+    <A HREF="system_cc.html#currentThread">currentThread</A> = nextThread;		    <FONT COLOR="#990000">// switch to the next thread<FONT COLOR="#000000">
+    <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.setStatus">setStatus</A>(<A HREF="thread_h.html#RUNNING">RUNNING</A>);      <FONT COLOR="#990000">// nextThread is now running<FONT COLOR="#000000">
+    
+    <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Switching from thread \"%s\" to thread \"%s\"\n",
+	  oldThread-&gt;getName(), nextThread-&gt;getName());
+    
+    <FONT COLOR="#990000">// This is a machine-dependent assembly language routine defined <FONT COLOR="#000000">
+    <FONT COLOR="#990000">// in switch.s.  You may have to think<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// a bit to figure out what happens after this, both from the point<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// of view of the thread and from the perspective of the "outside world".<FONT COLOR="#000000">
+
+    SWITCH(oldThread, nextThread);
+    
+    <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Now in thread \"%s\"\n", <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>());
+
+    <FONT COLOR="#990000">// If the old thread gave up the processor because it was finishing,<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// we need to delete its carcass.  Note we cannot delete the thread<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// before now (for example, in Thread::Finish()), because up to this<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// point, we were still running on the old thread's stack&#33;<FONT COLOR="#000000">
+    if (<A HREF="system_cc.html#threadToBeDestroyed">threadToBeDestroyed</A> != NULL) {
+        delete <A HREF="system_cc.html#threadToBeDestroyed">threadToBeDestroyed</A>;
+	<A HREF="system_cc.html#threadToBeDestroyed">threadToBeDestroyed</A> = NULL;
+    }
+    
+<FONT COLOR="#007700">#ifdef USER_PROGRAM<FONT COLOR="#000000">
+    if (<A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.space">space</A> != NULL) {		<FONT COLOR="#990000">// if there is an address space<FONT COLOR="#000000">
+        <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_cc.html#Thread.RestoreUserState">RestoreUserState</A>();     <FONT COLOR="#990000">// to restore, do it.<FONT COLOR="#000000">
+	<A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.space">space</A>-&gt;RestoreState();
+    }
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+}
+
+<A NAME="Scheduler.Print"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Scheduler::Print<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Print the scheduler state -- in other words, the contents of<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	the ready list.  For debugging.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+void <A HREF="scheduler_h.html#Scheduler">Scheduler</A>::Print()
+{
+    printf("Ready list contents:\n");
+    <A HREF="scheduler_h.html#Scheduler.readyList">readyList</A>-&gt;<A HREF="list_cc.html#List.Mapcar">Mapcar</A>((<A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A>) <A HREF="thread_cc.html#ThreadPrint">ThreadPrint</A>);
+}
+</PRE>
+</BODY></HTML>

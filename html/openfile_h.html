@@ -1,0 +1,116 @@
+<HTML><TITLE>openfile.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>openfile.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 13:33:49 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// openfile.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Data structures for opening, closing, reading and writing to <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	individual files.  The operations supported are similar to<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	the UNIX ones -- type 'man open' to the UNIX prompt.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	There are two implementations.  One is a "STUB" that directly<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	turns the file operations into the underlying UNIX operations.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	(cf. comment in filesys.h).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	The other is the "real" implementation, that turns these<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	operations into read and write disk sector requests. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	In this baseline implementation of the file system, we don't <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	worry about concurrent accesses to the file system<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	by different threads -- this is part of the assignment.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef OPENFILE_H<FONT COLOR="#000000">
+<A NAME="OPENFILE_H"></A><FONT COLOR="#007700">#define OPENFILE_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="utility_h.html">utility.h</A>"<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef FILESYS_STUB			<FONT COLOR="#990000">// Temporarily implement calls to <FONT COLOR="#000000"><FONT COLOR="#000000">
+					<FONT COLOR="#990000">// Nachos file system as calls to UNIX&#33;<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// See definitions listed under &#35;else<FONT COLOR="#000000">
+<A NAME="OpenFile"></A>class OpenFile {
+  public:
+    OpenFile(int f) { file = f; currentOffset = 0; }	<FONT COLOR="#990000">// open the file<FONT COLOR="#000000">
+    ~OpenFile() { <A HREF="sysdep.cc.html#Close">Close</A>(file); }			<FONT COLOR="#990000">// close the file<FONT COLOR="#000000">
+
+    int <A NAME="OpenFile.ReadAt">ReadAt</A>(char *into, int numBytes, int position) { 
+    		Lseek(file, position, 0); 
+		return ReadPartial(file, into, numBytes); 
+		}	
+    int <A NAME="OpenFile.WriteAt">WriteAt</A>(char *from, int numBytes, int position) { 
+    		Lseek(file, position, 0); 
+		WriteFile(file, from, numBytes); 
+		return numBytes;
+		}	
+    int <A NAME="OpenFile.Read">Read</A>(char *into, int numBytes) {
+		int numRead = <A HREF="openfile_h.html#OpenFile.ReadAt">ReadAt</A>(into, numBytes, currentOffset); 
+		currentOffset += numRead;
+		return numRead;
+    		}
+    int <A NAME="OpenFile.Write">Write</A>(char *from, int numBytes) {
+		int numWritten = <A HREF="openfile_h.html#OpenFile.WriteAt">WriteAt</A>(from, numBytes, currentOffset); 
+		currentOffset += numWritten;
+		return numWritten;
+		}
+
+    int <A NAME="OpenFile.Length">Length</A>() { <A HREF="sysdep.cc.html#Lseek">Lseek</A>(file, 0, 2); return <A HREF="sysdep.cc.html#Tell">Tell</A>(file); }
+    
+  private:
+    int <A NAME="OpenFile.file">file</A>;
+    int <A NAME="OpenFile.currentOffset">currentOffset</A>;
+};
+
+<FONT COLOR="#007700">#else <FONT COLOR="#990000">// FILESYS<FONT COLOR="#000000"><FONT COLOR="#000000">
+class FileHeader;
+
+<A NAME="OpenFile"></A>class OpenFile {
+  public:
+    OpenFile(int sector);		<FONT COLOR="#990000">// Open a file whose header is located<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// at "sector" on the disk<FONT COLOR="#000000">
+    ~OpenFile();			<FONT COLOR="#990000">// Close the file<FONT COLOR="#000000">
+
+    void Seek(int position); 		<FONT COLOR="#990000">// Set the position from which to <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// start reading/writing -- UNIX lseek<FONT COLOR="#000000">
+
+    int <A HREF="openfile_h.html#OpenFile.Read">Read</A>(char *into, int numBytes); <FONT COLOR="#990000">// Read/write bytes from the file,<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// starting at the implicit position.<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// Return the &#35; actually read/written,<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// and increment position in file.<FONT COLOR="#000000">
+    int <A HREF="openfile_h.html#OpenFile.Write">Write</A>(char *from, int numBytes);
+
+    int <A HREF="openfile_h.html#OpenFile.ReadAt">ReadAt</A>(char *into, int numBytes, int position);
+    					<FONT COLOR="#990000">// Read/write bytes from the file,<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// bypassing the implicit position.<FONT COLOR="#000000">
+    int <A HREF="openfile_h.html#OpenFile.WriteAt">WriteAt</A>(char *from, int numBytes, int position);
+
+    int <A HREF="openfile_h.html#OpenFile.Length">Length</A>(); 			<FONT COLOR="#990000">// Return the number of bytes in the<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// file (this interface is simpler <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// than the UNIX idiom -- lseek to <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// end of file, tell, lseek back <FONT COLOR="#000000">
+    
+  private:
+    FileHeader *<A NAME="OpenFile.hdr">hdr</A>;			<FONT COLOR="#990000">// Header for this file <FONT COLOR="#000000">
+    int <A NAME="OpenFile.seekPosition">seekPosition</A>;			<FONT COLOR="#990000">// Current position within the file<FONT COLOR="#000000">
+};
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// FILESYS<FONT COLOR="#000000"><FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// OPENFILE_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

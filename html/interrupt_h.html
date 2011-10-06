@@ -1,0 +1,153 @@
+<HTML><TITLE>interrupt.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>interrupt.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// interrupt.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Data structures to emulate low-level interrupt hardware.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	The hardware provides a routine (SetLevel) to enable or disable<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	interrupts.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	In order to emulate the hardware, we need to keep track of all<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	interrupts the hardware devices would cause, and when they<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	are supposed to occur.  <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	This module also keeps track of simulated time.  Time advances<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	only when the following occur: <FONT COLOR="#000000">
+<FONT COLOR="#990000">//		interrupts are re-enabled<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		a user instruction is executed<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		there is nothing in the ready queue<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	As a result, unlike real hardware, interrupts (and thus time-slice <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	context switches) cannot occur anywhere in the code where interrupts<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	are enabled, but rather only at those places in the code where <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	simulated time advances (so that it becomes time to invoke an<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	interrupt in the hardware simulation).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	NOTE: this means that incorrectly synchronized code may work<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	fine on this hardware simulation (even with randomized time slices),<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	but it wouldn't work on real hardware.  (Just because we can't<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	always detect when your program would fail in real life, does not <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	mean it's ok to write incorrectly synchronized code&#33;)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  DO NOT CHANGE -- part of the machine emulation<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef INTERRUPT_H<FONT COLOR="#000000">
+<A NAME="INTERRUPT_H"></A><FONT COLOR="#007700">#define INTERRUPT_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="list_h.html">list.h</A>"<FONT COLOR="#000000">
+
+<A NAME="IntStatus"></A><FONT COLOR="#990000">// Interrupts can be disabled (IntOff) or enabled (IntOn)<FONT COLOR="#000000">
+enum IntStatus { <A NAME="IntOff">IntOff</A>, <A NAME="IntOn">IntOn</A> };
+
+<A NAME="MachineStatus"></A><FONT COLOR="#990000">// Nachos can be running kernel code (SystemMode), user code (UserMode),<FONT COLOR="#000000">
+<FONT COLOR="#990000">// or there can be no runnable thread, because the ready list <FONT COLOR="#000000">
+<FONT COLOR="#990000">// is empty (IdleMode).<FONT COLOR="#000000">
+enum MachineStatus {<A NAME="IdleMode">IdleMode</A>, <A NAME="SystemMode">SystemMode</A>, <A NAME="UserMode">UserMode</A>};
+
+<A NAME="IntType"></A><FONT COLOR="#990000">// IntType records which hardware device generated an interrupt.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// In Nachos, we support a hardware timer device, a disk, a console<FONT COLOR="#000000">
+<FONT COLOR="#990000">// display and keyboard, and a network.<FONT COLOR="#000000">
+enum IntType { <A NAME="TimerInt">TimerInt</A>, <A NAME="DiskInt">DiskInt</A>, <A NAME="ConsoleWriteInt">ConsoleWriteInt</A>, <A NAME="ConsoleReadInt">ConsoleReadInt</A>, 
+				NetworkSendInt, NetworkRecvInt};
+
+<A NAME="PendingInterrupt"></A><FONT COLOR="#990000">// The following class defines an interrupt that is scheduled<FONT COLOR="#000000">
+<FONT COLOR="#990000">// to occur in the future.  The internal data structures are<FONT COLOR="#000000">
+<FONT COLOR="#990000">// left public to make it simpler to manipulate.<FONT COLOR="#000000">
+
+class PendingInterrupt {
+  public:
+    <A HREF="interrupt_cc.html#PendingInterrupt.PendingInterrupt">PendingInterrupt</A>(<A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A> func, int param, int time, <A HREF="interrupt_h.html#IntType">IntType</A> <A HREF="interrupt_cc.html#kind">kind</A>);
+				<FONT COLOR="#990000">// initialize an interrupt that will<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// occur in the future<FONT COLOR="#000000">
+
+    <A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A> <A NAME="PendingInterrupt.handler">handler</A>;    <FONT COLOR="#990000">// The function (in the hardware device<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// emulator) to call when the interrupt occurs<FONT COLOR="#000000">
+    int <A NAME="PendingInterrupt.arg">arg</A>;                    <FONT COLOR="#990000">// The argument to the function.<FONT COLOR="#000000">
+    int <A NAME="PendingInterrupt.when">when</A>;			<FONT COLOR="#990000">// When the interrupt is supposed to fire<FONT COLOR="#000000">
+    <A HREF="interrupt_h.html#IntType">IntType</A> <A NAME="PendingInterrupt.type">type</A>;		<FONT COLOR="#990000">// for debugging<FONT COLOR="#000000">
+};
+
+<A NAME="Interrupt"></A><FONT COLOR="#990000">// The following class defines the data structures for the simulation<FONT COLOR="#000000">
+<FONT COLOR="#990000">// of hardware interrupts.  We record whether interrupts are enabled<FONT COLOR="#000000">
+<FONT COLOR="#990000">// or disabled, and any hardware interrupts that are scheduled to occur<FONT COLOR="#000000">
+<FONT COLOR="#990000">// in the future.<FONT COLOR="#000000">
+
+<TABLE><TR><TD WIDTH="10%"><A HREF="http://www.mcs.vuw.ac.nz/cgi-bin/comp305/Interrupts.cgi?home=file:/home/lido1/petriedavi/305Comp/project2/nachos/html/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A><TD VALIGN=TOP>How Nachos Simulates Interrupts</TR></TABLE>class Interrupt {
+  public:
+    <A HREF="interrupt_cc.html#Interrupt.Interrupt">Interrupt</A>();			<FONT COLOR="#990000">// initialize the interrupt simulation<FONT COLOR="#000000">
+    ~<A HREF="interrupt_cc.html#Interrupt.~Interrupt">Interrupt</A>();			<FONT COLOR="#990000">// de-allocate data structures<FONT COLOR="#000000">
+    
+    <A HREF="interrupt_h.html#IntStatus">IntStatus</A> <A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(<A HREF="interrupt_h.html#IntStatus">IntStatus</A> level);<FONT COLOR="#990000">// Disable or enable interrupts <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// and return previous setting.<FONT COLOR="#000000">
+
+    void <A HREF="interrupt_cc.html#Interrupt.Enable">Enable</A>();			<FONT COLOR="#990000">// Enable interrupts.<FONT COLOR="#000000">
+    <A HREF="interrupt_h.html#IntStatus">IntStatus</A> <A NAME="Interrupt.getLevel">getLevel</A>() {return level;}<FONT COLOR="#990000">// Return whether interrupts<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// are enabled or disabled<FONT COLOR="#000000">
+    
+    void <A HREF="interrupt_cc.html#Interrupt.Idle">Idle</A>(); 			<FONT COLOR="#990000">// The ready queue is empty, roll <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// simulated time forward until the <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// next interrupt<FONT COLOR="#000000">
+
+    void <A HREF="interrupt_cc.html#Interrupt.Halt">Halt</A>(); 			<FONT COLOR="#990000">// quit and print out stats<FONT COLOR="#000000">
+    
+    void <A HREF="interrupt_cc.html#Interrupt.YieldOnReturn">YieldOnReturn</A>();		<FONT COLOR="#990000">// cause a context switch on return <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// from an interrupt handler<FONT COLOR="#000000">
+
+    <A HREF="interrupt_h.html#MachineStatus">MachineStatus</A> <A NAME="Interrupt.getStatus">getStatus</A>() { return status; } <FONT COLOR="#990000">// idle, kernel, user<FONT COLOR="#000000">
+    void <A NAME="Interrupt.setStatus">setStatus</A>(<A HREF="interrupt_h.html#MachineStatus">MachineStatus</A> st) { status = st; }
+
+    void <A HREF="interrupt_cc.html#Interrupt.DumpState">DumpState</A>();			<FONT COLOR="#990000">// Print interrupt state<FONT COLOR="#000000">
+    
+
+    <FONT COLOR="#990000">// NOTE: the following are internal to the hardware simulation code.<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// DO NOT call these directly.  I should make them "private",<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// but they need to be public since they are called by the<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// hardware device simulators.<FONT COLOR="#000000">
+
+    void <A HREF="interrupt_cc.html#Interrupt.Schedule">Schedule</A>(<A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A> handler,<FONT COLOR="#990000">// Schedule an interrupt to occur<FONT COLOR="#000000">
+	int <A NAME="Interrupt.arg">arg</A>, int <A NAME="Interrupt.when">when</A>, <A NAME="Interrupt.IntType">IntType</A> type);<FONT COLOR="#990000">// at time ``when''.  This is called<FONT COLOR="#000000">
+    					<FONT COLOR="#990000">// by the hardware device simulators.<FONT COLOR="#000000">
+    
+    void <A HREF="interrupt_cc.html#Interrupt.OneTick">OneTick</A>();       		<FONT COLOR="#990000">// Advance simulated time<FONT COLOR="#000000">
+
+  private:
+    <A HREF="interrupt_h.html#IntStatus">IntStatus</A> <A NAME="Interrupt.level">level</A>;		<FONT COLOR="#990000">// are interrupts enabled or disabled?<FONT COLOR="#000000">
+    <A HREF="list_h.html#List">List</A> *<A NAME="Interrupt.pending">pending</A>;		<FONT COLOR="#990000">// the list of interrupts scheduled<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// to occur in the future<FONT COLOR="#000000">
+    bool <A NAME="Interrupt.inHandler">inHandler</A>;		<FONT COLOR="#990000">// TRUE if we are running an interrupt handler<FONT COLOR="#000000">
+    bool <A NAME="Interrupt.yieldOnReturn">yieldOnReturn</A>; 	<FONT COLOR="#990000">// TRUE if we are to context switch<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// on return from the interrupt handler<FONT COLOR="#000000">
+    <A HREF="interrupt_h.html#MachineStatus">MachineStatus</A> <A NAME="Interrupt.status">status</A>;	<FONT COLOR="#990000">// idle, kernel mode, user mode<FONT COLOR="#000000">
+
+    <FONT COLOR="#990000">// these functions are internal to the interrupt simulation code<FONT COLOR="#000000">
+
+    bool <A HREF="interrupt_cc.html#Interrupt.CheckIfDue">CheckIfDue</A>(bool advanceClock); <FONT COLOR="#990000">// Check if an interrupt is supposed<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// to occur now<FONT COLOR="#000000">
+
+    void <A HREF="interrupt_cc.html#Interrupt.ChangeLevel">ChangeLevel</A>(<A HREF="interrupt_h.html#IntStatus">IntStatus</A> old, 	<FONT COLOR="#990000">// SetLevel, without advancing the<FONT COLOR="#000000">
+	<A HREF="interrupt_h.html#IntStatus">IntStatus</A> <A NAME="Interrupt.now">now</A>);  		<FONT COLOR="#990000">// simulated time<FONT COLOR="#000000">
+};
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// INTERRRUPT_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

@@ -1,0 +1,86 @@
+<HTML><TITLE>list.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>list.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// list.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Data structures to manage LISP-like lists.  <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      As in LISP, a list can contain any type of data structure<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	as an item on the list: thread control blocks, <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	pending interrupts, etc.  That is why each item is a "void *",<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	or in other words, a "pointers to anything".<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef LIST_H<FONT COLOR="#000000">
+<A NAME="LIST_H"></A><FONT COLOR="#007700">#define LIST_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="utility_h.html">utility.h</A>"<FONT COLOR="#000000">
+
+<A NAME="ListElement"></A><FONT COLOR="#990000">// The following class defines a "list element" -- which is<FONT COLOR="#000000">
+<FONT COLOR="#990000">// used to keep track of one item on a list.  It is equivalent to a<FONT COLOR="#000000">
+<FONT COLOR="#990000">// LISP cell, with a "car" ("next") pointing to the next element on the list,<FONT COLOR="#000000">
+<FONT COLOR="#990000">// and a "cdr" ("item") pointing to the item on the list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Internal data structures kept public so that List operations can<FONT COLOR="#000000">
+<FONT COLOR="#990000">// access them directly.<FONT COLOR="#000000">
+
+class ListElement {
+   public:
+     <A HREF="list_cc.html#ListElement.ListElement">ListElement</A>(void *itemPtr, int sortKey);	<FONT COLOR="#990000">// initialize a list element<FONT COLOR="#000000">
+
+     <A HREF="list_h.html#ListElement">ListElement</A> *<A NAME="ListElement.next">next</A>;		<FONT COLOR="#990000">// next element on list, <FONT COLOR="#000000">
+				<FONT COLOR="#990000">// NULL if this is the last<FONT COLOR="#000000">
+     int <A NAME="ListElement.key">key</A>;		    	<FONT COLOR="#990000">// priority, for a sorted list<FONT COLOR="#000000">
+     void *<A NAME="ListElement.item">item</A>; 	    	<FONT COLOR="#990000">// pointer to item on the list<FONT COLOR="#000000">
+};
+
+<A NAME="List"></A><FONT COLOR="#990000">// The following class defines a "list" -- a singly linked list of<FONT COLOR="#000000">
+<FONT COLOR="#990000">// list elements, each of which points to a single item on the list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// By using the "Sorted" functions, the list can be kept in sorted<FONT COLOR="#000000">
+<FONT COLOR="#990000">// in increasing order by "key" in ListElement.<FONT COLOR="#000000">
+
+class List {
+  public:
+    <A HREF="list_cc.html#List.List">List</A>();			<FONT COLOR="#990000">// initialize the list<FONT COLOR="#000000">
+    ~<A HREF="list_cc.html#List.~List">List</A>();			<FONT COLOR="#990000">// de-allocate the list<FONT COLOR="#000000">
+
+    void <A HREF="list_cc.html#List.Prepend">Prepend</A>(void *item); 	<FONT COLOR="#990000">// Put item at the beginning of the list<FONT COLOR="#000000">
+    void <A HREF="list_cc.html#List.Append">Append</A>(void *item); 	<FONT COLOR="#990000">// Put item at the end of the list<FONT COLOR="#000000">
+    void *<A HREF="list_cc.html#List.Remove">Remove</A>(); 	 	<FONT COLOR="#990000">// Take item off the front of the list<FONT COLOR="#000000">
+
+    void <A HREF="list_cc.html#List.Mapcar">Mapcar</A>(<A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A> func);	<FONT COLOR="#990000">// Apply "func" to every element <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// on the list<FONT COLOR="#000000">
+    bool <A HREF="list_cc.html#List.IsEmpty">IsEmpty</A>();		<FONT COLOR="#990000">// is the list empty? <FONT COLOR="#000000">
+    
+
+    <FONT COLOR="#990000">// Routines to put/get items on/off list in order (sorted by key)<FONT COLOR="#000000">
+    void <A HREF="list_cc.html#List.SortedInsert">SortedInsert</A>(void *item, int sortKey);	<FONT COLOR="#990000">// Put item into list<FONT COLOR="#000000">
+    void *<A HREF="list_cc.html#List.SortedRemove">SortedRemove</A>(int *keyPtr); 	  	<FONT COLOR="#990000">// Remove first item from list<FONT COLOR="#000000">
+
+  private:
+    <A HREF="list_h.html#ListElement">ListElement</A> *<A NAME="List.first">first</A>;  	<FONT COLOR="#990000">// Head of the list, NULL if list is empty<FONT COLOR="#000000">
+    <A HREF="list_h.html#ListElement">ListElement</A> *<A NAME="List.last">last</A>;		<FONT COLOR="#990000">// Last element of list<FONT COLOR="#000000">
+};
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// LIST_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

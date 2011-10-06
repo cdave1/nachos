@@ -1,0 +1,142 @@
+<HTML><TITLE>boundedbuffer.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>boundedbuffer.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// David Petrie<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 300148086<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// BoundedBuffer<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Wraps an array around a lock and a condition variable so<FONT COLOR="#000000">
+<FONT COLOR="#990000">// that many threads can concurrently modify the contents of an<FONT COLOR="#000000">
+<FONT COLOR="#990000">// array of char.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// The array itself is bounded, in that it has a fixed capacity,<FONT COLOR="#000000">
+<FONT COLOR="#990000">// and the insertion point wraps around to the start of the <FONT COLOR="#000000">
+<FONT COLOR="#990000">// buffer when it gets to the end.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef CHANGED<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="boundedbuffer_h.html">boundedbuffer.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="synch_h.html">synch.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+
+
+<A NAME="BoundedBuffer.BoundedBuffer"></A><A HREF="boundedbuffer_h.html#BoundedBuffer">BoundedBuffer</A>::BoundedBuffer(int c)
+{
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.mutex">mutex</A> = new <A HREF="synch_h.html#Lock">Lock</A>("bounded buffer mutex lock");
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.itemCount">itemCount</A> = 0;
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.capacity">capacity</A> = c;
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.in">in</A> = 0;
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.out">out</A> = 0;
+
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.buffer">buffer</A> = new char[<A HREF="boundedbuffer_h.html#BoundedBuffer.capacity">capacity</A>];
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.inCS">inCS</A> = 0;
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.empty">empty</A> = new <A HREF="synch_h.html#Condition">Condition</A>("EMPTY");
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.full">full</A> = new <A HREF="synch_h.html#Condition">Condition</A>("FULL");
+}
+
+
+<A NAME="BoundedBuffer.~BoundedBuffer"></A><A HREF="boundedbuffer_h.html#BoundedBuffer">BoundedBuffer</A>::~BoundedBuffer()
+{ 
+  delete <A HREF="boundedbuffer_h.html#BoundedBuffer.buffer">buffer</A>;
+  delete <A HREF="boundedbuffer_h.html#BoundedBuffer.mutex">mutex</A>;
+  delete <A HREF="boundedbuffer_h.html#BoundedBuffer.empty">empty</A>;
+  delete <A HREF="boundedbuffer_h.html#BoundedBuffer.full">full</A>;
+}
+
+
+<A NAME="BoundedBuffer.Append"></A><FONT COLOR="#990000">// Acquire the lock and then block on condition "full" if there is no<FONT COLOR="#000000">
+<FONT COLOR="#990000">// spare room in the buffer.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// After the critical section, signal any threads waiting for something<FONT COLOR="#000000">
+<FONT COLOR="#990000">// to appear in the buffer, and release the lock.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Invariants to enter critical section:<FONT COLOR="#000000">
+<FONT COLOR="#990000">// - buffer must have empty slots.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// - inCS must be 0 before adding an item to the buffer.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// - inCS must also be 0 immediately before the lock is released.<FONT COLOR="#000000">
+void <A HREF="boundedbuffer_h.html#BoundedBuffer">BoundedBuffer</A>::Append(char *item)
+{
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.mutex">mutex</A>-&gt;<A HREF="synch_cc.html#Lock.Acquire">Acquire</A>();
+  while (<A HREF="boundedbuffer_h.html#BoundedBuffer.itemCount">itemCount</A> == <A HREF="boundedbuffer_h.html#BoundedBuffer.capacity">capacity</A>)
+    <A HREF="boundedbuffer_h.html#BoundedBuffer.full">full</A>-&gt;<A HREF="synch_cc.html#Condition.Wait">Wait</A>(<A HREF="boundedbuffer_h.html#BoundedBuffer.mutex">mutex</A>);
+
+  <FONT COLOR="#990000">// *** Critical section<FONT COLOR="#000000">
+  <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Thread \"%s\" is ENTERING critical section.\n",  <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>());
+  <A HREF="utility_h.html#ASSERT">ASSERT</A>(<A HREF="boundedbuffer_h.html#BoundedBuffer.inCS">inCS</A> == 0);
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.inCS">inCS</A>++;
+ 
+  <FONT COLOR="#990000">// insert the item into the buffer<FONT COLOR="#000000">
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.buffer">buffer</A>[<A HREF="boundedbuffer_h.html#BoundedBuffer.in">in</A>] = *item;
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.in">in</A> = (<A HREF="boundedbuffer_h.html#BoundedBuffer.in">in</A> + 1) % <A HREF="boundedbuffer_h.html#BoundedBuffer.capacity">capacity</A>;
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.itemCount">itemCount</A>++;
+
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.inCS">inCS</A>--;
+  <A HREF="utility_h.html#ASSERT">ASSERT</A>(<A HREF="boundedbuffer_h.html#BoundedBuffer.inCS">inCS</A> == 0);
+  <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Thread \"%s\" is EXITING critical section.\n",  <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>());
+  <FONT COLOR="#990000">// *** End of critical section<FONT COLOR="#000000">
+
+  printf("*** %s added \"%c\" to buffer\n\n", <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>(), *item);
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.empty">empty</A>-&gt;<A HREF="synch_cc.html#Condition.Signal">Signal</A>(<A HREF="boundedbuffer_h.html#BoundedBuffer.mutex">mutex</A>);
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.mutex">mutex</A>-&gt;<A HREF="synch_cc.html#Lock.Release">Release</A>();
+}
+
+
+<A NAME="BoundedBuffer.Take"></A><FONT COLOR="#990000">// Acquire the lock then check if the buffer is empty. If the buffer <FONT COLOR="#000000">
+<FONT COLOR="#990000">// IS empty, then block the thread on the "empty" condition variable.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// When an item is removed, signal any threads blocked on the <FONT COLOR="#000000">
+<FONT COLOR="#990000">// "full" condition variable, and then release the lock.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Invariants to enter the critical section:<FONT COLOR="#000000">
+<FONT COLOR="#990000">// - buffer must have something in it.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// - inCS must be 0 before removing an item from the buffer.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// - inCS must also be 0 immediately before the lock is released.<FONT COLOR="#000000">
+char *<A HREF="boundedbuffer_h.html#BoundedBuffer">BoundedBuffer</A>::Take()
+{
+  char *item;
+
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.mutex">mutex</A>-&gt;<A HREF="synch_cc.html#Lock.Acquire">Acquire</A>();
+  while(<A HREF="boundedbuffer_h.html#BoundedBuffer.itemCount">itemCount</A> == 0)
+    <A HREF="boundedbuffer_h.html#BoundedBuffer.empty">empty</A>-&gt;<A HREF="synch_cc.html#Condition.Wait">Wait</A>(<A HREF="boundedbuffer_h.html#BoundedBuffer.mutex">mutex</A>);
+  
+  <FONT COLOR="#990000">// *** Critical section<FONT COLOR="#000000">
+  <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Thread \"%s\" is ENTERING critical section.\n",  <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>());
+  <A HREF="utility_h.html#ASSERT">ASSERT</A>(<A HREF="boundedbuffer_h.html#BoundedBuffer.inCS">inCS</A> == 0);
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.inCS">inCS</A>++;
+
+  <FONT COLOR="#990000">// Consume an item from the buffer<FONT COLOR="#000000">
+  item = &amp;<A HREF="boundedbuffer_h.html#BoundedBuffer.buffer">buffer</A>[<A HREF="boundedbuffer_h.html#BoundedBuffer.out">out</A>];
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.out">out</A> = (<A HREF="boundedbuffer_h.html#BoundedBuffer.out">out</A> + 1) % <A HREF="boundedbuffer_h.html#BoundedBuffer.capacity">capacity</A>;
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.itemCount">itemCount</A>--;
+
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.inCS">inCS</A>--;
+  <A HREF="utility_h.html#ASSERT">ASSERT</A>(<A HREF="boundedbuffer_h.html#BoundedBuffer.inCS">inCS</A> == 0);
+  <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Thread \"%s\" is EXITING critical section.\n",  <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>());
+  <FONT COLOR="#990000">// *** End of critical section<FONT COLOR="#000000">
+
+  printf("*** %s took \"%c\" from buffer\n\n", <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>(), *item);
+  <A HREF="utility_cc.html#DEBUG">DEBUG</A>('b', "Current buffer contents: %s\n", <A HREF="boundedbuffer_h.html#BoundedBuffer.buffer">buffer</A>);
+
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.full">full</A>-&gt;<A HREF="synch_cc.html#Condition.Signal">Signal</A>(<A HREF="boundedbuffer_h.html#BoundedBuffer.mutex">mutex</A>);
+  <A HREF="boundedbuffer_h.html#BoundedBuffer.mutex">mutex</A>-&gt;<A HREF="synch_cc.html#Lock.Release">Release</A>();
+  return item;
+}
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

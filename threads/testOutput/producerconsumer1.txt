@@ -1,0 +1,4332 @@
+
+*** COMP 305 Project ***
+Enter "-pc" for Producer Consumer or "-bt" for Bridge Test.
+
+Entering Producer/Consumer
+Forking thread "Producer 0" with func = 0x804d300, arg = 0
+Putting thread Producer 0 on ready list.
+Forking thread "Producer 1" with func = 0x804d300, arg = 1
+Putting thread Producer 1 on ready list.
+Forking thread "Producer 2" with func = 0x804d300, arg = 2
+Putting thread Producer 2 on ready list.
+Forking thread "Producer 3" with func = 0x804d300, arg = 3
+Putting thread Producer 3 on ready list.
+Forking thread "Producer 4" with func = 0x804d300, arg = 4
+Putting thread Producer 4 on ready list.
+Forking thread "Producer 5" with func = 0x804d300, arg = 5
+Putting thread Producer 5 on ready list.
+Forking thread "Producer 6" with func = 0x804d300, arg = 6
+Putting thread Producer 6 on ready list.
+Forking thread "Producer 7" with func = 0x804d300, arg = 7
+Putting thread Producer 7 on ready list.
+Forking thread "Producer 8" with func = 0x804d300, arg = 8
+Putting thread Producer 8 on ready list.
+Forking thread "Producer 9" with func = 0x804d300, arg = 9
+Putting thread Producer 9 on ready list.
+Forking thread "Consumer 0" with func = 0x804d2c0, arg = 0
+Putting thread Consumer 0 on ready list.
+Forking thread "Consumer 1" with func = 0x804d2c0, arg = 1
+Putting thread Consumer 1 on ready list.
+Yielding thread "main"
+Putting thread main on ready list.
+Switching from thread "main" to thread "Producer 0"
+Thread "Producer 0" is acquiring lock.
+Thread "Producer 0" is ENTERING critical section.
+Thread "Producer 0" is EXITING critical section.
+*** Producer 0 added "H" to buffer
+
+Thread "Producer 0" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 0" is RELEASING lock.
+Yielding thread "Producer 0"
+Putting thread Producer 0 on ready list.
+Switching from thread "Producer 0" to thread "Producer 1"
+Thread "Producer 1" is acquiring lock.
+Thread "Producer 1" is ENTERING critical section.
+Thread "Producer 1" is EXITING critical section.
+*** Producer 1 added "H" to buffer
+
+Thread "Producer 1" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 1" is RELEASING lock.
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Producer 2"
+Thread "Producer 2" is acquiring lock.
+Thread "Producer 2" is ENTERING critical section.
+Thread "Producer 2" is EXITING critical section.
+*** Producer 2 added "H" to buffer
+
+Thread "Producer 2" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 2" is RELEASING lock.
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Producer 3"
+Thread "Producer 3" is acquiring lock.
+Thread "Producer 3" is ENTERING critical section.
+Thread "Producer 3" is EXITING critical section.
+*** Producer 3 added "H" to buffer
+
+Thread "Producer 3" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 3" is RELEASING lock.
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Producer 4"
+Thread "Producer 4" is acquiring lock.
+Thread "Producer 4" is ENTERING critical section.
+Thread "Producer 4" is EXITING critical section.
+*** Producer 4 added "H" to buffer
+
+Thread "Producer 4" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 4" is RELEASING lock.
+Yielding thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Switching from thread "Producer 4" to thread "Producer 5"
+Thread "Producer 5" is acquiring lock.
+Thread "Producer 5" is ENTERING critical section.
+Thread "Producer 5" is EXITING critical section.
+*** Producer 5 added "H" to buffer
+
+Thread "Producer 5" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 5" is RELEASING lock.
+Yielding thread "Producer 5"
+Putting thread Producer 5 on ready list.
+Switching from thread "Producer 5" to thread "Producer 6"
+Thread "Producer 6" is acquiring lock.
+Thread "Producer 6" is ENTERING critical section.
+Thread "Producer 6" is EXITING critical section.
+*** Producer 6 added "H" to buffer
+
+Thread "Producer 6" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 6" is RELEASING lock.
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Producer 7"
+Thread "Producer 7" is acquiring lock.
+Thread "Producer 7" is ENTERING critical section.
+Thread "Producer 7" is EXITING critical section.
+*** Producer 7 added "H" to buffer
+
+Thread "Producer 7" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 7" is RELEASING lock.
+Yielding thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Switching from thread "Producer 7" to thread "Producer 8"
+Thread "Producer 8" is acquiring lock.
+Thread "Producer 8" is ENTERING critical section.
+Thread "Producer 8" is EXITING critical section.
+*** Producer 8 added "H" to buffer
+
+Thread "Producer 8" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 8" is RELEASING lock.
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Producer 9"
+Thread "Producer 9" is acquiring lock.
+Thread "Producer 9" is ENTERING critical section.
+Thread "Producer 9" is EXITING critical section.
+*** Producer 9 added "H" to buffer
+
+Thread "Producer 9" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 9" is RELEASING lock.
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Consumer 0"
+Thread "Consumer 0" is acquiring lock.
+Thread "Consumer 0" is ENTERING critical section.
+Thread "Consumer 0" is EXITING critical section.
+*** Consumer 0 took "H" from buffer
+
+Thread "Consumer 0" is signalling processes blocked on condition "FULL"
+Thread "Consumer 0" is RELEASING lock.
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Consumer 1"
+Thread "Consumer 1" is acquiring lock.
+Thread "Consumer 1" is ENTERING critical section.
+Thread "Consumer 1" is EXITING critical section.
+*** Consumer 1 took "H" from buffer
+
+Thread "Consumer 1" is signalling processes blocked on condition "FULL"
+Thread "Consumer 1" is RELEASING lock.
+Yielding thread "Consumer 1"
+Putting thread Consumer 1 on ready list.
+Switching from thread "Consumer 1" to thread "main"
+Now in thread "main"
+Forking thread "Consumer 2" with func = 0x804d2c0, arg = 2
+Putting thread Consumer 2 on ready list.
+Forking thread "Consumer 3" with func = 0x804d2c0, arg = 3
+Putting thread Consumer 3 on ready list.
+Forking thread "Consumer 4" with func = 0x804d2c0, arg = 4
+Putting thread Consumer 4 on ready list.
+Forking thread "Consumer 5" with func = 0x804d2c0, arg = 5
+Putting thread Consumer 5 on ready list.
+Forking thread "Consumer 6" with func = 0x804d2c0, arg = 6
+Putting thread Consumer 6 on ready list.
+Forking thread "Consumer 7" with func = 0x804d2c0, arg = 7
+Putting thread Consumer 7 on ready list.
+Forking thread "Consumer 8" with func = 0x804d2c0, arg = 8
+Putting thread Consumer 8 on ready list.
+Forking thread "Consumer 9" with func = 0x804d2c0, arg = 9
+Putting thread Consumer 9 on ready list.
+Finishing thread "main"
+Sleeping thread "main"
+Switching from thread "main" to thread "Producer 0"
+Now in thread "Producer 0"
+Deleting thread "main"
+Thread "Producer 0" is acquiring lock.
+Yielding thread "Producer 0"
+Putting thread Producer 0 on ready list.
+Switching from thread "Producer 0" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is acquiring lock.
+Sleeping thread "Producer 1"
+Switching from thread "Producer 1" to thread "Producer 2"
+Now in thread "Producer 2"
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is acquiring lock.
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is acquiring lock.
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is acquiring lock.
+Sleeping thread "Producer 5"
+Switching from thread "Producer 5" to thread "Producer 6"
+Now in thread "Producer 6"
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is acquiring lock.
+Sleeping thread "Producer 7"
+Switching from thread "Producer 7" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is acquiring lock.
+Sleeping thread "Producer 8"
+Switching from thread "Producer 8" to thread "Producer 9"
+Now in thread "Producer 9"
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is acquiring lock.
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Yielding thread "Consumer 1"
+Putting thread Consumer 1 on ready list.
+Switching from thread "Consumer 1" to thread "Consumer 2"
+Thread "Consumer 2" is acquiring lock.
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Consumer 3"
+Thread "Consumer 3" is acquiring lock.
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Consumer 4"
+Thread "Consumer 4" is acquiring lock.
+Sleeping thread "Consumer 4"
+Switching from thread "Consumer 4" to thread "Consumer 5"
+Thread "Consumer 5" is acquiring lock.
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Consumer 6"
+Thread "Consumer 6" is acquiring lock.
+Sleeping thread "Consumer 6"
+Switching from thread "Consumer 6" to thread "Consumer 7"
+Thread "Consumer 7" is acquiring lock.
+Sleeping thread "Consumer 7"
+Switching from thread "Consumer 7" to thread "Consumer 8"
+Thread "Consumer 8" is acquiring lock.
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Consumer 9"
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Producer 0"
+Now in thread "Producer 0"
+Thread "Producer 0" is ENTERING critical section.
+Thread "Producer 0" is EXITING critical section.
+*** Producer 0 added "e" to buffer
+
+Thread "Producer 0" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 0" is RELEASING lock.
+Putting thread Producer 1 on ready list.
+Yielding thread "Producer 0"
+Putting thread Producer 0 on ready list.
+Switching from thread "Producer 0" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is acquiring lock.
+Thread "Producer 2" is ENTERING critical section.
+Thread "Producer 2" is EXITING critical section.
+*** Producer 2 added "e" to buffer
+
+Thread "Producer 2" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 2" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is acquiring lock.
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Producer 9"
+Now in thread "Producer 9"
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is acquiring lock.
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is acquiring lock.
+Sleeping thread "Consumer 9"
+Switching from thread "Consumer 9" to thread "Producer 1"
+Now in thread "Producer 1"
+Sleeping thread "Producer 1"
+Switching from thread "Producer 1" to thread "Producer 0"
+Now in thread "Producer 0"
+Thread "Producer 0" is acquiring lock.
+Sleeping thread "Producer 0"
+Switching from thread "Producer 0" to thread "Producer 3"
+Now in thread "Producer 3"
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is acquiring lock.
+Sleeping thread "Producer 2"
+Switching from thread "Producer 2" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is waiting on condition "FULL"
+Thread "Producer 6" is RELEASING lock.
+Putting thread Producer 4 on ready list.
+Thread "Producer 6" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 6"
+Switching from thread "Producer 6" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is acquiring lock.
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Producer 4"
+Now in thread "Producer 4"
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is waiting on condition "FULL"
+Thread "Producer 9" is RELEASING lock.
+Putting thread Producer 5 on ready list.
+Thread "Producer 9" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is waiting on condition "FULL"
+Thread "Producer 5" is RELEASING lock.
+Putting thread Producer 7 on ready list.
+Thread "Producer 5" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 5"
+Switching from thread "Producer 5" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is waiting on condition "FULL"
+Thread "Producer 7" is RELEASING lock.
+Putting thread Producer 8 on ready list.
+Thread "Producer 7" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 7"
+Switching from thread "Producer 7" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is waiting on condition "FULL"
+Thread "Producer 8" is RELEASING lock.
+Putting thread Consumer 0 on ready list.
+Thread "Producer 8" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 8"
+Switching from thread "Producer 8" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is ENTERING critical section.
+Thread "Consumer 0" is EXITING critical section.
+*** Consumer 0 took "H" from buffer
+
+Thread "Consumer 0" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Thread "Consumer 0" is RELEASING lock.
+Putting thread Consumer 2 on ready list.
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" has woken and is about to get lock.
+Thread "Producer 6" is acquiring lock.
+Thread "Producer 6" is ENTERING critical section.
+Thread "Producer 6" is EXITING critical section.
+*** Producer 6 added "e" to buffer
+
+Thread "Producer 6" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 6" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is ENTERING critical section.
+Thread "Consumer 2" is EXITING critical section.
+*** Consumer 2 took "H" from buffer
+
+Thread "Consumer 2" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is acquiring lock.
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is acquiring lock.
+Sleeping thread "Producer 6"
+Switching from thread "Producer 6" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" has woken and is about to get lock.
+Thread "Producer 9" is acquiring lock.
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is RELEASING lock.
+Putting thread Consumer 4 on ready list.
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is ENTERING critical section.
+Thread "Consumer 4" is EXITING critical section.
+*** Consumer 4 took "H" from buffer
+
+Thread "Consumer 4" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 5"
+Putting thread Producer 5 on ready list.
+Thread "Consumer 4" is RELEASING lock.
+Putting thread Consumer 5 on ready list.
+Yielding thread "Consumer 4"
+Putting thread Consumer 4 on ready list.
+Switching from thread "Consumer 4" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" has woken and is about to get lock.
+Thread "Producer 5" is acquiring lock.
+Thread "Producer 5" is ENTERING critical section.
+Thread "Producer 5" is EXITING critical section.
+*** Producer 5 added "e" to buffer
+
+Thread "Producer 5" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 5" is RELEASING lock.
+Putting thread Consumer 6 on ready list.
+Yielding thread "Producer 5"
+Putting thread Producer 5 on ready list.
+Switching from thread "Producer 5" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Yielding thread "Consumer 5"
+Putting thread Consumer 5 on ready list.
+Switching from thread "Consumer 5" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is acquiring lock.
+Sleeping thread "Consumer 4"
+Switching from thread "Consumer 4" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is acquiring lock.
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Sleeping thread "Consumer 6"
+Switching from thread "Consumer 6" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is acquiring lock.
+Sleeping thread "Producer 5"
+Switching from thread "Producer 5" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" is ENTERING critical section.
+Thread "Consumer 5" is EXITING critical section.
+*** Consumer 5 took "H" from buffer
+
+Thread "Consumer 5" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Thread "Consumer 5" is RELEASING lock.
+Putting thread Consumer 7 on ready list.
+Yielding thread "Consumer 5"
+Putting thread Consumer 5 on ready list.
+Switching from thread "Consumer 5" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" has woken and is about to get lock.
+Thread "Producer 7" is acquiring lock.
+Thread "Producer 7" is ENTERING critical section.
+Thread "Producer 7" is EXITING critical section.
+*** Producer 7 added "e" to buffer
+
+Thread "Producer 7" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 7" is RELEASING lock.
+Putting thread Consumer 8 on ready list.
+Yielding thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Switching from thread "Producer 7" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is ENTERING critical section.
+Thread "Consumer 7" is EXITING critical section.
+*** Consumer 7 took "H" from buffer
+
+Thread "Consumer 7" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Thread "Consumer 7" is RELEASING lock.
+Putting thread Consumer 1 on ready list.
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" is acquiring lock.
+Thread "Consumer 5" is ENTERING critical section.
+Thread "Consumer 5" is EXITING critical section.
+*** Consumer 5 took "H" from buffer
+
+Thread "Consumer 5" is signalling processes blocked on condition "FULL"
+Thread "Consumer 5" is RELEASING lock.
+Putting thread Consumer 9 on ready list.
+Yielding thread "Consumer 5"
+Putting thread Consumer 5 on ready list.
+Switching from thread "Consumer 5" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is ENTERING critical section.
+Thread "Consumer 8" is EXITING critical section.
+*** Consumer 8 took "H" from buffer
+
+Thread "Consumer 8" is signalling processes blocked on condition "FULL"
+Thread "Consumer 8" is RELEASING lock.
+Putting thread Producer 1 on ready list.
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is acquiring lock.
+Yielding thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Switching from thread "Producer 7" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" has woken and is about to get lock.
+Thread "Producer 8" is acquiring lock.
+Sleeping thread "Producer 8"
+Switching from thread "Producer 8" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is acquiring lock.
+Sleeping thread "Consumer 7"
+Switching from thread "Consumer 7" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Sleeping thread "Consumer 9"
+Switching from thread "Consumer 9" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" is acquiring lock.
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Producer 1"
+Now in thread "Producer 1"
+Sleeping thread "Producer 1"
+Switching from thread "Producer 1" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is ENTERING critical section.
+Thread "Producer 7" is EXITING critical section.
+*** Producer 7 added "l" to buffer
+
+Thread "Producer 7" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 7" is RELEASING lock.
+Putting thread Producer 0 on ready list.
+Yielding thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Switching from thread "Producer 7" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is acquiring lock.
+Thread "Consumer 8" is ENTERING critical section.
+Thread "Consumer 8" is EXITING critical section.
+*** Consumer 8 took "H" from buffer
+
+Thread "Consumer 8" is signalling processes blocked on condition "FULL"
+Thread "Consumer 8" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Producer 0"
+Now in thread "Producer 0"
+Thread "Producer 0" is ENTERING critical section.
+Thread "Producer 0" is EXITING critical section.
+*** Producer 0 added "l" to buffer
+
+Thread "Producer 0" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 0" is RELEASING lock.
+Putting thread Producer 2 on ready list.
+Yielding thread "Producer 0"
+Putting thread Producer 0 on ready list.
+Switching from thread "Producer 0" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is acquiring lock.
+Yielding thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Switching from thread "Producer 7" to thread "Producer 3"
+Now in thread "Producer 3"
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is acquiring lock.
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Producer 2"
+Now in thread "Producer 2"
+Sleeping thread "Producer 2"
+Switching from thread "Producer 2" to thread "Producer 0"
+Now in thread "Producer 0"
+Thread "Producer 0" is acquiring lock.
+Sleeping thread "Producer 0"
+Switching from thread "Producer 0" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is ENTERING critical section.
+Thread "Producer 7" is EXITING critical section.
+*** Producer 7 added "l" to buffer
+
+Thread "Producer 7" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 7" is RELEASING lock.
+Putting thread Producer 4 on ready list.
+Yielding thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Switching from thread "Producer 7" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is ENTERING critical section.
+Thread "Producer 4" is EXITING critical section.
+*** Producer 4 added "e" to buffer
+
+Thread "Producer 4" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 4" is RELEASING lock.
+Putting thread Consumer 0 on ready list.
+Yielding thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Switching from thread "Producer 4" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is acquiring lock.
+Thread "Producer 7" is ENTERING critical section.
+Thread "Producer 7" is EXITING critical section.
+*** Producer 7 added "o" to buffer
+
+Thread "Producer 7" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 7" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Yielding thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Switching from thread "Producer 7" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is ENTERING critical section.
+Thread "Consumer 0" is EXITING critical section.
+*** Consumer 0 took "e" from buffer
+
+Thread "Consumer 0" is signalling processes blocked on condition "FULL"
+Thread "Consumer 0" is RELEASING lock.
+Putting thread Producer 6 on ready list.
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is acquiring lock.
+Thread "Producer 4" is ENTERING critical section.
+Thread "Producer 4" is EXITING critical section.
+*** Producer 4 added "l" to buffer
+
+Thread "Producer 4" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 4" is RELEASING lock.
+Putting thread Producer 9 on ready list.
+Yielding thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Switching from thread "Producer 4" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is acquiring lock.
+Sleeping thread "Producer 7"
+Switching from thread "Producer 7" to thread "Producer 6"
+Now in thread "Producer 6"
+Sleeping thread "Producer 6"
+Switching from thread "Producer 6" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Producer 9"
+Now in thread "Producer 9"
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is acquiring lock.
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is ENTERING critical section.
+Thread "Consumer 3" is EXITING critical section.
+*** Consumer 3 took "e" from buffer
+
+Thread "Consumer 3" is signalling processes blocked on condition "FULL"
+Thread "Consumer 3" is RELEASING lock.
+Putting thread Consumer 4 on ready list.
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is acquiring lock.
+Thread "Consumer 0" is ENTERING critical section.
+Thread "Consumer 0" is EXITING critical section.
+*** Consumer 0 took "e" from buffer
+
+Thread "Consumer 0" is signalling processes blocked on condition "FULL"
+Thread "Consumer 0" is RELEASING lock.
+Putting thread Consumer 2 on ready list.
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is ENTERING critical section.
+Thread "Consumer 4" is EXITING critical section.
+*** Consumer 4 took "e" from buffer
+
+Thread "Consumer 4" is signalling processes blocked on condition "FULL"
+Thread "Consumer 4" is RELEASING lock.
+Putting thread Consumer 6 on ready list.
+Yielding thread "Consumer 4"
+Putting thread Consumer 4 on ready list.
+Switching from thread "Consumer 4" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is acquiring lock.
+Thread "Consumer 3" is ENTERING critical section.
+Thread "Consumer 3" is EXITING critical section.
+*** Consumer 3 took "e" from buffer
+
+Thread "Consumer 3" is signalling processes blocked on condition "FULL"
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Sleeping thread "Consumer 6"
+Switching from thread "Consumer 6" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is acquiring lock.
+Sleeping thread "Consumer 4"
+Switching from thread "Consumer 4" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is RELEASING lock.
+Putting thread Producer 5 on ready list.
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is acquiring lock.
+Thread "Consumer 0" is ENTERING critical section.
+Thread "Consumer 0" is EXITING critical section.
+*** Consumer 0 took "l" from buffer
+
+Thread "Consumer 0" is signalling processes blocked on condition "FULL"
+Thread "Consumer 0" is RELEASING lock.
+Putting thread Producer 8 on ready list.
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is ENTERING critical section.
+Thread "Producer 5" is EXITING critical section.
+*** Producer 5 added "l" to buffer
+
+Thread "Producer 5" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 5" is RELEASING lock.
+Putting thread Consumer 1 on ready list.
+Yielding thread "Producer 5"
+Putting thread Producer 5 on ready list.
+Switching from thread "Producer 5" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is acquiring lock.
+Thread "Consumer 3" is ENTERING critical section.
+Thread "Consumer 3" is EXITING critical section.
+*** Consumer 3 took "l" from buffer
+
+Thread "Consumer 3" is signalling processes blocked on condition "FULL"
+Thread "Consumer 3" is RELEASING lock.
+Putting thread Consumer 7 on ready list.
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Producer 8"
+Now in thread "Producer 8"
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is acquiring lock.
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is acquiring lock.
+Sleeping thread "Producer 5"
+Switching from thread "Producer 5" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Sleeping thread "Consumer 7"
+Switching from thread "Consumer 7" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is acquiring lock.
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is ENTERING critical section.
+Thread "Producer 8" is EXITING critical section.
+*** Producer 8 added "e" to buffer
+
+Thread "Producer 8" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 8" is RELEASING lock.
+Putting thread Consumer 9 on ready list.
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is ENTERING critical section.
+Thread "Consumer 9" is EXITING critical section.
+*** Consumer 9 took "l" from buffer
+
+Thread "Consumer 9" is signalling processes blocked on condition "FULL"
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Consumer 5 on ready list.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Producer 8"
+Now in thread "Producer 8"
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" is ENTERING critical section.
+Thread "Consumer 5" is EXITING critical section.
+*** Consumer 5 took "e" from buffer
+
+Thread "Consumer 5" is signalling processes blocked on condition "FULL"
+Thread "Consumer 5" is RELEASING lock.
+Putting thread Producer 1 on ready list.
+Yielding thread "Consumer 5"
+Putting thread Consumer 5 on ready list.
+Switching from thread "Consumer 5" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is acquiring lock.
+Thread "Consumer 9" is ENTERING critical section.
+Thread "Consumer 9" is EXITING critical section.
+*** Consumer 9 took "o" from buffer
+
+Thread "Consumer 9" is signalling processes blocked on condition "FULL"
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is acquiring lock.
+Thread "Producer 8" is ENTERING critical section.
+Thread "Producer 8" is EXITING critical section.
+*** Producer 8 added "l" to buffer
+
+Thread "Producer 8" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 8" is RELEASING lock.
+Putting thread Consumer 8 on ready list.
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is ENTERING critical section.
+Thread "Producer 1" is EXITING critical section.
+*** Producer 1 added "e" to buffer
+
+Thread "Producer 1" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 1" is RELEASING lock.
+Putting thread Producer 2 on ready list.
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Yielding thread "Consumer 5"
+Putting thread Consumer 5 on ready list.
+Switching from thread "Consumer 5" to thread "Producer 3"
+Now in thread "Producer 3"
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is acquiring lock.
+Sleeping thread "Producer 8"
+Switching from thread "Producer 8" to thread "Producer 2"
+Now in thread "Producer 2"
+Sleeping thread "Producer 2"
+Switching from thread "Producer 2" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is acquiring lock.
+Sleeping thread "Producer 1"
+Switching from thread "Producer 1" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" is acquiring lock.
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is ENTERING critical section.
+Thread "Producer 3" is EXITING critical section.
+*** Producer 3 added "e" to buffer
+
+Thread "Producer 3" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 3" is RELEASING lock.
+Putting thread Producer 0 on ready list.
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is acquiring lock.
+Thread "Consumer 9" is ENTERING critical section.
+Thread "Consumer 9" is EXITING critical section.
+*** Consumer 9 took "l" from buffer
+
+Thread "Consumer 9" is signalling processes blocked on condition "FULL"
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Producer 7 on ready list.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Producer 0"
+Now in thread "Producer 0"
+Thread "Producer 0" is ENTERING critical section.
+Thread "Producer 0" is EXITING critical section.
+*** Producer 0 added "l" to buffer
+
+Thread "Producer 0" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 0" is RELEASING lock.
+Putting thread Producer 6 on ready list.
+Yielding thread "Producer 0"
+Putting thread Producer 0 on ready list.
+Switching from thread "Producer 0" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is acquiring lock.
+Thread "Producer 3" is ENTERING critical section.
+Thread "Producer 3" is EXITING critical section.
+*** Producer 3 added "l" to buffer
+
+Thread "Producer 3" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 3" is RELEASING lock.
+Putting thread Producer 9 on ready list.
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is ENTERING critical section.
+Thread "Producer 7" is EXITING critical section.
+*** Producer 7 added " " to buffer
+
+Thread "Producer 7" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 7" is RELEASING lock.
+Putting thread Producer 4 on ready list.
+Yielding thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Switching from thread "Producer 7" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is acquiring lock.
+Thread "Consumer 9" is ENTERING critical section.
+Thread "Consumer 9" is EXITING critical section.
+*** Consumer 9 took "l" from buffer
+
+Thread "Consumer 9" is signalling processes blocked on condition "FULL"
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Consumer 2 on ready list.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is ENTERING critical section.
+Thread "Producer 6" is EXITING critical section.
+*** Producer 6 added "l" to buffer
+
+Thread "Producer 6" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 6" is RELEASING lock.
+Putting thread Consumer 6 on ready list.
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Producer 0"
+Now in thread "Producer 0"
+Thread "Producer 0" is acquiring lock.
+Thread "Producer 0" is ENTERING critical section.
+Thread "Producer 0" is EXITING critical section.
+*** Producer 0 added "o" to buffer
+
+Thread "Producer 0" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 0" is RELEASING lock.
+Putting thread Consumer 4 on ready list.
+Yielding thread "Producer 0"
+Putting thread Producer 0 on ready list.
+Switching from thread "Producer 0" to thread "Producer 9"
+Now in thread "Producer 9"
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Producer 3"
+Now in thread "Producer 3"
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Producer 4"
+Now in thread "Producer 4"
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Producer 7"
+Now in thread "Producer 7"
+Yielding thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Switching from thread "Producer 7" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is acquiring lock.
+Sleeping thread "Consumer 9"
+Switching from thread "Consumer 9" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Sleeping thread "Consumer 6"
+Switching from thread "Consumer 6" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is acquiring lock.
+Sleeping thread "Producer 6"
+Switching from thread "Producer 6" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Sleeping thread "Consumer 4"
+Switching from thread "Consumer 4" to thread "Producer 0"
+Now in thread "Producer 0"
+Thread "Producer 0" is acquiring lock.
+Sleeping thread "Producer 0"
+Switching from thread "Producer 0" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is ENTERING critical section.
+Thread "Producer 9" is EXITING critical section.
+*** Producer 9 added "e" to buffer
+
+Thread "Producer 9" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 9" is RELEASING lock.
+Putting thread Consumer 0 on ready list.
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is acquiring lock.
+Thread "Producer 3" is waiting on condition "FULL"
+Thread "Producer 3" is RELEASING lock.
+Putting thread Consumer 1 on ready list.
+Thread "Producer 3" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is acquiring lock.
+Thread "Producer 7" is waiting on condition "FULL"
+Thread "Producer 7" is RELEASING lock.
+Putting thread Producer 5 on ready list.
+Thread "Producer 7" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 7"
+Switching from thread "Producer 7" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is ENTERING critical section.
+Thread "Consumer 0" is EXITING critical section.
+*** Consumer 0 took "e" from buffer
+
+Thread "Consumer 0" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Thread "Consumer 0" is RELEASING lock.
+Putting thread Consumer 7 on ready list.
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Producer 9"
+Now in thread "Producer 9"
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is ENTERING critical section.
+Thread "Consumer 1" is EXITING critical section.
+*** Consumer 1 took "l" from buffer
+
+Thread "Consumer 1" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Thread "Consumer 1" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Yielding thread "Consumer 1"
+Putting thread Consumer 1 on ready list.
+Switching from thread "Consumer 1" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is ENTERING critical section.
+Thread "Producer 5" is EXITING critical section.
+*** Producer 5 added "l" to buffer
+
+Thread "Producer 5" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 5" is RELEASING lock.
+Putting thread Consumer 8 on ready list.
+Yielding thread "Producer 5"
+Putting thread Producer 5 on ready list.
+Switching from thread "Producer 5" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" has woken and is about to get lock.
+Thread "Producer 3" is acquiring lock.
+Thread "Producer 3" is ENTERING critical section.
+Thread "Producer 3" is EXITING critical section.
+*** Producer 3 added "l" to buffer
+
+Thread "Producer 3" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 3" is RELEASING lock.
+Putting thread Producer 8 on ready list.
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is ENTERING critical section.
+Thread "Consumer 7" is EXITING critical section.
+*** Consumer 7 took "e" from buffer
+
+Thread "Consumer 7" is signalling processes blocked on condition "FULL"
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is acquiring lock.
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is acquiring lock.
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" has woken and is about to get lock.
+Thread "Producer 7" is acquiring lock.
+Sleeping thread "Producer 7"
+Switching from thread "Producer 7" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is acquiring lock.
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is acquiring lock.
+Sleeping thread "Producer 5"
+Switching from thread "Producer 5" to thread "Producer 8"
+Now in thread "Producer 8"
+Sleeping thread "Producer 8"
+Switching from thread "Producer 8" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is acquiring lock.
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is RELEASING lock.
+Putting thread Producer 2 on ready list.
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is ENTERING critical section.
+Thread "Producer 2" is EXITING critical section.
+*** Producer 2 added "l" to buffer
+
+Thread "Producer 2" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 2" is RELEASING lock.
+Putting thread Producer 1 on ready list.
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is acquiring lock.
+Thread "Consumer 7" is ENTERING critical section.
+Thread "Consumer 7" is EXITING critical section.
+*** Consumer 7 took "e" from buffer
+
+Thread "Consumer 7" is signalling processes blocked on condition "FULL"
+Thread "Consumer 7" is RELEASING lock.
+Putting thread Consumer 5 on ready list.
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Producer 1"
+Now in thread "Producer 1"
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Producer 2"
+Now in thread "Producer 2"
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is acquiring lock.
+Sleeping thread "Consumer 7"
+Switching from thread "Consumer 7" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is ENTERING critical section.
+Thread "Producer 1" is EXITING critical section.
+*** Producer 1 added "l" to buffer
+
+Thread "Producer 1" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 1" is RELEASING lock.
+Putting thread Producer 4 on ready list.
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Producer 2"
+Now in thread "Producer 2"
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is waiting on condition "FULL"
+Thread "Producer 4" is RELEASING lock.
+Putting thread Consumer 2 on ready list.
+Thread "Producer 4" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is acquiring lock.
+Thread "Producer 1" is waiting on condition "FULL"
+Thread "Producer 1" is RELEASING lock.
+Putting thread Consumer 9 on ready list.
+Thread "Producer 1" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 1"
+Switching from thread "Producer 1" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is acquiring lock.
+Thread "Producer 2" is waiting on condition "FULL"
+Thread "Producer 2" is RELEASING lock.
+Putting thread Consumer 6 on ready list.
+Thread "Producer 2" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 2"
+Switching from thread "Producer 2" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is ENTERING critical section.
+Thread "Consumer 2" is EXITING critical section.
+*** Consumer 2 took "l" from buffer
+
+Thread "Consumer 2" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Thread "Consumer 2" is RELEASING lock.
+Putting thread Producer 6 on ready list.
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is ENTERING critical section.
+Thread "Consumer 9" is EXITING critical section.
+*** Consumer 9 took "l" from buffer
+
+Thread "Consumer 9" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Consumer 4 on ready list.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is ENTERING critical section.
+Thread "Consumer 6" is EXITING critical section.
+*** Consumer 6 took " " from buffer
+
+Thread "Consumer 6" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Thread "Consumer 6" is RELEASING lock.
+Putting thread Producer 0 on ready list.
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" has woken and is about to get lock.
+Thread "Producer 4" is acquiring lock.
+Thread "Producer 4" is ENTERING critical section.
+Thread "Producer 4" is EXITING critical section.
+*** Producer 4 added "l" to buffer
+
+Thread "Producer 4" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 4" is RELEASING lock.
+Putting thread Consumer 0 on ready list.
+Yielding thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Switching from thread "Producer 4" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is ENTERING critical section.
+Thread "Producer 6" is EXITING critical section.
+*** Producer 6 added "l" to buffer
+
+Thread "Producer 6" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 6" is RELEASING lock.
+Putting thread Producer 9 on ready list.
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" has woken and is about to get lock.
+Thread "Producer 1" is acquiring lock.
+Thread "Producer 1" is ENTERING critical section.
+Thread "Producer 1" is EXITING critical section.
+*** Producer 1 added "l" to buffer
+
+Thread "Producer 1" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 1" is RELEASING lock.
+Putting thread Producer 7 on ready list.
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is ENTERING critical section.
+Thread "Consumer 4" is EXITING critical section.
+*** Consumer 4 took "l" from buffer
+
+Thread "Consumer 4" is signalling processes blocked on condition "FULL"
+Thread "Consumer 4" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Yielding thread "Consumer 4"
+Putting thread Consumer 4 on ready list.
+Switching from thread "Consumer 4" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is acquiring lock.
+Thread "Consumer 9" is ENTERING critical section.
+Thread "Consumer 9" is EXITING critical section.
+*** Consumer 9 took "o" from buffer
+
+Thread "Consumer 9" is signalling processes blocked on condition "FULL"
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Consumer 1 on ready list.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" has woken and is about to get lock.
+Thread "Producer 2" is acquiring lock.
+Thread "Producer 2" is ENTERING critical section.
+Thread "Producer 2" is EXITING critical section.
+*** Producer 2 added "l" to buffer
+
+Thread "Producer 2" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 2" is RELEASING lock.
+Putting thread Consumer 8 on ready list.
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Producer 0"
+Now in thread "Producer 0"
+Thread "Producer 0" is ENTERING critical section.
+Thread "Producer 0" is EXITING critical section.
+*** Producer 0 added " " to buffer
+
+Thread "Producer 0" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 0" is RELEASING lock.
+Putting thread Producer 5 on ready list.
+Yielding thread "Producer 0"
+Putting thread Producer 0 on ready list.
+Switching from thread "Producer 0" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is acquiring lock.
+Thread "Consumer 6" is ENTERING critical section.
+Thread "Consumer 6" is EXITING critical section.
+*** Consumer 6 took "e" from buffer
+
+Thread "Consumer 6" is signalling processes blocked on condition "FULL"
+Thread "Consumer 6" is RELEASING lock.
+Putting thread Producer 8 on ready list.
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is ENTERING critical section.
+Thread "Consumer 0" is EXITING critical section.
+*** Consumer 0 took "l" from buffer
+
+Thread "Consumer 0" is signalling processes blocked on condition "FULL"
+Thread "Consumer 0" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Producer 4"
+Now in thread "Producer 4"
+Yielding thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Switching from thread "Producer 4" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is ENTERING critical section.
+Thread "Producer 9" is EXITING critical section.
+*** Producer 9 added "l" to buffer
+
+Thread "Producer 9" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 9" is RELEASING lock.
+Putting thread Consumer 5 on ready list.
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is acquiring lock.
+Thread "Producer 6" is ENTERING critical section.
+Thread "Producer 6" is EXITING critical section.
+*** Producer 6 added "o" to buffer
+
+Thread "Producer 6" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 6" is RELEASING lock.
+Putting thread Consumer 7 on ready list.
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is acquiring lock.
+Thread "Consumer 2" is ENTERING critical section.
+Thread "Consumer 2" is EXITING critical section.
+*** Consumer 2 took "l" from buffer
+
+Thread "Consumer 2" is signalling processes blocked on condition "FULL"
+Thread "Consumer 2" is RELEASING lock.
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is ENTERING critical section.
+Thread "Producer 7" is EXITING critical section.
+*** Producer 7 added "W" to buffer
+
+Thread "Producer 7" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 7" is RELEASING lock.
+Yielding thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Switching from thread "Producer 7" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is acquiring lock.
+Thread "Producer 1" is waiting on condition "FULL"
+Thread "Producer 1" is RELEASING lock.
+Thread "Producer 1" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 1"
+Switching from thread "Producer 1" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is ENTERING critical section.
+Thread "Consumer 3" is EXITING critical section.
+*** Consumer 3 took "l" from buffer
+
+Thread "Consumer 3" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Thread "Consumer 3" is RELEASING lock.
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Yielding thread "Consumer 4"
+Putting thread Consumer 4 on ready list.
+Switching from thread "Consumer 4" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is ENTERING critical section.
+Thread "Consumer 1" is EXITING critical section.
+*** Consumer 1 took "l" from buffer
+
+Thread "Consumer 1" is signalling processes blocked on condition "FULL"
+Thread "Consumer 1" is RELEASING lock.
+Yielding thread "Consumer 1"
+Putting thread Consumer 1 on ready list.
+Switching from thread "Consumer 1" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is acquiring lock.
+Thread "Consumer 9" is ENTERING critical section.
+Thread "Consumer 9" is EXITING critical section.
+*** Consumer 9 took "l" from buffer
+
+Thread "Consumer 9" is signalling processes blocked on condition "FULL"
+Thread "Consumer 9" is RELEASING lock.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is ENTERING critical section.
+Thread "Consumer 8" is EXITING critical section.
+*** Consumer 8 took "l" from buffer
+
+Thread "Consumer 8" is signalling processes blocked on condition "FULL"
+Thread "Consumer 8" is RELEASING lock.
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Producer 2"
+Now in thread "Producer 2"
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is ENTERING critical section.
+Thread "Producer 5" is EXITING critical section.
+*** Producer 5 added "o" to buffer
+
+Thread "Producer 5" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 5" is RELEASING lock.
+Yielding thread "Producer 5"
+Putting thread Producer 5 on ready list.
+Switching from thread "Producer 5" to thread "Producer 0"
+Now in thread "Producer 0"
+Thread "Producer 0" is acquiring lock.
+Thread "Producer 0" is ENTERING critical section.
+Thread "Producer 0" is EXITING critical section.
+*** Producer 0 added "W" to buffer
+
+Thread "Producer 0" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 0" is RELEASING lock.
+Yielding thread "Producer 0"
+Putting thread Producer 0 on ready list.
+Switching from thread "Producer 0" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is ENTERING critical section.
+Thread "Producer 8" is EXITING critical section.
+*** Producer 8 added "l" to buffer
+
+Thread "Producer 8" is signalling processes blocked on condition "EMPTY"
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Producer 3"
+Now in thread "Producer 3"
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is acquiring lock.
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is acquiring lock.
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is acquiring lock.
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Sleeping thread "Consumer 7"
+Switching from thread "Consumer 7" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is acquiring lock.
+Sleeping thread "Producer 6"
+Switching from thread "Producer 6" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is acquiring lock.
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Producer 7"
+Now in thread "Producer 7"
+Yielding thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Switching from thread "Producer 7" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" has woken and is about to get lock.
+Thread "Producer 1" is acquiring lock.
+Sleeping thread "Producer 1"
+Switching from thread "Producer 1" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is acquiring lock.
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is acquiring lock.
+Sleeping thread "Consumer 4"
+Switching from thread "Consumer 4" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Yielding thread "Consumer 1"
+Putting thread Consumer 1 on ready list.
+Switching from thread "Consumer 1" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is acquiring lock.
+Sleeping thread "Consumer 9"
+Switching from thread "Consumer 9" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is acquiring lock.
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is acquiring lock.
+Sleeping thread "Producer 2"
+Switching from thread "Producer 2" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is acquiring lock.
+Sleeping thread "Producer 5"
+Switching from thread "Producer 5" to thread "Producer 0"
+Now in thread "Producer 0"
+Yielding thread "Producer 0"
+Putting thread Producer 0 on ready list.
+Switching from thread "Producer 0" to thread "Producer 8"
+Now in thread "Producer 8"
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is acquiring lock.
+Sleeping thread "Consumer 6"
+Switching from thread "Consumer 6" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is acquiring lock.
+Sleeping thread "Producer 7"
+Switching from thread "Producer 7" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is acquiring lock.
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Producer 0"
+Now in thread "Producer 0"
+Thread "Producer 0" is acquiring lock.
+Sleeping thread "Producer 0"
+Switching from thread "Producer 0" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is ENTERING critical section.
+Thread "Producer 3" is EXITING critical section.
+*** Producer 3 added "o" to buffer
+
+Thread "Producer 3" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 3" is RELEASING lock.
+Putting thread Consumer 0 on ready list.
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is acquiring lock.
+Thread "Producer 8" is waiting on condition "FULL"
+Thread "Producer 8" is RELEASING lock.
+Putting thread Producer 4 on ready list.
+Thread "Producer 8" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 8"
+Switching from thread "Producer 8" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is ENTERING critical section.
+Thread "Consumer 0" is EXITING critical section.
+*** Consumer 0 took "l" from buffer
+
+Thread "Consumer 0" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Thread "Consumer 0" is RELEASING lock.
+Putting thread Consumer 5 on ready list.
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is acquiring lock.
+Thread "Producer 3" is ENTERING critical section.
+Thread "Producer 3" is EXITING critical section.
+*** Producer 3 added " " to buffer
+
+Thread "Producer 3" is signalling processes blocked on condition "EMPTY"
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Producer 4"
+Now in thread "Producer 4"
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" has woken and is about to get lock.
+Thread "Producer 8" is acquiring lock.
+Sleeping thread "Producer 8"
+Switching from thread "Producer 8" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is acquiring lock.
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is RELEASING lock.
+Putting thread Producer 9 on ready list.
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is waiting on condition "FULL"
+Thread "Producer 9" is RELEASING lock.
+Putting thread Consumer 7 on ready list.
+Thread "Producer 9" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is acquiring lock.
+Thread "Producer 3" is waiting on condition "FULL"
+Thread "Producer 3" is RELEASING lock.
+Putting thread Producer 6 on ready list.
+Thread "Producer 3" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is ENTERING critical section.
+Thread "Consumer 7" is EXITING critical section.
+*** Consumer 7 took "l" from buffer
+
+Thread "Consumer 7" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Thread "Consumer 7" is RELEASING lock.
+Putting thread Consumer 2 on ready list.
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is ENTERING critical section.
+Thread "Producer 6" is EXITING critical section.
+*** Producer 6 added " " to buffer
+
+Thread "Producer 6" is signalling processes blocked on condition "EMPTY"
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" has woken and is about to get lock.
+Thread "Producer 9" is acquiring lock.
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is acquiring lock.
+Sleeping thread "Consumer 7"
+Switching from thread "Consumer 7" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is RELEASING lock.
+Putting thread Producer 1 on ready list.
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is waiting on condition "FULL"
+Thread "Producer 1" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Thread "Producer 1" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 1"
+Switching from thread "Producer 1" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is acquiring lock.
+Thread "Producer 6" is waiting on condition "FULL"
+Thread "Producer 6" is RELEASING lock.
+Putting thread Consumer 4 on ready list.
+Thread "Producer 6" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 6"
+Switching from thread "Producer 6" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is ENTERING critical section.
+Thread "Consumer 3" is EXITING critical section.
+*** Consumer 3 took " " from buffer
+
+Thread "Consumer 3" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Sleeping thread "Consumer 4"
+Switching from thread "Consumer 4" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" has woken and is about to get lock.
+Thread "Producer 3" is acquiring lock.
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is RELEASING lock.
+Putting thread Consumer 9 on ready list.
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is ENTERING critical section.
+Thread "Consumer 9" is EXITING critical section.
+*** Consumer 9 took "l" from buffer
+
+Thread "Consumer 9" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Consumer 8 on ready list.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is acquiring lock.
+Thread "Consumer 3" is ENTERING critical section.
+Thread "Consumer 3" is EXITING critical section.
+*** Consumer 3 took "o" from buffer
+
+Thread "Consumer 3" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Thread "Consumer 3" is RELEASING lock.
+Putting thread Producer 2 on ready list.
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" has woken and is about to get lock.
+Thread "Producer 1" is acquiring lock.
+Thread "Producer 1" is ENTERING critical section.
+Thread "Producer 1" is EXITING critical section.
+*** Producer 1 added "o" to buffer
+
+Thread "Producer 1" is signalling processes blocked on condition "EMPTY"
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is acquiring lock.
+Sleeping thread "Consumer 9"
+Switching from thread "Consumer 9" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" has woken and is about to get lock.
+Thread "Producer 6" is acquiring lock.
+Sleeping thread "Producer 6"
+Switching from thread "Producer 6" to thread "Producer 2"
+Now in thread "Producer 2"
+Sleeping thread "Producer 2"
+Switching from thread "Producer 2" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is acquiring lock.
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is RELEASING lock.
+Putting thread Producer 5 on ready list.
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is ENTERING critical section.
+Thread "Producer 5" is EXITING critical section.
+*** Producer 5 added " " to buffer
+
+Thread "Producer 5" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 5" is RELEASING lock.
+Putting thread Consumer 6 on ready list.
+Yielding thread "Producer 5"
+Putting thread Producer 5 on ready list.
+Switching from thread "Producer 5" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is acquiring lock.
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Sleeping thread "Consumer 6"
+Switching from thread "Consumer 6" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is acquiring lock.
+Sleeping thread "Producer 5"
+Switching from thread "Producer 5" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is ENTERING critical section.
+Thread "Producer 1" is EXITING critical section.
+*** Producer 1 added " " to buffer
+
+Thread "Producer 1" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 1" is RELEASING lock.
+Putting thread Producer 7 on ready list.
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is waiting on condition "FULL"
+Thread "Producer 7" is RELEASING lock.
+Putting thread Consumer 1 on ready list.
+Thread "Producer 7" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 7"
+Switching from thread "Producer 7" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is acquiring lock.
+Thread "Producer 1" is waiting on condition "FULL"
+Thread "Producer 1" is RELEASING lock.
+Putting thread Producer 0 on ready list.
+Thread "Producer 1" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 1"
+Switching from thread "Producer 1" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is ENTERING critical section.
+Thread "Consumer 1" is EXITING critical section.
+*** Consumer 1 took "W" from buffer
+
+Thread "Consumer 1" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Thread "Consumer 1" is RELEASING lock.
+Putting thread Producer 4 on ready list.
+Yielding thread "Consumer 1"
+Putting thread Consumer 1 on ready list.
+Switching from thread "Consumer 1" to thread "Producer 0"
+Now in thread "Producer 0"
+Thread "Producer 0" is ENTERING critical section.
+Thread "Producer 0" is EXITING critical section.
+*** Producer 0 added "o" to buffer
+
+Thread "Producer 0" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 0" is RELEASING lock.
+Putting thread Producer 8 on ready list.
+Yielding thread "Producer 0"
+Putting thread Producer 0 on ready list.
+Switching from thread "Producer 0" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" has woken and is about to get lock.
+Thread "Producer 7" is acquiring lock.
+Thread "Producer 7" is waiting on condition "FULL"
+Thread "Producer 7" is RELEASING lock.
+Putting thread Consumer 5 on ready list.
+Thread "Producer 7" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 7"
+Switching from thread "Producer 7" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is waiting on condition "FULL"
+Thread "Producer 4" is RELEASING lock.
+Putting thread Consumer 0 on ready list.
+Thread "Producer 4" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is acquiring lock.
+Yielding thread "Consumer 1"
+Putting thread Consumer 1 on ready list.
+Switching from thread "Consumer 1" to thread "Producer 8"
+Now in thread "Producer 8"
+Sleeping thread "Producer 8"
+Switching from thread "Producer 8" to thread "Producer 0"
+Now in thread "Producer 0"
+Thread "Producer 0" is acquiring lock.
+Sleeping thread "Producer 0"
+Switching from thread "Producer 0" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is ENTERING critical section.
+Thread "Consumer 1" is EXITING critical section.
+*** Consumer 1 took "o" from buffer
+
+Thread "Consumer 1" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Thread "Consumer 1" is RELEASING lock.
+Putting thread Producer 9 on ready list.
+Yielding thread "Consumer 1"
+Putting thread Consumer 1 on ready list.
+Switching from thread "Consumer 1" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" has woken and is about to get lock.
+Thread "Producer 1" is acquiring lock.
+Thread "Producer 1" is ENTERING critical section.
+Thread "Producer 1" is EXITING critical section.
+*** Producer 1 added "W" to buffer
+
+Thread "Producer 1" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 1" is RELEASING lock.
+Putting thread Consumer 2 on ready list.
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is waiting on condition "FULL"
+Thread "Producer 9" is RELEASING lock.
+Putting thread Consumer 7 on ready list.
+Thread "Producer 9" is BLOCKED on condition "FULL"
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is acquiring lock.
+Thread "Consumer 1" is ENTERING critical section.
+Thread "Consumer 1" is EXITING critical section.
+*** Consumer 1 took "W" from buffer
+
+Thread "Consumer 1" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Thread "Consumer 1" is RELEASING lock.
+Putting thread Consumer 4 on ready list.
+Yielding thread "Consumer 1"
+Putting thread Consumer 1 on ready list.
+Switching from thread "Consumer 1" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is ENTERING critical section.
+Thread "Consumer 2" is EXITING critical section.
+*** Consumer 2 took "l" from buffer
+
+Thread "Consumer 2" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Thread "Consumer 2" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is acquiring lock.
+Thread "Producer 1" is ENTERING critical section.
+Thread "Producer 1" is EXITING critical section.
+*** Producer 1 added "o" to buffer
+
+Thread "Producer 1" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 1" is RELEASING lock.
+Putting thread Consumer 8 on ready list.
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" has woken and is about to get lock.
+Thread "Producer 7" is acquiring lock.
+Sleeping thread "Producer 7"
+Switching from thread "Producer 7" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Sleeping thread "Consumer 4"
+Switching from thread "Consumer 4" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is acquiring lock.
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" has woken and is about to get lock.
+Thread "Producer 4" is acquiring lock.
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Producer 3"
+Now in thread "Producer 3"
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is acquiring lock.
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is acquiring lock.
+Sleeping thread "Producer 1"
+Switching from thread "Producer 1" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is ENTERING critical section.
+Thread "Consumer 7" is EXITING critical section.
+*** Consumer 7 took "o" from buffer
+
+Thread "Consumer 7" is signalling processes blocked on condition "FULL"
+- woke up thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Thread "Consumer 7" is RELEASING lock.
+Putting thread Consumer 9 on ready list.
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" has woken and is about to get lock.
+Thread "Producer 9" is acquiring lock.
+Thread "Producer 9" is ENTERING critical section.
+Thread "Producer 9" is EXITING critical section.
+*** Producer 9 added "l" to buffer
+
+Thread "Producer 9" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 9" is RELEASING lock.
+Putting thread Producer 6 on ready list.
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is ENTERING critical section.
+Thread "Consumer 9" is EXITING critical section.
+*** Consumer 9 took " " from buffer
+
+Thread "Consumer 9" is signalling processes blocked on condition "FULL"
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Producer 2 on ready list.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is acquiring lock.
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Producer 6"
+Now in thread "Producer 6"
+Sleeping thread "Producer 6"
+Switching from thread "Producer 6" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is acquiring lock.
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Producer 2"
+Now in thread "Producer 2"
+Sleeping thread "Producer 2"
+Switching from thread "Producer 2" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is acquiring lock.
+Sleeping thread "Consumer 9"
+Switching from thread "Consumer 9" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is ENTERING critical section.
+Thread "Consumer 7" is EXITING critical section.
+*** Consumer 7 took " " from buffer
+
+Thread "Consumer 7" is signalling processes blocked on condition "FULL"
+Thread "Consumer 7" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is ENTERING critical section.
+Thread "Consumer 3" is EXITING critical section.
+*** Consumer 3 took "o" from buffer
+
+Thread "Consumer 3" is signalling processes blocked on condition "FULL"
+Thread "Consumer 3" is RELEASING lock.
+Putting thread Consumer 6 on ready list.
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is acquiring lock.
+Thread "Consumer 7" is ENTERING critical section.
+Thread "Consumer 7" is EXITING critical section.
+*** Consumer 7 took " " from buffer
+
+Thread "Consumer 7" is signalling processes blocked on condition "FULL"
+Thread "Consumer 7" is RELEASING lock.
+Putting thread Producer 5 on ready list.
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is ENTERING critical section.
+Thread "Consumer 6" is EXITING critical section.
+*** Consumer 6 took " " from buffer
+
+Thread "Consumer 6" is signalling processes blocked on condition "FULL"
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is acquiring lock.
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Producer 5"
+Now in thread "Producer 5"
+Sleeping thread "Producer 5"
+Switching from thread "Producer 5" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is acquiring lock.
+Sleeping thread "Consumer 7"
+Switching from thread "Consumer 7" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is RELEASING lock.
+Putting thread Producer 8 on ready list.
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is ENTERING critical section.
+Thread "Producer 8" is EXITING critical section.
+*** Producer 8 added "o" to buffer
+
+Thread "Producer 8" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 8" is RELEASING lock.
+Putting thread Producer 0 on ready list.
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is acquiring lock.
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Producer 0"
+Now in thread "Producer 0"
+Sleeping thread "Producer 0"
+Switching from thread "Producer 0" to thread "Producer 8"
+Now in thread "Producer 8"
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is ENTERING critical section.
+Thread "Consumer 6" is EXITING critical section.
+*** Consumer 6 took "o" from buffer
+
+Thread "Consumer 6" is signalling processes blocked on condition "FULL"
+Thread "Consumer 6" is RELEASING lock.
+Putting thread Consumer 5 on ready list.
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is acquiring lock.
+Thread "Producer 8" is ENTERING critical section.
+Thread "Producer 8" is EXITING critical section.
+*** Producer 8 added " " to buffer
+
+Thread "Producer 8" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 8" is RELEASING lock.
+Putting thread Consumer 0 on ready list.
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" is ENTERING critical section.
+Thread "Consumer 5" is EXITING critical section.
+*** Consumer 5 took "W" from buffer
+
+Thread "Consumer 5" is signalling processes blocked on condition "FULL"
+Thread "Consumer 5" is RELEASING lock.
+Putting thread Producer 7 on ready list.
+Yielding thread "Consumer 5"
+Putting thread Consumer 5 on ready list.
+Switching from thread "Consumer 5" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is acquiring lock.
+Thread "Consumer 6" is ENTERING critical section.
+Thread "Consumer 6" is EXITING critical section.
+*** Consumer 6 took "o" from buffer
+
+Thread "Consumer 6" is signalling processes blocked on condition "FULL"
+Thread "Consumer 6" is RELEASING lock.
+Putting thread Consumer 4 on ready list.
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is ENTERING critical section.
+Thread "Consumer 0" is EXITING critical section.
+*** Consumer 0 took "l" from buffer
+
+Thread "Consumer 0" is signalling processes blocked on condition "FULL"
+Thread "Consumer 0" is RELEASING lock.
+Putting thread Consumer 1 on ready list.
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is acquiring lock.
+Thread "Producer 8" is ENTERING critical section.
+Thread "Producer 8" is EXITING critical section.
+*** Producer 8 added "W" to buffer
+
+Thread "Producer 8" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 8" is RELEASING lock.
+Putting thread Producer 4 on ready list.
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is ENTERING critical section.
+Thread "Producer 7" is EXITING critical section.
+*** Producer 7 added "o" to buffer
+
+Thread "Producer 7" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 7" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Yielding thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Switching from thread "Producer 7" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" is acquiring lock.
+Thread "Consumer 5" is ENTERING critical section.
+Thread "Consumer 5" is EXITING critical section.
+*** Consumer 5 took "o" from buffer
+
+Thread "Consumer 5" is signalling processes blocked on condition "FULL"
+Thread "Consumer 5" is RELEASING lock.
+Putting thread Consumer 2 on ready list.
+Yielding thread "Consumer 5"
+Putting thread Consumer 5 on ready list.
+Switching from thread "Consumer 5" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Yielding thread "Consumer 4"
+Putting thread Consumer 4 on ready list.
+Switching from thread "Consumer 4" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is acquiring lock.
+Sleeping thread "Consumer 6"
+Switching from thread "Consumer 6" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Producer 4"
+Now in thread "Producer 4"
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is acquiring lock.
+Sleeping thread "Producer 8"
+Switching from thread "Producer 8" to thread "Producer 3"
+Now in thread "Producer 3"
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is acquiring lock.
+Sleeping thread "Producer 7"
+Switching from thread "Producer 7" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" is acquiring lock.
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is ENTERING critical section.
+Thread "Consumer 4" is EXITING critical section.
+*** Consumer 4 took " " from buffer
+
+Thread "Consumer 4" is signalling processes blocked on condition "FULL"
+Thread "Consumer 4" is RELEASING lock.
+Putting thread Consumer 8 on ready list.
+Yielding thread "Consumer 4"
+Putting thread Consumer 4 on ready list.
+Switching from thread "Consumer 4" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is ENTERING critical section.
+Thread "Consumer 8" is EXITING critical section.
+*** Consumer 8 took "W" from buffer
+
+Thread "Consumer 8" is signalling processes blocked on condition "FULL"
+Thread "Consumer 8" is RELEASING lock.
+Putting thread Producer 1 on ready list.
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is acquiring lock.
+Thread "Consumer 4" is ENTERING critical section.
+Thread "Consumer 4" is EXITING critical section.
+*** Consumer 4 took "o" from buffer
+
+Thread "Consumer 4" is signalling processes blocked on condition "FULL"
+Thread "Consumer 4" is RELEASING lock.
+Putting thread Producer 6 on ready list.
+Yielding thread "Consumer 4"
+Putting thread Consumer 4 on ready list.
+Switching from thread "Consumer 4" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is acquiring lock.
+Thread "Consumer 0" is waiting on condition "EMPTY"
+Thread "Consumer 0" is RELEASING lock.
+Putting thread Producer 9 on ready list.
+Thread "Consumer 0" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is ENTERING critical section.
+Thread "Producer 1" is EXITING critical section.
+*** Producer 1 added "r" to buffer
+
+Thread "Producer 1" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is acquiring lock.
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Producer 6"
+Now in thread "Producer 6"
+Sleeping thread "Producer 6"
+Switching from thread "Producer 6" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is acquiring lock.
+Sleeping thread "Consumer 4"
+Switching from thread "Consumer 4" to thread "Producer 9"
+Now in thread "Producer 9"
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" has woken and is about to get lock.
+Thread "Consumer 0" is acquiring lock.
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is RELEASING lock.
+Putting thread Producer 2 on ready list.
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is ENTERING critical section.
+Thread "Producer 2" is EXITING critical section.
+*** Producer 2 added "o" to buffer
+
+Thread "Producer 2" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 2" is RELEASING lock.
+Putting thread Consumer 9 on ready list.
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is acquiring lock.
+Thread "Producer 1" is ENTERING critical section.
+Thread "Producer 1" is EXITING critical section.
+*** Producer 1 added "l" to buffer
+
+Thread "Producer 1" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 1" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is ENTERING critical section.
+Thread "Consumer 9" is EXITING critical section.
+*** Consumer 9 took "r" from buffer
+
+Thread "Consumer 9" is signalling processes blocked on condition "FULL"
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Producer 5 on ready list.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is acquiring lock.
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is acquiring lock.
+Sleeping thread "Producer 1"
+Switching from thread "Producer 1" to thread "Producer 5"
+Now in thread "Producer 5"
+Sleeping thread "Producer 5"
+Switching from thread "Producer 5" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is acquiring lock.
+Sleeping thread "Consumer 9"
+Switching from thread "Consumer 9" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is ENTERING critical section.
+Thread "Producer 2" is EXITING critical section.
+*** Producer 2 added " " to buffer
+
+Thread "Producer 2" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 2" is RELEASING lock.
+Putting thread Consumer 7 on ready list.
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is ENTERING critical section.
+Thread "Consumer 7" is EXITING critical section.
+*** Consumer 7 took "o" from buffer
+
+Thread "Consumer 7" is signalling processes blocked on condition "FULL"
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is acquiring lock.
+Sleeping thread "Producer 2"
+Switching from thread "Producer 2" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is RELEASING lock.
+Putting thread Producer 0 on ready list.
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Producer 0"
+Now in thread "Producer 0"
+Thread "Producer 0" is ENTERING critical section.
+Thread "Producer 0" is EXITING critical section.
+*** Producer 0 added "r" to buffer
+
+Thread "Producer 0" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 0" is RELEASING lock.
+Putting thread Consumer 6 on ready list.
+Yielding thread "Producer 0"
+Putting thread Producer 0 on ready list.
+Switching from thread "Producer 0" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is ENTERING critical section.
+Thread "Consumer 6" is EXITING critical section.
+*** Consumer 6 took "l" from buffer
+
+Thread "Consumer 6" is signalling processes blocked on condition "FULL"
+Thread "Consumer 6" is RELEASING lock.
+Putting thread Consumer 1 on ready list.
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Producer 0"
+Now in thread "Producer 0"
+Thread "Producer 0" is acquiring lock.
+Thread "Producer 0" is ENTERING critical section.
+Thread "Producer 0" is EXITING critical section.
+*** Producer 0 added "l" to buffer
+
+Thread "Producer 0" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 0" is RELEASING lock.
+Putting thread Producer 4 on ready list.
+Yielding thread "Producer 0"
+Putting thread Producer 0 on ready list.
+Switching from thread "Producer 0" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is acquiring lock.
+Thread "Consumer 7" is ENTERING critical section.
+Thread "Consumer 7" is EXITING critical section.
+*** Consumer 7 took " " from buffer
+
+Thread "Consumer 7" is signalling processes blocked on condition "FULL"
+Thread "Consumer 7" is RELEASING lock.
+Putting thread Producer 8 on ready list.
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is ENTERING critical section.
+Thread "Consumer 1" is EXITING critical section.
+*** Consumer 1 took "r" from buffer
+
+Thread "Consumer 1" is signalling processes blocked on condition "FULL"
+Thread "Consumer 1" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Yielding thread "Consumer 1"
+Putting thread Consumer 1 on ready list.
+Switching from thread "Consumer 1" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is acquiring lock.
+Thread "Consumer 6" is ENTERING critical section.
+Thread "Consumer 6" is EXITING critical section.
+*** Consumer 6 took "l" from buffer
+
+Thread "Consumer 6" is signalling processes blocked on condition "FULL"
+Thread "Consumer 6" is RELEASING lock.
+Putting thread Producer 7 on ready list.
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is ENTERING critical section.
+Thread "Producer 4" is EXITING critical section.
+*** Producer 4 added "o" to buffer
+
+Thread "Producer 4" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 4" is RELEASING lock.
+Putting thread Consumer 2 on ready list.
+Yielding thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Switching from thread "Producer 4" to thread "Producer 0"
+Now in thread "Producer 0"
+Thread "Producer 0" is acquiring lock.
+Thread "Producer 0" is ENTERING critical section.
+Thread "Producer 0" is EXITING critical section.
+*** Producer 0 added "d" to buffer
+
+Thread "Producer 0" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 0" is RELEASING lock.
+Putting thread Consumer 5 on ready list.
+Yielding thread "Producer 0"
+Putting thread Producer 0 on ready list.
+Switching from thread "Producer 0" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is ENTERING critical section.
+Thread "Producer 8" is EXITING critical section.
+*** Producer 8 added "o" to buffer
+
+Thread "Producer 8" is signalling processes blocked on condition "EMPTY"
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Producer 3"
+Now in thread "Producer 3"
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is acquiring lock.
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Producer 7"
+Now in thread "Producer 7"
+Sleeping thread "Producer 7"
+Switching from thread "Producer 7" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is acquiring lock.
+Sleeping thread "Consumer 6"
+Switching from thread "Consumer 6" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is acquiring lock.
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Producer 0"
+Now in thread "Producer 0"
+Finishing thread "Producer 0"
+Sleeping thread "Producer 0"
+Switching from thread "Producer 0" to thread "Producer 8"
+Now in thread "Producer 8"
+Deleting thread "Producer 0"
+Thread "Producer 8" is RELEASING lock.
+Putting thread Consumer 8 on ready list.
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is acquiring lock.
+Thread "Consumer 7" is ENTERING critical section.
+Thread "Consumer 7" is EXITING critical section.
+*** Consumer 7 took "o" from buffer
+
+Thread "Consumer 7" is signalling processes blocked on condition "FULL"
+Thread "Consumer 7" is RELEASING lock.
+Putting thread Producer 6 on ready list.
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is ENTERING critical section.
+Thread "Consumer 8" is EXITING critical section.
+*** Consumer 8 took "d" from buffer
+
+Thread "Consumer 8" is signalling processes blocked on condition "FULL"
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is acquiring lock.
+Sleeping thread "Producer 8"
+Switching from thread "Producer 8" to thread "Producer 6"
+Now in thread "Producer 6"
+Sleeping thread "Producer 6"
+Switching from thread "Producer 6" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is acquiring lock.
+Sleeping thread "Consumer 7"
+Switching from thread "Consumer 7" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is RELEASING lock.
+Putting thread Consumer 4 on ready list.
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is ENTERING critical section.
+Thread "Consumer 4" is EXITING critical section.
+*** Consumer 4 took "o" from buffer
+
+Thread "Consumer 4" is signalling processes blocked on condition "FULL"
+Thread "Consumer 4" is RELEASING lock.
+Putting thread Producer 9 on ready list.
+Yielding thread "Consumer 4"
+Putting thread Consumer 4 on ready list.
+Switching from thread "Consumer 4" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is acquiring lock.
+Thread "Consumer 8" is waiting on condition "EMPTY"
+Thread "Consumer 8" is RELEASING lock.
+Putting thread Consumer 0 on ready list.
+Thread "Consumer 8" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is ENTERING critical section.
+Thread "Producer 9" is EXITING critical section.
+*** Producer 9 added "o" to buffer
+
+Thread "Producer 9" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Thread "Producer 9" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is acquiring lock.
+Thread "Consumer 4" is ENTERING critical section.
+Thread "Consumer 4" is EXITING critical section.
+*** Consumer 4 took "o" from buffer
+
+Thread "Consumer 4" is signalling processes blocked on condition "FULL"
+Thread "Consumer 4" is RELEASING lock.
+Putting thread Producer 1 on ready list.
+Yielding thread "Consumer 4"
+Putting thread Consumer 4 on ready list.
+Switching from thread "Consumer 4" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is waiting on condition "EMPTY"
+Thread "Consumer 0" is RELEASING lock.
+Putting thread Producer 5 on ready list.
+Thread "Consumer 0" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" has woken and is about to get lock.
+Thread "Consumer 8" is acquiring lock.
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is acquiring lock.
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Producer 1"
+Now in thread "Producer 1"
+Sleeping thread "Producer 1"
+Switching from thread "Producer 1" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is acquiring lock.
+Sleeping thread "Consumer 4"
+Switching from thread "Consumer 4" to thread "Producer 5"
+Now in thread "Producer 5"
+Sleeping thread "Producer 5"
+Switching from thread "Producer 5" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is waiting on condition "EMPTY"
+Thread "Consumer 8" is RELEASING lock.
+Putting thread Consumer 9 on ready list.
+Thread "Consumer 8" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is waiting on condition "EMPTY"
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Producer 2 on ready list.
+Thread "Consumer 9" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 9"
+Switching from thread "Consumer 9" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is ENTERING critical section.
+Thread "Producer 2" is EXITING critical section.
+*** Producer 2 added "W" to buffer
+
+Thread "Producer 2" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Thread "Producer 2" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" has woken and is about to get lock.
+Thread "Consumer 0" is acquiring lock.
+Thread "Consumer 0" is ENTERING critical section.
+Thread "Consumer 0" is EXITING critical section.
+*** Consumer 0 took "W" from buffer
+
+Thread "Consumer 0" is signalling processes blocked on condition "FULL"
+Thread "Consumer 0" is RELEASING lock.
+Putting thread Consumer 1 on ready list.
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is ENTERING critical section.
+Thread "Producer 3" is EXITING critical section.
+*** Producer 3 added "W" to buffer
+
+Thread "Producer 3" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is acquiring lock.
+Sleeping thread "Producer 2"
+Switching from thread "Producer 2" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is acquiring lock.
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" has woken and is about to get lock.
+Thread "Consumer 8" is acquiring lock.
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is RELEASING lock.
+Putting thread Producer 7 on ready list.
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is ENTERING critical section.
+Thread "Producer 7" is EXITING critical section.
+*** Producer 7 added "r" to buffer
+
+Thread "Producer 7" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Thread "Producer 7" is RELEASING lock.
+Putting thread Consumer 6 on ready list.
+Yielding thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Switching from thread "Producer 7" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is acquiring lock.
+Thread "Producer 3" is ENTERING critical section.
+Thread "Producer 3" is EXITING critical section.
+*** Producer 3 added "o" to buffer
+
+Thread "Producer 3" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 3" is RELEASING lock.
+Putting thread Consumer 2 on ready list.
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" has woken and is about to get lock.
+Thread "Consumer 9" is acquiring lock.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Sleeping thread "Consumer 6"
+Switching from thread "Consumer 6" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is acquiring lock.
+Sleeping thread "Producer 7"
+Switching from thread "Producer 7" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is acquiring lock.
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is ENTERING critical section.
+Thread "Consumer 9" is EXITING critical section.
+*** Consumer 9 took "W" from buffer
+
+Thread "Consumer 9" is signalling processes blocked on condition "FULL"
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Producer 4 on ready list.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is ENTERING critical section.
+Thread "Producer 4" is EXITING critical section.
+*** Producer 4 added " " to buffer
+
+Thread "Producer 4" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 4" is RELEASING lock.
+Putting thread Consumer 5 on ready list.
+Yielding thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Switching from thread "Producer 4" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is acquiring lock.
+Thread "Consumer 9" is ENTERING critical section.
+Thread "Consumer 9" is EXITING critical section.
+*** Consumer 9 took "r" from buffer
+
+Thread "Consumer 9" is signalling processes blocked on condition "FULL"
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Producer 8 on ready list.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" is ENTERING critical section.
+Thread "Consumer 5" is EXITING critical section.
+*** Consumer 5 took "o" from buffer
+
+Thread "Consumer 5" is signalling processes blocked on condition "FULL"
+Thread "Consumer 5" is RELEASING lock.
+Putting thread Producer 6 on ready list.
+Yielding thread "Consumer 5"
+Putting thread Consumer 5 on ready list.
+Switching from thread "Consumer 5" to thread "Producer 4"
+Now in thread "Producer 4"
+Yielding thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Switching from thread "Producer 4" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is ENTERING critical section.
+Thread "Producer 8" is EXITING critical section.
+*** Producer 8 added "r" to buffer
+
+Thread "Producer 8" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 8" is RELEASING lock.
+Putting thread Consumer 7 on ready list.
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is ENTERING critical section.
+Thread "Producer 6" is EXITING critical section.
+*** Producer 6 added "W" to buffer
+
+Thread "Producer 6" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 6" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" is acquiring lock.
+Thread "Consumer 5" is ENTERING critical section.
+Thread "Consumer 5" is EXITING critical section.
+*** Consumer 5 took " " from buffer
+
+Thread "Consumer 5" is signalling processes blocked on condition "FULL"
+Thread "Consumer 5" is RELEASING lock.
+Putting thread Producer 9 on ready list.
+Yielding thread "Consumer 5"
+Putting thread Consumer 5 on ready list.
+Switching from thread "Consumer 5" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is acquiring lock.
+Thread "Producer 4" is ENTERING critical section.
+Thread "Producer 4" is EXITING critical section.
+*** Producer 4 added "W" to buffer
+
+Thread "Producer 4" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 4" is RELEASING lock.
+Putting thread Producer 1 on ready list.
+Yielding thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Switching from thread "Producer 4" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is ENTERING critical section.
+Thread "Consumer 7" is EXITING critical section.
+*** Consumer 7 took "r" from buffer
+
+Thread "Consumer 7" is signalling processes blocked on condition "FULL"
+Thread "Consumer 7" is RELEASING lock.
+Putting thread Consumer 4 on ready list.
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is acquiring lock.
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Producer 6"
+Now in thread "Producer 6"
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Producer 9"
+Now in thread "Producer 9"
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" is acquiring lock.
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Producer 1"
+Now in thread "Producer 1"
+Sleeping thread "Producer 1"
+Switching from thread "Producer 1" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is acquiring lock.
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Sleeping thread "Consumer 4"
+Switching from thread "Consumer 4" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is acquiring lock.
+Sleeping thread "Consumer 7"
+Switching from thread "Consumer 7" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is ENTERING critical section.
+Thread "Producer 8" is EXITING critical section.
+*** Producer 8 added "l" to buffer
+
+Thread "Producer 8" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 8" is RELEASING lock.
+Putting thread Producer 5 on ready list.
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is acquiring lock.
+Thread "Consumer 9" is ENTERING critical section.
+Thread "Consumer 9" is EXITING critical section.
+*** Consumer 9 took "W" from buffer
+
+Thread "Consumer 9" is signalling processes blocked on condition "FULL"
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Producer 2 on ready list.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Producer 6"
+Now in thread "Producer 6"
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is ENTERING critical section.
+Thread "Producer 5" is EXITING critical section.
+*** Producer 5 added "W" to buffer
+
+Thread "Producer 5" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 5" is RELEASING lock.
+Putting thread Consumer 1 on ready list.
+Yielding thread "Producer 5"
+Putting thread Producer 5 on ready list.
+Switching from thread "Producer 5" to thread "Producer 8"
+Now in thread "Producer 8"
+Thread "Producer 8" is acquiring lock.
+Thread "Producer 8" is ENTERING critical section.
+Thread "Producer 8" is EXITING critical section.
+*** Producer 8 added "d" to buffer
+
+Thread "Producer 8" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 8" is RELEASING lock.
+Putting thread Consumer 0 on ready list.
+Yielding thread "Producer 8"
+Putting thread Producer 8 on ready list.
+Switching from thread "Producer 8" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is ENTERING critical section.
+Thread "Producer 2" is EXITING critical section.
+*** Producer 2 added "o" to buffer
+
+Thread "Producer 2" is signalling processes blocked on condition "EMPTY"
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is acquiring lock.
+Sleeping thread "Consumer 9"
+Switching from thread "Consumer 9" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is acquiring lock.
+Sleeping thread "Producer 6"
+Switching from thread "Producer 6" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is acquiring lock.
+Sleeping thread "Producer 5"
+Switching from thread "Producer 5" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Producer 8"
+Now in thread "Producer 8"
+Finishing thread "Producer 8"
+Sleeping thread "Producer 8"
+Switching from thread "Producer 8" to thread "Producer 2"
+Now in thread "Producer 2"
+Deleting thread "Producer 8"
+Thread "Producer 2" is RELEASING lock.
+Putting thread Consumer 8 on ready list.
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is ENTERING critical section.
+Thread "Consumer 8" is EXITING critical section.
+*** Consumer 8 took "W" from buffer
+
+Thread "Consumer 8" is signalling processes blocked on condition "FULL"
+Thread "Consumer 8" is RELEASING lock.
+Putting thread Consumer 6 on ready list.
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is acquiring lock.
+Thread "Producer 2" is ENTERING critical section.
+Thread "Producer 2" is EXITING critical section.
+*** Producer 2 added "r" to buffer
+
+Thread "Producer 2" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 2" is RELEASING lock.
+Putting thread Producer 7 on ready list.
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is ENTERING critical section.
+Thread "Consumer 6" is EXITING critical section.
+*** Consumer 6 took "l" from buffer
+
+Thread "Consumer 6" is signalling processes blocked on condition "FULL"
+Thread "Consumer 6" is RELEASING lock.
+Putting thread Consumer 2 on ready list.
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is ENTERING critical section.
+Thread "Producer 7" is EXITING critical section.
+*** Producer 7 added "l" to buffer
+
+Thread "Producer 7" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 7" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Yielding thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Switching from thread "Producer 7" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is acquiring lock.
+Thread "Producer 2" is ENTERING critical section.
+Thread "Producer 2" is EXITING critical section.
+*** Producer 2 added "l" to buffer
+
+Thread "Producer 2" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 2" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is ENTERING critical section.
+Thread "Consumer 2" is EXITING critical section.
+*** Consumer 2 took "W" from buffer
+
+Thread "Consumer 2" is signalling processes blocked on condition "FULL"
+Thread "Consumer 2" is RELEASING lock.
+Putting thread Producer 9 on ready list.
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is acquiring lock.
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Producer 3"
+Now in thread "Producer 3"
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is acquiring lock.
+Sleeping thread "Producer 7"
+Switching from thread "Producer 7" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is acquiring lock.
+Sleeping thread "Producer 2"
+Switching from thread "Producer 2" to thread "Producer 9"
+Now in thread "Producer 9"
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is acquiring lock.
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is ENTERING critical section.
+Thread "Consumer 6" is EXITING critical section.
+*** Consumer 6 took "d" from buffer
+
+Thread "Consumer 6" is signalling processes blocked on condition "FULL"
+Thread "Consumer 6" is RELEASING lock.
+Putting thread Consumer 5 on ready list.
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is acquiring lock.
+Thread "Consumer 8" is ENTERING critical section.
+Thread "Consumer 8" is EXITING critical section.
+*** Consumer 8 took "o" from buffer
+
+Thread "Consumer 8" is signalling processes blocked on condition "FULL"
+Thread "Consumer 8" is RELEASING lock.
+Putting thread Producer 1 on ready list.
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" is ENTERING critical section.
+Thread "Consumer 5" is EXITING critical section.
+*** Consumer 5 took "r" from buffer
+
+Thread "Consumer 5" is signalling processes blocked on condition "FULL"
+Thread "Consumer 5" is RELEASING lock.
+Putting thread Producer 4 on ready list.
+Yielding thread "Consumer 5"
+Putting thread Consumer 5 on ready list.
+Switching from thread "Consumer 5" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is acquiring lock.
+Thread "Consumer 6" is ENTERING critical section.
+Thread "Consumer 6" is EXITING critical section.
+*** Consumer 6 took "l" from buffer
+
+Thread "Consumer 6" is signalling processes blocked on condition "FULL"
+Thread "Consumer 6" is RELEASING lock.
+Putting thread Consumer 4 on ready list.
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Producer 1"
+Now in thread "Producer 1"
+Thread "Producer 1" is ENTERING critical section.
+Thread "Producer 1" is EXITING critical section.
+*** Producer 1 added "d" to buffer
+
+Thread "Producer 1" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 1" is RELEASING lock.
+Putting thread Consumer 7 on ready list.
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is ENTERING critical section.
+Thread "Producer 4" is EXITING critical section.
+*** Producer 4 added "o" to buffer
+
+Thread "Producer 4" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 4" is RELEASING lock.
+Putting thread Consumer 9 on ready list.
+Yielding thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Switching from thread "Producer 4" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Yielding thread "Consumer 5"
+Putting thread Consumer 5 on ready list.
+Switching from thread "Consumer 5" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is ENTERING critical section.
+Thread "Consumer 4" is EXITING critical section.
+*** Consumer 4 took "l" from buffer
+
+Thread "Consumer 4" is signalling processes blocked on condition "FULL"
+Thread "Consumer 4" is RELEASING lock.
+Putting thread Producer 6 on ready list.
+Yielding thread "Consumer 4"
+Putting thread Consumer 4 on ready list.
+Switching from thread "Consumer 4" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is acquiring lock.
+Thread "Consumer 6" is ENTERING critical section.
+Thread "Consumer 6" is EXITING critical section.
+*** Consumer 6 took "d" from buffer
+
+Thread "Consumer 6" is signalling processes blocked on condition "FULL"
+Thread "Consumer 6" is RELEASING lock.
+Putting thread Consumer 1 on ready list.
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is ENTERING critical section.
+Thread "Consumer 7" is EXITING critical section.
+*** Consumer 7 took "o" from buffer
+
+Thread "Consumer 7" is signalling processes blocked on condition "FULL"
+Thread "Consumer 7" is RELEASING lock.
+Putting thread Producer 5 on ready list.
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Producer 1"
+Now in thread "Producer 1"
+Yielding thread "Producer 1"
+Putting thread Producer 1 on ready list.
+Switching from thread "Producer 1" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is acquiring lock.
+Thread "Consumer 8" is waiting on condition "EMPTY"
+Thread "Consumer 8" is RELEASING lock.
+Putting thread Consumer 0 on ready list.
+Thread "Consumer 8" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is waiting on condition "EMPTY"
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Thread "Consumer 9" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 9"
+Switching from thread "Consumer 9" to thread "Producer 4"
+Now in thread "Producer 4"
+Yielding thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Switching from thread "Producer 4" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" is acquiring lock.
+Thread "Consumer 5" is waiting on condition "EMPTY"
+Thread "Consumer 5" is RELEASING lock.
+Putting thread Producer 7 on ready list.
+Thread "Consumer 5" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is ENTERING critical section.
+Thread "Producer 6" is EXITING critical section.
+*** Producer 6 added "o" to buffer
+
+Thread "Producer 6" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Thread "Producer 6" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Yielding thread "Consumer 4"
+Putting thread Consumer 4 on ready list.
+Switching from thread "Consumer 4" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is ENTERING critical section.
+Thread "Consumer 1" is EXITING critical section.
+*** Consumer 1 took "o" from buffer
+
+Thread "Consumer 1" is signalling processes blocked on condition "FULL"
+Thread "Consumer 1" is RELEASING lock.
+Putting thread Producer 2 on ready list.
+Yielding thread "Consumer 1"
+Putting thread Consumer 1 on ready list.
+Switching from thread "Consumer 1" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is acquiring lock.
+Thread "Consumer 6" is waiting on condition "EMPTY"
+Thread "Consumer 6" is RELEASING lock.
+Putting thread Producer 9 on ready list.
+Thread "Consumer 6" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 6"
+Switching from thread "Consumer 6" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is ENTERING critical section.
+Thread "Producer 5" is EXITING critical section.
+*** Producer 5 added "o" to buffer
+
+Thread "Producer 5" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Thread "Producer 5" is RELEASING lock.
+Putting thread Consumer 2 on ready list.
+Yielding thread "Producer 5"
+Putting thread Producer 5 on ready list.
+Switching from thread "Producer 5" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is acquiring lock.
+Thread "Consumer 7" is ENTERING critical section.
+Thread "Consumer 7" is EXITING critical section.
+*** Consumer 7 took "o" from buffer
+
+Thread "Consumer 7" is signalling processes blocked on condition "FULL"
+Thread "Consumer 7" is RELEASING lock.
+Yielding thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Switching from thread "Consumer 7" to thread "Producer 1"
+Now in thread "Producer 1"
+Finishing thread "Producer 1"
+Sleeping thread "Producer 1"
+Switching from thread "Producer 1" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Deleting thread "Producer 1"
+Thread "Consumer 0" is waiting on condition "EMPTY"
+Thread "Consumer 0" is RELEASING lock.
+Thread "Consumer 0" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is ENTERING critical section.
+Thread "Producer 3" is EXITING critical section.
+*** Producer 3 added "r" to buffer
+
+Thread "Producer 3" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 5"
+Putting thread Consumer 5 on ready list.
+Thread "Producer 3" is RELEASING lock.
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is acquiring lock.
+Thread "Producer 4" is ENTERING critical section.
+Thread "Producer 4" is EXITING critical section.
+*** Producer 4 added "r" to buffer
+
+Thread "Producer 4" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Thread "Producer 4" is RELEASING lock.
+Yielding thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Switching from thread "Producer 4" to thread "Producer 7"
+Now in thread "Producer 7"
+Thread "Producer 7" is ENTERING critical section.
+Thread "Producer 7" is EXITING critical section.
+*** Producer 7 added "d" to buffer
+
+Thread "Producer 7" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Thread "Producer 7" is RELEASING lock.
+Yielding thread "Producer 7"
+Putting thread Producer 7 on ready list.
+Switching from thread "Producer 7" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" has woken and is about to get lock.
+Thread "Consumer 8" is acquiring lock.
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is acquiring lock.
+Sleeping thread "Producer 6"
+Switching from thread "Producer 6" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is acquiring lock.
+Sleeping thread "Consumer 4"
+Switching from thread "Consumer 4" to thread "Producer 2"
+Now in thread "Producer 2"
+Sleeping thread "Producer 2"
+Switching from thread "Producer 2" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is acquiring lock.
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Producer 9"
+Now in thread "Producer 9"
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" has woken and is about to get lock.
+Thread "Consumer 9" is acquiring lock.
+Sleeping thread "Consumer 9"
+Switching from thread "Consumer 9" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Producer 5"
+Now in thread "Producer 5"
+Yielding thread "Producer 5"
+Putting thread Producer 5 on ready list.
+Switching from thread "Producer 5" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is acquiring lock.
+Sleeping thread "Consumer 7"
+Switching from thread "Consumer 7" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" has woken and is about to get lock.
+Thread "Consumer 5" is acquiring lock.
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is acquiring lock.
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" has woken and is about to get lock.
+Thread "Consumer 6" is acquiring lock.
+Sleeping thread "Consumer 6"
+Switching from thread "Consumer 6" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is acquiring lock.
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" has woken and is about to get lock.
+Thread "Consumer 0" is acquiring lock.
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Producer 7"
+Now in thread "Producer 7"
+Finishing thread "Producer 7"
+Sleeping thread "Producer 7"
+Switching from thread "Producer 7" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Deleting thread "Producer 7"
+Thread "Consumer 8" is ENTERING critical section.
+Thread "Consumer 8" is EXITING critical section.
+*** Consumer 8 took "r" from buffer
+
+Thread "Consumer 8" is signalling processes blocked on condition "FULL"
+Thread "Consumer 8" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is acquiring lock.
+Thread "Producer 5" is ENTERING critical section.
+Thread "Producer 5" is EXITING critical section.
+*** Producer 5 added "r" to buffer
+
+Thread "Producer 5" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 5" is RELEASING lock.
+Putting thread Producer 6 on ready list.
+Yielding thread "Producer 5"
+Putting thread Producer 5 on ready list.
+Switching from thread "Producer 5" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is ENTERING critical section.
+Thread "Consumer 3" is EXITING critical section.
+*** Consumer 3 took "r" from buffer
+
+Thread "Consumer 3" is signalling processes blocked on condition "FULL"
+Thread "Consumer 3" is RELEASING lock.
+Putting thread Consumer 4 on ready list.
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is ENTERING critical section.
+Thread "Producer 6" is EXITING critical section.
+*** Producer 6 added "r" to buffer
+
+Thread "Producer 6" is signalling processes blocked on condition "EMPTY"
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is acquiring lock.
+Sleeping thread "Producer 5"
+Switching from thread "Producer 5" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Sleeping thread "Consumer 4"
+Switching from thread "Consumer 4" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is acquiring lock.
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is RELEASING lock.
+Putting thread Producer 2 on ready list.
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is acquiring lock.
+Thread "Consumer 8" is ENTERING critical section.
+Thread "Consumer 8" is EXITING critical section.
+*** Consumer 8 took "d" from buffer
+
+Thread "Consumer 8" is signalling processes blocked on condition "FULL"
+Thread "Consumer 8" is RELEASING lock.
+Putting thread Consumer 1 on ready list.
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Producer 2"
+Now in thread "Producer 2"
+Thread "Producer 2" is ENTERING critical section.
+Thread "Producer 2" is EXITING critical section.
+*** Producer 2 added "d" to buffer
+
+Thread "Producer 2" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 2" is RELEASING lock.
+Putting thread Producer 9 on ready list.
+Yielding thread "Producer 2"
+Putting thread Producer 2 on ready list.
+Switching from thread "Producer 2" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is acquiring lock.
+Thread "Producer 6" is ENTERING critical section.
+Thread "Producer 6" is EXITING critical section.
+*** Producer 6 added "l" to buffer
+
+Thread "Producer 6" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 6" is RELEASING lock.
+Putting thread Consumer 9 on ready list.
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is ENTERING critical section.
+Thread "Consumer 1" is EXITING critical section.
+*** Consumer 1 took "r" from buffer
+
+Thread "Consumer 1" is signalling processes blocked on condition "FULL"
+Thread "Consumer 1" is RELEASING lock.
+Putting thread Consumer 2 on ready list.
+Yielding thread "Consumer 1"
+Putting thread Consumer 1 on ready list.
+Switching from thread "Consumer 1" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Yielding thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Switching from thread "Consumer 8" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is ENTERING critical section.
+Thread "Producer 9" is EXITING critical section.
+*** Producer 9 added " " to buffer
+
+Thread "Producer 9" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 9" is RELEASING lock.
+Putting thread Consumer 7 on ready list.
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Producer 2"
+Now in thread "Producer 2"
+Finishing thread "Producer 2"
+Sleeping thread "Producer 2"
+Switching from thread "Producer 2" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Deleting thread "Producer 2"
+Thread "Consumer 9" is ENTERING critical section.
+Thread "Consumer 9" is EXITING critical section.
+*** Consumer 9 took "r" from buffer
+
+Thread "Consumer 9" is signalling processes blocked on condition "FULL"
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Consumer 5 on ready list.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Producer 6"
+Now in thread "Producer 6"
+Thread "Producer 6" is acquiring lock.
+Thread "Producer 6" is ENTERING critical section.
+Thread "Producer 6" is EXITING critical section.
+*** Producer 6 added "d" to buffer
+
+Thread "Producer 6" is signalling processes blocked on condition "EMPTY"
+Thread "Producer 6" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Yielding thread "Producer 6"
+Putting thread Producer 6 on ready list.
+Switching from thread "Producer 6" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is acquiring lock.
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is acquiring lock.
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Sleeping thread "Consumer 7"
+Switching from thread "Consumer 7" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is acquiring lock.
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is acquiring lock.
+Sleeping thread "Consumer 9"
+Switching from thread "Consumer 9" to thread "Producer 3"
+Now in thread "Producer 3"
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Producer 6"
+Now in thread "Producer 6"
+Finishing thread "Producer 6"
+Sleeping thread "Producer 6"
+Switching from thread "Producer 6" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Deleting thread "Producer 6"
+Thread "Consumer 2" is ENTERING critical section.
+Thread "Consumer 2" is EXITING critical section.
+*** Consumer 2 took "d" from buffer
+
+Thread "Consumer 2" is signalling processes blocked on condition "FULL"
+Thread "Consumer 2" is RELEASING lock.
+Putting thread Consumer 6 on ready list.
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is ENTERING critical section.
+Thread "Consumer 6" is EXITING critical section.
+*** Consumer 6 took "l" from buffer
+
+Thread "Consumer 6" is signalling processes blocked on condition "FULL"
+Thread "Consumer 6" is RELEASING lock.
+Putting thread Producer 4 on ready list.
+Yielding thread "Consumer 6"
+Putting thread Consumer 6 on ready list.
+Switching from thread "Consumer 6" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is acquiring lock.
+Thread "Consumer 2" is ENTERING critical section.
+Thread "Consumer 2" is EXITING critical section.
+*** Consumer 2 took " " from buffer
+
+Thread "Consumer 2" is signalling processes blocked on condition "FULL"
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Producer 4"
+Now in thread "Producer 4"
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is acquiring lock.
+Sleeping thread "Consumer 6"
+Switching from thread "Consumer 6" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is RELEASING lock.
+Putting thread Consumer 0 on ready list.
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is ENTERING critical section.
+Thread "Consumer 0" is EXITING critical section.
+*** Consumer 0 took "d" from buffer
+
+Thread "Consumer 0" is signalling processes blocked on condition "FULL"
+Thread "Consumer 0" is RELEASING lock.
+Putting thread Producer 5 on ready list.
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is acquiring lock.
+Thread "Consumer 2" is waiting on condition "EMPTY"
+Thread "Consumer 2" is RELEASING lock.
+Putting thread Consumer 4 on ready list.
+Thread "Consumer 2" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is ENTERING critical section.
+Thread "Producer 5" is EXITING critical section.
+*** Producer 5 added "l" to buffer
+
+Thread "Producer 5" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Thread "Producer 5" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Yielding thread "Producer 5"
+Putting thread Producer 5 on ready list.
+Switching from thread "Producer 5" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is ENTERING critical section.
+Thread "Consumer 4" is EXITING critical section.
+*** Consumer 4 took "l" from buffer
+
+Thread "Consumer 4" is signalling processes blocked on condition "FULL"
+Thread "Consumer 4" is RELEASING lock.
+Putting thread Consumer 1 on ready list.
+Yielding thread "Consumer 4"
+Putting thread Consumer 4 on ready list.
+Switching from thread "Consumer 4" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" has woken and is about to get lock.
+Thread "Consumer 2" is acquiring lock.
+Thread "Consumer 2" is waiting on condition "EMPTY"
+Thread "Consumer 2" is RELEASING lock.
+Putting thread Consumer 8 on ready list.
+Thread "Consumer 2" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is waiting on condition "EMPTY"
+Thread "Consumer 3" is RELEASING lock.
+Putting thread Consumer 7 on ready list.
+Thread "Consumer 3" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Producer 5"
+Now in thread "Producer 5"
+Thread "Producer 5" is acquiring lock.
+Thread "Producer 5" is ENTERING critical section.
+Thread "Producer 5" is EXITING critical section.
+*** Producer 5 added "d" to buffer
+
+Thread "Producer 5" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Thread "Producer 5" is RELEASING lock.
+Putting thread Producer 9 on ready list.
+Yielding thread "Producer 5"
+Putting thread Producer 5 on ready list.
+Switching from thread "Producer 5" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is ENTERING critical section.
+Thread "Consumer 1" is EXITING critical section.
+*** Consumer 1 took "d" from buffer
+
+Thread "Consumer 1" is signalling processes blocked on condition "FULL"
+Thread "Consumer 1" is RELEASING lock.
+Putting thread Consumer 5 on ready list.
+Yielding thread "Consumer 1"
+Putting thread Consumer 1 on ready list.
+Switching from thread "Consumer 1" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is acquiring lock.
+Thread "Consumer 4" is waiting on condition "EMPTY"
+Thread "Consumer 4" is RELEASING lock.
+Putting thread Consumer 9 on ready list.
+Thread "Consumer 4" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 4"
+Switching from thread "Consumer 4" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is waiting on condition "EMPTY"
+Thread "Consumer 8" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Thread "Consumer 8" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" is waiting on condition "EMPTY"
+Thread "Consumer 7" is RELEASING lock.
+Putting thread Producer 4 on ready list.
+Thread "Consumer 7" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 7"
+Switching from thread "Consumer 7" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" has woken and is about to get lock.
+Thread "Consumer 2" is acquiring lock.
+Thread "Consumer 2" is waiting on condition "EMPTY"
+Thread "Consumer 2" is RELEASING lock.
+Putting thread Consumer 6 on ready list.
+Thread "Consumer 2" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is ENTERING critical section.
+Thread "Producer 9" is EXITING critical section.
+*** Producer 9 added "W" to buffer
+
+Thread "Producer 9" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Thread "Producer 9" is RELEASING lock.
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Producer 5"
+Now in thread "Producer 5"
+Finishing thread "Producer 5"
+Sleeping thread "Producer 5"
+Switching from thread "Producer 5" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Deleting thread "Producer 5"
+Thread "Consumer 0" is acquiring lock.
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is acquiring lock.
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Sleeping thread "Consumer 9"
+Switching from thread "Consumer 9" to thread "Producer 3"
+Now in thread "Producer 3"
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Producer 4"
+Now in thread "Producer 4"
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Sleeping thread "Consumer 6"
+Switching from thread "Consumer 6" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" has woken and is about to get lock.
+Thread "Consumer 3" is acquiring lock.
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is acquiring lock.
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is ENTERING critical section.
+Thread "Consumer 0" is EXITING critical section.
+*** Consumer 0 took "W" from buffer
+
+Thread "Consumer 0" is signalling processes blocked on condition "FULL"
+Thread "Consumer 0" is RELEASING lock.
+Putting thread Consumer 5 on ready list.
+Yielding thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Switching from thread "Consumer 0" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" is waiting on condition "EMPTY"
+Thread "Consumer 5" is RELEASING lock.
+Putting thread Consumer 1 on ready list.
+Thread "Consumer 5" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" is acquiring lock.
+Thread "Consumer 0" is waiting on condition "EMPTY"
+Thread "Consumer 0" is RELEASING lock.
+Putting thread Consumer 9 on ready list.
+Thread "Consumer 0" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" is waiting on condition "EMPTY"
+Thread "Consumer 1" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Thread "Consumer 1" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Producer 3"
+Now in thread "Producer 3"
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Thread "Consumer 9" is waiting on condition "EMPTY"
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Producer 4 on ready list.
+Thread "Consumer 9" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 9"
+Switching from thread "Consumer 9" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is ENTERING critical section.
+Thread "Producer 4" is EXITING critical section.
+*** Producer 4 added "l" to buffer
+
+Thread "Producer 4" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 4"
+Putting thread Consumer 4 on ready list.
+Thread "Producer 4" is RELEASING lock.
+Putting thread Consumer 6 on ready list.
+Yielding thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Switching from thread "Producer 4" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" has woken and is about to get lock.
+Thread "Consumer 4" is acquiring lock.
+Thread "Consumer 4" is ENTERING critical section.
+Thread "Consumer 4" is EXITING critical section.
+*** Consumer 4 took "l" from buffer
+
+Thread "Consumer 4" is signalling processes blocked on condition "FULL"
+Thread "Consumer 4" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Yielding thread "Consumer 4"
+Putting thread Consumer 4 on ready list.
+Switching from thread "Consumer 4" to thread "Consumer 6"
+Now in thread "Consumer 6"
+Thread "Consumer 6" is waiting on condition "EMPTY"
+Thread "Consumer 6" is RELEASING lock.
+Putting thread Producer 9 on ready list.
+Thread "Consumer 6" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 6"
+Switching from thread "Consumer 6" to thread "Producer 4"
+Now in thread "Producer 4"
+Thread "Producer 4" is acquiring lock.
+Thread "Producer 4" is ENTERING critical section.
+Thread "Producer 4" is EXITING critical section.
+*** Producer 4 added "d" to buffer
+
+Thread "Producer 4" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 8"
+Putting thread Consumer 8 on ready list.
+Thread "Producer 4" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Yielding thread "Producer 4"
+Putting thread Producer 4 on ready list.
+Switching from thread "Producer 4" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is ENTERING critical section.
+Thread "Consumer 3" is EXITING critical section.
+*** Consumer 3 took "d" from buffer
+
+Thread "Consumer 3" is signalling processes blocked on condition "FULL"
+Thread "Consumer 3" is RELEASING lock.
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Consumer 4"
+Now in thread "Consumer 4"
+Thread "Consumer 4" is acquiring lock.
+Thread "Consumer 4" is waiting on condition "EMPTY"
+Thread "Consumer 4" is RELEASING lock.
+Thread "Consumer 4" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 4"
+Switching from thread "Consumer 4" to thread "Producer 9"
+Now in thread "Producer 9"
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" has woken and is about to get lock.
+Thread "Consumer 8" is acquiring lock.
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Producer 3"
+Now in thread "Producer 3"
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Producer 4"
+Now in thread "Producer 4"
+Finishing thread "Producer 4"
+Sleeping thread "Producer 4"
+Switching from thread "Producer 4" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Deleting thread "Producer 4"
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is ENTERING critical section.
+Thread "Producer 9" is EXITING critical section.
+*** Producer 9 added "o" to buffer
+
+Thread "Producer 9" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 7"
+Putting thread Consumer 7 on ready list.
+Thread "Producer 9" is RELEASING lock.
+Putting thread Consumer 8 on ready list.
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is acquiring lock.
+Thread "Consumer 3" is ENTERING critical section.
+Thread "Consumer 3" is EXITING critical section.
+*** Consumer 3 took "o" from buffer
+
+Thread "Consumer 3" is signalling processes blocked on condition "FULL"
+Thread "Consumer 3" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Consumer 7"
+Now in thread "Consumer 7"
+Thread "Consumer 7" has woken and is about to get lock.
+Thread "Consumer 7" is acquiring lock.
+Thread "Consumer 7" is waiting on condition "EMPTY"
+Thread "Consumer 7" is RELEASING lock.
+Thread "Consumer 7" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 7"
+Switching from thread "Consumer 7" to thread "Consumer 8"
+Now in thread "Consumer 8"
+Thread "Consumer 8" is waiting on condition "EMPTY"
+Thread "Consumer 8" is RELEASING lock.
+Thread "Consumer 8" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 8"
+Switching from thread "Consumer 8" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is acquiring lock.
+Thread "Producer 9" is ENTERING critical section.
+Thread "Producer 9" is EXITING critical section.
+*** Producer 9 added "r" to buffer
+
+Thread "Producer 9" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Thread "Producer 9" is RELEASING lock.
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is ENTERING critical section.
+Thread "Producer 3" is EXITING critical section.
+*** Producer 3 added "l" to buffer
+
+Thread "Producer 3" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 5"
+Putting thread Consumer 5 on ready list.
+Thread "Producer 3" is RELEASING lock.
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is acquiring lock.
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" has woken and is about to get lock.
+Thread "Consumer 2" is acquiring lock.
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is acquiring lock.
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" has woken and is about to get lock.
+Thread "Consumer 5" is acquiring lock.
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is acquiring lock.
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is ENTERING critical section.
+Thread "Consumer 3" is EXITING critical section.
+*** Consumer 3 took "r" from buffer
+
+Thread "Consumer 3" is signalling processes blocked on condition "FULL"
+Thread "Consumer 3" is RELEASING lock.
+Putting thread Consumer 2 on ready list.
+Yielding thread "Consumer 3"
+Putting thread Consumer 3 on ready list.
+Switching from thread "Consumer 3" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is acquiring lock.
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is ENTERING critical section.
+Thread "Consumer 2" is EXITING critical section.
+*** Consumer 2 took "l" from buffer
+
+Thread "Consumer 2" is signalling processes blocked on condition "FULL"
+Thread "Consumer 2" is RELEASING lock.
+Putting thread Producer 9 on ready list.
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is ENTERING critical section.
+Thread "Producer 9" is EXITING critical section.
+*** Producer 9 added "l" to buffer
+
+Thread "Producer 9" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 0"
+Putting thread Consumer 0 on ready list.
+Thread "Producer 9" is RELEASING lock.
+Putting thread Consumer 5 on ready list.
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is acquiring lock.
+Thread "Consumer 2" is ENTERING critical section.
+Thread "Consumer 2" is EXITING critical section.
+*** Consumer 2 took "l" from buffer
+
+Thread "Consumer 2" is signalling processes blocked on condition "FULL"
+Thread "Consumer 2" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Consumer 0"
+Now in thread "Consumer 0"
+Thread "Consumer 0" has woken and is about to get lock.
+Thread "Consumer 0" is acquiring lock.
+Thread "Consumer 0" is waiting on condition "EMPTY"
+Thread "Consumer 0" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Thread "Consumer 0" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 0"
+Switching from thread "Consumer 0" to thread "Consumer 5"
+Now in thread "Consumer 5"
+Thread "Consumer 5" is waiting on condition "EMPTY"
+Thread "Consumer 5" is RELEASING lock.
+Thread "Consumer 5" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 5"
+Switching from thread "Consumer 5" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is acquiring lock.
+Thread "Producer 9" is ENTERING critical section.
+Thread "Producer 9" is EXITING critical section.
+*** Producer 9 added "d" to buffer
+
+Thread "Producer 9" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 1"
+Putting thread Consumer 1 on ready list.
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Producer 3"
+Now in thread "Producer 3"
+Sleeping thread "Producer 3"
+Switching from thread "Producer 3" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is acquiring lock.
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Thread "Consumer 1" has woken and is about to get lock.
+Thread "Consumer 1" is acquiring lock.
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Producer 9"
+Now in thread "Producer 9"
+Thread "Producer 9" is RELEASING lock.
+Putting thread Producer 3 on ready list.
+Yielding thread "Producer 9"
+Putting thread Producer 9 on ready list.
+Switching from thread "Producer 9" to thread "Producer 3"
+Now in thread "Producer 3"
+Thread "Producer 3" is ENTERING critical section.
+Thread "Producer 3" is EXITING critical section.
+*** Producer 3 added "d" to buffer
+
+Thread "Producer 3" is signalling processes blocked on condition "EMPTY"
+- woke up thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Thread "Producer 3" is RELEASING lock.
+Putting thread Consumer 2 on ready list.
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Producer 9"
+Now in thread "Producer 9"
+Finishing thread "Producer 9"
+Sleeping thread "Producer 9"
+Switching from thread "Producer 9" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Deleting thread "Producer 9"
+Thread "Consumer 9" has woken and is about to get lock.
+Thread "Consumer 9" is acquiring lock.
+Thread "Consumer 9" is ENTERING critical section.
+Thread "Consumer 9" is EXITING critical section.
+*** Consumer 9 took "d" from buffer
+
+Thread "Consumer 9" is signalling processes blocked on condition "FULL"
+Thread "Consumer 9" is RELEASING lock.
+Putting thread Consumer 3 on ready list.
+Yielding thread "Consumer 9"
+Putting thread Consumer 9 on ready list.
+Switching from thread "Consumer 9" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is ENTERING critical section.
+Thread "Consumer 2" is EXITING critical section.
+*** Consumer 2 took "d" from buffer
+
+Thread "Consumer 2" is signalling processes blocked on condition "FULL"
+Thread "Consumer 2" is RELEASING lock.
+Putting thread Consumer 1 on ready list.
+Yielding thread "Consumer 2"
+Putting thread Consumer 2 on ready list.
+Switching from thread "Consumer 2" to thread "Producer 3"
+Now in thread "Producer 3"
+Yielding thread "Producer 3"
+Putting thread Producer 3 on ready list.
+Switching from thread "Producer 3" to thread "Consumer 3"
+Now in thread "Consumer 3"
+Thread "Consumer 3" is waiting on condition "EMPTY"
+Thread "Consumer 3" is RELEASING lock.
+Thread "Consumer 3" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 3"
+Switching from thread "Consumer 3" to thread "Consumer 9"
+Now in thread "Consumer 9"
+Finishing thread "Consumer 9"
+Sleeping thread "Consumer 9"
+Switching from thread "Consumer 9" to thread "Consumer 1"
+Now in thread "Consumer 1"
+Deleting thread "Consumer 9"
+Thread "Consumer 1" is waiting on condition "EMPTY"
+Thread "Consumer 1" is RELEASING lock.
+Thread "Consumer 1" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 1"
+Switching from thread "Consumer 1" to thread "Consumer 2"
+Now in thread "Consumer 2"
+Thread "Consumer 2" is acquiring lock.
+Thread "Consumer 2" is waiting on condition "EMPTY"
+Thread "Consumer 2" is RELEASING lock.
+Thread "Consumer 2" is BLOCKED on condition "EMPTY"
+Sleeping thread "Consumer 2"
+Switching from thread "Consumer 2" to thread "Producer 3"
+Now in thread "Producer 3"
+Finishing thread "Producer 3"
+Sleeping thread "Producer 3"
+No threads ready or runnable, and no pending interrupts.
+Assuming the program completed.
+Machine halting!
+
+Ticks: total 10794, idle 74, system 10720, user 0
+Disk I/O: reads 0, writes 0
+Console I/O: reads 0, writes 0
+Paging: faults 0
+Network I/O: packets received 0, sent 0
+
+Cleaning up...

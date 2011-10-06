@@ -1,0 +1,115 @@
+<HTML><TITLE>synchlist.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>synchlist.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// synchlist.cc<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Routines for synchronized access to a list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Implemented by surrounding the List abstraction<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	with synchronization routines.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Implemented in "monitor"-style -- surround each procedure with a<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	lock acquire and release pair, using condition signal and wait for<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	synchronization.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="synchlist_h.html">synchlist.h</A>"<FONT COLOR="#000000">
+
+<A NAME="SynchList.SynchList"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// SynchList::SynchList<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Allocate and initialize the data structures needed for a <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	synchronized list, empty to start with.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Elements can now be added to the list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="synchlist_h.html#SynchList">SynchList</A>::SynchList()
+{
+    <A HREF="synchlist_h.html#SynchList.list">list</A> = new <A HREF="list_h.html#List">List</A>();
+    <A HREF="synchlist_h.html#SynchList.lock">lock</A> = new <A HREF="synch_h.html#Lock">Lock</A>("list lock"); 
+    <A HREF="synchlist_h.html#SynchList.listEmpty">listEmpty</A> = new <A HREF="synch_h.html#Condition">Condition</A>("list empty cond");
+}
+
+<A NAME="SynchList.~SynchList"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// SynchList::~SynchList<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	De-allocate the data structures created for synchronizing a list. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="synchlist_h.html#SynchList">SynchList</A>::~SynchList()
+{ 
+    delete <A HREF="synchlist_h.html#SynchList.list">list</A>; 
+    delete <A HREF="synchlist_h.html#SynchList.lock">lock</A>;
+    delete <A HREF="synchlist_h.html#SynchList.listEmpty">listEmpty</A>;
+}
+
+<A NAME="SynchList.Append"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// SynchList::Append<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Append an "item" to the end of the list.  Wake up anyone<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	waiting for an element to be appended.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"item" is the thing to put on the list, it can be a pointer to <FONT COLOR="#000000">
+<FONT COLOR="#990000">//		anything.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="synchlist_h.html#SynchList">SynchList</A>::Append(void *item)
+{
+    <A HREF="synchlist_h.html#SynchList.lock">lock</A>-&gt;<A HREF="synch_cc.html#Lock.Acquire">Acquire</A>();		<FONT COLOR="#990000">// enforce mutual exclusive access to the list <FONT COLOR="#000000">
+    <A HREF="synchlist_h.html#SynchList.list">list</A>-&gt;<A HREF="list_cc.html#List.Append">Append</A>(item);
+    <A HREF="synchlist_h.html#SynchList.listEmpty">listEmpty</A>-&gt;<A HREF="synch_cc.html#Condition.Signal">Signal</A>(<A HREF="synchlist_h.html#SynchList.lock">lock</A>);	<FONT COLOR="#990000">// wake up a waiter, if any<FONT COLOR="#000000">
+    <A HREF="synchlist_h.html#SynchList.lock">lock</A>-&gt;<A HREF="synch_cc.html#Lock.Release">Release</A>();
+}
+
+<A NAME="SynchList.Remove"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// SynchList::Remove<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Remove an "item" from the beginning of the list.  Wait if<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	the list is empty.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Returns:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	The removed item. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void * <A HREF="synchlist_h.html#SynchList">SynchList</A>::Remove()
+{
+    void *item;
+
+    <A HREF="synchlist_h.html#SynchList.lock">lock</A>-&gt;<A HREF="synch_cc.html#Lock.Acquire">Acquire</A>();			<FONT COLOR="#990000">// enforce mutual exclusion<FONT COLOR="#000000">
+    while (<A HREF="synchlist_h.html#SynchList.list">list</A>-&gt;<A HREF="list_cc.html#List.IsEmpty">IsEmpty</A>())
+	<A HREF="synchlist_h.html#SynchList.listEmpty">listEmpty</A>-&gt;<A HREF="synch_cc.html#Condition.Wait">Wait</A>(<A HREF="synchlist_h.html#SynchList.lock">lock</A>);		<FONT COLOR="#990000">// wait until list isn't empty<FONT COLOR="#000000">
+    item = <A HREF="synchlist_h.html#SynchList.list">list</A>-&gt;<A HREF="list_cc.html#List.Remove">Remove</A>();
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>(item != NULL);
+    <A HREF="synchlist_h.html#SynchList.lock">lock</A>-&gt;<A HREF="synch_cc.html#Lock.Release">Release</A>();
+    return item;
+}
+
+<A NAME="SynchList.Mapcar"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// SynchList::Mapcar<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Apply function to every item on the list.  Obey mutual exclusion<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	constraints.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"func" is the procedure to be applied.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="synchlist_h.html#SynchList">SynchList</A>::Mapcar(<A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A> func)
+{ 
+    <A HREF="synchlist_h.html#SynchList.lock">lock</A>-&gt;<A HREF="synch_cc.html#Lock.Acquire">Acquire</A>(); 
+    <A HREF="synchlist_h.html#SynchList.list">list</A>-&gt;<A HREF="list_cc.html#List.Mapcar">Mapcar</A>(func);
+    <A HREF="synchlist_h.html#SynchList.lock">lock</A>-&gt;<A HREF="synch_cc.html#Lock.Release">Release</A>(); 
+}
+</PRE>
+</BODY></HTML>

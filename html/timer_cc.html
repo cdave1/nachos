@@ -1,0 +1,103 @@
+<HTML><TITLE>timer.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>timer.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// timer.cc <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Routines to emulate a hardware timer device.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      A hardware timer generates a CPU interrupt every X milliseconds.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      This means it can be used for implementing time-slicing.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      We emulate a hardware timer by scheduling an interrupt to occur<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      every time stats-&gt;totalTicks has increased by TimerTicks.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      In order to introduce some randomness into time-slicing, if "doRandom"<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      is set, then the interrupt is comes after a random number of ticks.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Remember -- nothing in here is part of Nachos.  It is just<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	an emulation for the hardware that Nachos is running on top of.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  DO NOT CHANGE -- part of the machine emulation<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="timer_h.html">timer.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+
+<A NAME="TimerHandler"></A><FONT COLOR="#990000">// dummy function because C++ does not allow pointers to member functions<FONT COLOR="#000000">
+static void TimerHandler(int arg)
+{ <A HREF="timer_h.html#Timer">Timer</A> *p = (<A HREF="timer_h.html#Timer">Timer</A> *)arg; p-&gt;TimerExpired(); }
+
+<A NAME="Timer.Timer"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Timer::Timer<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Initialize a hardware timer device.  Save the place to call<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	on each interrupt, and then arrange for the timer to start<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	generating interrupts.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      "timerHandler" is the interrupt handler for the timer device.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		It is called with interrupts disabled every time the<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		the timer expires.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      "callArg" is the parameter to be passed to the interrupt handler.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      "doRandom" -- if true, arrange for the interrupts to occur<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		at random, instead of fixed, intervals.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="timer_h.html#Timer">Timer</A>::Timer(<A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A> timerHandler, int callArg, bool doRandom)
+{
+    <A HREF="timer_h.html#Timer.randomize">randomize</A> = doRandom;
+    <A HREF="timer_h.html#Timer.handler">handler</A> = timerHandler;
+    <A HREF="timer_h.html#Timer.arg">arg</A> = callArg; 
+
+    <FONT COLOR="#990000">// schedule the first interrupt from the timer device<FONT COLOR="#000000">
+    <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.Schedule">Schedule</A>(<A HREF="timer_cc.html#TimerHandler">TimerHandler</A>, (int) this, <A HREF="timer_cc.html#Timer.TimeOfNextInterrupt">TimeOfNextInterrupt</A>(), 
+		<A HREF="interrupt_h.html#TimerInt">TimerInt</A>); 
+}
+
+<A NAME="Timer.TimerExpired"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Timer::TimerExpired<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Routine to simulate the interrupt generated by the hardware <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	timer device.  Schedule the next interrupt, and invoke the<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	interrupt handler.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+void  <A HREF="timer_h.html#Timer">Timer</A>::TimerExpired() 
+{
+    <FONT COLOR="#990000">// schedule the next timer device interrupt<FONT COLOR="#000000">
+    <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.Schedule">Schedule</A>(<A HREF="timer_cc.html#TimerHandler">TimerHandler</A>, (int) this, <A HREF="timer_cc.html#Timer.TimeOfNextInterrupt">TimeOfNextInterrupt</A>(), 
+		<A HREF="interrupt_h.html#TimerInt">TimerInt</A>);
+
+    <FONT COLOR="#990000">// invoke the Nachos interrupt handler for this device<FONT COLOR="#000000">
+    (*<A HREF="timer_h.html#Timer.handler">handler</A>)(<A HREF="timer_h.html#Timer.arg">arg</A>);
+}
+
+<A NAME="Timer.TimeOfNextInterrupt"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Timer::TimeOfNextInterrupt<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Return when the hardware timer device will next cause an interrupt.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	If randomize is turned on, make it a (pseudo-)random delay.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+int  <A HREF="timer_h.html#Timer">Timer</A>::TimeOfNextInterrupt() 
+{
+    if (<A HREF="timer_h.html#Timer.randomize">randomize</A>)
+	return 1 + (<A HREF="sysdep_cc.html#Random">Random</A>() % (<A HREF="stats_h.html#TimerTicks">TimerTicks</A> * 2));
+    else
+	return <A HREF="stats_h.html#TimerTicks">TimerTicks</A>; 
+}
+</PRE>
+</BODY></HTML>

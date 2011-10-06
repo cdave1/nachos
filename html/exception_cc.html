@@ -1,0 +1,520 @@
+<HTML><TITLE>exception.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>exception.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 23:22:11 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// exception.cc <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Entry point into the Nachos kernel from user programs.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	There are two kinds of things that can cause control to<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	transfer back to here from user code:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	syscall -- The user code explicitly requests to call a procedure<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	in the Nachos kernel.  Right now, the only function we support is<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"Halt".<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	exceptions -- The user code does something that the CPU can't handle.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	For instance, accessing memory that doesn't exist, arithmetic errors,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	etc.  <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Interrupts (which can also cause control to transfer from user<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	code into the Nachos kernel) are handled elsewhere.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// For now, this only handles the Halt() system call.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Everything else core dumps.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include &lt;iostream&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="list_h.html">list.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "syscall.h"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="process_h.html">process.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="syncconsole_h.html">syncconsole.h</A>"<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef CHANGED<FONT COLOR="#000000">
+<A NAME="Processes"></A><FONT COLOR="#990000">// COMP 305 Project &#35;2<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright David Petrie 2008<FONT COLOR="#000000">
+static <A HREF="list.h.html#List">List</A>* Processes;
+<A NAME="currentProcess"></A>static <A HREF="process.h.html#Process">Process</A>* currentProcess;
+<A NAME="console"></A>static <A HREF="syncconsole.h.html#SynchConsole">SynchConsole</A>* console;
+
+<A NAME="InitExceptions"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// The InitExceptions function is used to initialize various useful things<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+void InitExceptions(){
+  <A HREF="progtest.cc.html#console">console</A> = new <A HREF="syncconsole.h.html#SynchConsole">SynchConsole</A>(NULL, NULL);
+  <A HREF="exception_cc.html#Processes">Processes</A> = new <A HREF="list.h.html#List">List</A>();
+}
+
+<A NAME="InitProcess"></A><FONT COLOR="#990000">// Add a new process into the list and make it the current process<FONT COLOR="#000000">
+void InitProcess(<A HREF="process.h.html#Process">Process</A>* process)
+{
+    <A HREF="exception_cc.html#Processes">Processes</A>-&gt;<A HREF="list.cc.html#List.Append">Append</A>(process);
+    <A HREF="exception_cc.html#currentProcess">currentProcess</A> = process;
+}
+
+
+
+<A NAME="ForkUserThread"></A><FONT COLOR="#990000">// Ensures that the forked thread begins execution at the correct position.<FONT COLOR="#000000">
+void ForkUserThread(int funcPtr)
+{
+  <A HREF="utility.cc.html#DEBUG">DEBUG</A>('t', "Setting machine PC to funcPtr for thread %s: 0x%x...\n", <A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread.h.html#Thread.getName">getName</A>(), funcPtr);
+ 
+  <A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread.h.html#Thread.space">space</A>-&gt;InitRegisters();
+  <A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread.h.html#Thread.space">space</A>-&gt;RestoreState();
+  
+  <FONT COLOR="#990000">// update the stack register<FONT COLOR="#000000">
+  <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.WriteRegister">WriteRegister</A>(<A HREF="machine.h.html#StackReg">StackReg</A>, <A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread.h.html#Thread.space">space</A>-&gt;GetNumPages() * <A HREF="machine.h.html#PageSize">PageSize</A> - 16);
+
+  <FONT COLOR="#990000">// Set the program counter to the appropriate place indicated by funcPtr...<FONT COLOR="#000000">
+  <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.WriteRegister">WriteRegister</A>(<A HREF="machine.h.html#PCReg">PCReg</A>, funcPtr);
+  <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.WriteRegister">WriteRegister</A>(<A HREF="machine.h.html#NextPCReg">NextPCReg</A>, funcPtr + 4);
+  <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="mipssim.cc.html#Machine.Run">Run</A>();
+}
+
+
+
+<A NAME="IncrementPC"></A><FONT COLOR="#990000">// increment the PC<FONT COLOR="#000000">
+void IncrementPC()
+{
+  int pc = <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.ReadRegister">ReadRegister</A>(<A HREF="machine.h.html#PCReg">PCReg</A>);
+  <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.WriteRegister">WriteRegister</A>(<A HREF="machine.h.html#PrevPCReg">PrevPCReg</A>, pc);
+  pc = <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.ReadRegister">ReadRegister</A>(<A HREF="machine.h.html#NextPCReg">NextPCReg</A>);
+  <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.WriteRegister">WriteRegister</A>(<A HREF="machine.h.html#PCReg">PCReg</A>, pc);
+  pc += 4;
+  <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.WriteRegister">WriteRegister</A>(<A HREF="machine.h.html#NextPCReg">NextPCReg</A>, pc);
+}
+
+
+
+<A NAME="ExceptionHandler"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// ExceptionHandler<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Entry point into the Nachos kernel.  Called when a user program<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	is executing, and either does a syscall, or generates an addressing<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	or arithmetic exception.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	For system calls, the following is the calling convention:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	system call code -- r2<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		arg1 -- r4<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		arg2 -- r5<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		arg3 -- r6<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		arg4 -- r7<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	The result of the system call, if any, must be put back into r2. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// And don't forget to increment the pc before returning. (Or else you'll<FONT COLOR="#000000">
+<FONT COLOR="#990000">// loop making the same system call forever&#33;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"which" is the kind of exception.  The list of possible exceptions <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	are in machine.h.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// "The PC is just a register, accessible to you through ReadRegister and <FONT COLOR="#000000">
+<FONT COLOR="#990000">// WriteRegister. See the definitions of ``User program CPU state'' in <FONT COLOR="#000000">
+<FONT COLOR="#990000">// machine.h for the register number of the PC. Each MIPS memory address, <FONT COLOR="#000000">
+<FONT COLOR="#990000">// including the PC, points to a byte of memory, and each instruction is <FONT COLOR="#000000">
+<FONT COLOR="#990000">// several bytes long, so ``increment'' the PC does not mean to add 1. <FONT COLOR="#000000">
+<FONT COLOR="#990000">// Look in mipssim.cc to find the right number to add to the PC. Also, the <FONT COLOR="#000000">
+<FONT COLOR="#990000">// use of delayed branching in the MIPS requires a separate NextPC register, <FONT COLOR="#000000">
+<FONT COLOR="#990000">// and for debugging purposes Nachos maintains a PrevPC, both of which <FONT COLOR="#000000">
+<FONT COLOR="#990000">// must be updated appropriately. See the Nachos Road Map section on <FONT COLOR="#000000">
+<FONT COLOR="#990000">// experience with multiprogramming for the correct code to increment the <FONT COLOR="#000000">
+<FONT COLOR="#990000">// PC. "<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Each system call has a return value. If this value is false at any time<FONT COLOR="#000000">
+<FONT COLOR="#990000">// it means there was an error in the user program. The response here should<FONT COLOR="#000000">
+<FONT COLOR="#990000">// be to just shut down the process and free the memory. However, since<FONT COLOR="#000000">
+<FONT COLOR="#990000">// nachos runs the user program in the "main" thread, we just call <FONT COLOR="#000000">
+<FONT COLOR="#990000">// interrupt-&gt;halt() in order to shut down the program.<FONT COLOR="#000000">
+void ExceptionHandler(<A HREF="machine.h.html#ExceptionType">ExceptionType</A> which)
+{
+  bool result = true;
+  int type = <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.ReadRegister">ReadRegister</A>(2);
+  int arg1 = <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.ReadRegister">ReadRegister</A>(4);
+  int arg2 = <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.ReadRegister">ReadRegister</A>(5);
+  int arg3 = <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.ReadRegister">ReadRegister</A>(6);
+  int arg4 = <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.ReadRegister">ReadRegister</A>(7);
+
+  <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "Syscall Args %d, %d, %d, %d\n", arg1, arg2, arg3, arg4);
+
+  if (which == SyscallException)
+  {
+    switch (type) {
+    case SC_Halt:
+      <FONT COLOR="#990000">// Need to deal with any data structures here.<FONT COLOR="#000000">
+      <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "Shutdown, initiated by user program.\n");
+      <A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.cc.html#Interrupt.Halt">Halt</A>();
+      break;
+    case SC_Exit:
+      <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "Exit, initiated by user program.\n");
+      <FONT COLOR="#990000">// If there is only one thread left in the process then delete the<FONT COLOR="#000000">
+      <FONT COLOR="#990000">// process and halt.<FONT COLOR="#000000">
+      if (<A HREF="exception_cc.html#currentProcess">currentProcess</A>-&gt;<A HREF="exception_cc.html#Process.ExitProcess">ExitProcess</A>(arg1)) {
+	delete <A HREF="exception_cc.html#currentProcess">currentProcess</A>;
+	return;
+      }
+      break;
+    case SC_Create: 
+      result = <A HREF="exception_cc.html#currentProcess">currentProcess</A>-&gt;<A HREF="exception_cc.html#Process.FileCreate">FileCreate</A>(arg1);
+      break;
+    case SC_Open:
+      result = <A HREF="exception_cc.html#currentProcess">currentProcess</A>-&gt;<A HREF="exception_cc.html#Process.FileOpen">FileOpen</A>(arg1);
+      break;
+    case SC_Read:
+      result = <A HREF="exception_cc.html#currentProcess">currentProcess</A>-&gt;<A HREF="exception_cc.html#Process.FileRead">FileRead</A>(arg1, arg2, arg3);
+      break;
+    case SC_Write:
+      result = <A HREF="exception_cc.html#currentProcess">currentProcess</A>-&gt;<A HREF="exception_cc.html#Process.FileWrite">FileWrite</A>(arg1, arg2, arg3);
+      break;
+    case SC_Close:
+      result = <A HREF="exception_cc.html#currentProcess">currentProcess</A>-&gt;<A HREF="exception_cc.html#Process.FileClose">FileClose</A>(arg1);
+      break;
+    case SC_Fork:
+      result = <A HREF="exception_cc.html#currentProcess">currentProcess</A>-&gt;<A HREF="exception_cc.html#Process.ProcessFork">ProcessFork</A>(arg1);
+      break;
+    case SC_Yield:
+      <A HREF="exception_cc.html#currentProcess">currentProcess</A>-&gt;<A HREF="exception_cc.html#Process.ProcessYield">ProcessYield</A>();
+      result = true;
+      break;
+    default:
+      printf("Unexpected user mode exception %d %d\n", which, type);
+      <A HREF="utility.h.html#ASSERT">ASSERT</A>(FALSE);
+      break;
+    }
+  } else {
+    printf("Unexpected user mode exception %d %d\n", which, type);
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>(FALSE);
+  }
+  <A HREF="exception_cc.html#IncrementPC">IncrementPC</A>();
+  if (result == false) {
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "ERROR in user program - shutting down process.\n");
+    <A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.cc.html#Interrupt.Halt">Halt</A>();
+    delete <A HREF="exception_cc.html#currentProcess">currentProcess</A>;
+  }
+}
+
+
+
+
+<A NAME="Process.Process"></A><FONT COLOR="#990000">// Process constructor<FONT COLOR="#000000">
+<A HREF="process.h.html#Process">Process</A>::Process(char* n)
+  {
+    <A HREF="process.h.html#Process.name">name</A> = n;
+    <A HREF="process.h.html#Process.processThread">processThread</A> = <A HREF="system.cc.html#currentThread">currentThread</A>;
+    <A HREF="process.h.html#Process.threads">threads</A> = new <A HREF="list.h.html#List">List</A>();
+    <A HREF="process.h.html#Process.threadCount">threadCount</A> = 0;
+    <A HREF="process.h.html#Process.fileCounter">fileCounter</A> = 0;
+  }
+
+
+
+<A NAME="Process.~Process"></A><FONT COLOR="#990000">// Delete all the threads associated with this process.<FONT COLOR="#000000">
+  <A HREF="process.h.html#Process">Process</A>::~Process()
+  {
+    <A HREF="thread.h.html#Thread">Thread</A>* threadToDelete;
+    while(!<A HREF="process.h.html#Process.threads">threads</A>-&gt;<A HREF="list.cc.html#List.IsEmpty">IsEmpty</A>()) {
+      threadToDelete = (<A HREF="thread.h.html#Thread">Thread</A> *)<A HREF="process.h.html#Process.threads">threads</A>-&gt;<A HREF="list.cc.html#List.Remove">Remove</A>();
+      delete threadToDelete;
+    }
+    delete <A HREF="process.h.html#Process.threads">threads</A>;
+    delete <A HREF="process.h.html#Process.openFileTable">openFileTable</A>;
+  }
+
+
+
+  <FONT COLOR="#990000">// Three situations:<FONT COLOR="#000000">
+  <FONT COLOR="#990000">// - If the exiting thread is the main process that initialised this process<FONT COLOR="#000000">
+  <FONT COLOR="#990000">//   and there are no other threads running, then return true. The exception<FONT COLOR="#000000">
+  <FONT COLOR="#990000">//   handler will delete the process.<FONT COLOR="#000000">
+  <FONT COLOR="#990000">// - If the exiting thread is the main thread that initialised the process<FONT COLOR="#000000">
+  <FONT COLOR="#990000">//   but there are other threads running, then simply finish the current thread.<FONT COLOR="#000000">
+  <FONT COLOR="#990000">// - If a forked thread is exiting, then decrement the thread count and <FONT COLOR="#000000">
+  <FONT COLOR="#990000">//   finish the thread.<FONT COLOR="#000000">
+<A NAME="Process.ExitProcess"></A>  bool <A HREF="process.h.html#Process">Process</A>::ExitProcess(int status) 
+  {
+ 
+    if (<A HREF="system.cc.html#currentThread">currentThread</A> == <A HREF="process.h.html#Process.processThread">processThread</A>) {
+      if (<A HREF="process.h.html#Process.threadCount">threadCount</A> == 0) {
+	<A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Exiting the main thread\n");
+	<A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.cc.html#Interrupt.Halt">Halt</A>();
+	return true;
+      } else {
+	<A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread.cc.html#Thread.Finish">Finish</A>();
+	return false;
+      }
+    } else {
+      <A HREF="utility.h.html#ASSERT">ASSERT</A>(<A HREF="system.cc.html#currentThread">currentThread</A> != this-&gt;<A HREF="process.h.html#Process.processThread">processThread</A>);
+      <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Exiting a forked thread.\n");
+      <A HREF="process.h.html#Process.threadCount">threadCount</A>--;
+      <A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread.cc.html#Thread.Finish">Finish</A>();
+      return false;
+    }
+  }
+
+
+
+   <FONT COLOR="#990000">// Create a file with the name stored in machine memory at ptrFileName.<FONT COLOR="#000000">
+<A NAME="Process.FileCreate"></A>  bool <A HREF="process.h.html#Process">Process</A>::FileCreate(int ptrFileName)
+  {
+    char* fileName = &amp;<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.h.html#Machine.mainMemory">mainMemory</A>[ptrFileName];
+    if (fileName == NULL) {
+      <FONT COLOR="#990000">// This error is actually serious enough to warrant a halt.<FONT COLOR="#000000">
+      <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Could not find file name in memory.\n");
+      return false;
+    }
+    if (strlen(fileName) == 0) {
+      <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "File name had a length of 0.\n");
+      return false;
+    }
+      
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Creating a file %s\n", fileName);
+    
+    bool result = <A HREF="system.cc.html#fileSystem">fileSystem</A>-&gt;<A HREF="filesys.h.html#FileSystem.Create">Create</A>(fileName, 100);
+    if (result)
+    {
+     <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "File %s was successfully created\n", fileName);
+    } else {
+     <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "error creating file %s\n", fileName);
+    }
+    
+    return result;
+  }
+
+
+
+  <FONT COLOR="#990000">// Open a file<FONT COLOR="#000000">
+  <FONT COLOR="#990000">// <FONT COLOR="#000000">
+  <FONT COLOR="#990000">// Must write a unique id for the file back to a register.<FONT COLOR="#000000">
+<A NAME="Process.FileOpen"></A>  bool <A HREF="process.h.html#Process">Process</A>::FileOpen(int ptrFileName)
+  {
+    <FONT COLOR="#990000">// Too many files open?<FONT COLOR="#000000">
+    <FONT COLOR="#990000">//<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// might be better simply to block the thread on a condition variable<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// until one of them closes...<FONT COLOR="#000000">
+    if (<A HREF="process.h.html#Process.fileCounter">fileCounter</A> - <A HREF="process.h.html#FID_OFFSET">FID_OFFSET</A> &gt;= <A HREF="process.h.html#MAX_OPEN_FILES">MAX_OPEN_FILES</A>)
+    {
+      <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Too many files open.\n");
+      return false;
+    }
+
+    char* fileName = &amp;<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.h.html#Machine.mainMemory">mainMemory</A>[ptrFileName];
+    if (fileName == NULL)
+    {
+      <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Could not find file name string reference in memory.\n");
+      return false;
+    }
+
+    if (strlen(fileName) == 0)
+    {
+      <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Filename had a length of zero.\n");
+      return false;
+    }
+
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Opening a file %s\n", fileName);   
+
+    <A HREF="openfile.h.html#OpenFile">OpenFile</A>* file = <A HREF="system.cc.html#fileSystem">fileSystem</A>-&gt;<A HREF="filesys.h.html#FileSystem.Open">Open</A>(fileName);
+    if (file == NULL)
+    {
+      <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "File system could not find the file specified.\n");
+      return false;
+    }
+    <A HREF="process.h.html#Process.openFileTable">openFileTable</A>[<A HREF="process.h.html#Process.fileCounter">fileCounter</A>] = file;
+
+    <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.WriteRegister">WriteRegister</A>(2, <A HREF="process.h.html#Process.fileCounter">fileCounter</A> + <A HREF="process.h.html#FID_OFFSET">FID_OFFSET</A>);
+    <A HREF="process.h.html#Process.fileCounter">fileCounter</A>++;
+  }
+
+
+
+  <FONT COLOR="#990000">// Close a file<FONT COLOR="#000000">
+  <FONT COLOR="#990000">//<FONT COLOR="#000000">
+  <FONT COLOR="#990000">// We just remove it from the list of open files.<FONT COLOR="#000000">
+<A NAME="Process.FileClose"></A>  bool <A HREF="process.h.html#Process">Process</A>::FileClose(int fid)
+  {
+    if (<A HREF="process.h.html#Process.openFileTable">openFileTable</A>[fid - <A HREF="process.h.html#FID_OFFSET">FID_OFFSET</A>] == NULL) {
+      <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Could not find an open file with that id...\n");
+      return false;
+    }
+    delete <A HREF="process.h.html#Process.openFileTable">openFileTable</A>[fid - <A HREF="process.h.html#FID_OFFSET">FID_OFFSET</A>];
+    <A HREF="process.h.html#Process.fileCounter">fileCounter</A>--; <FONT COLOR="#990000">// bug here - not necessarily the next file id...<FONT COLOR="#000000">
+    return true;
+  }
+  
+
+
+<A NAME="Process.FileWrite"></A><FONT COLOR="#990000">// Write a string to a file. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// The main string is stored in memory at ptrBuffer.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Need to check if an attempt was made to write to the console...<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// At the moment, we're making an assumption that no other<FONT COLOR="#000000">
+<FONT COLOR="#990000">// process are running (processes as distinct to threads).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Open files should be stored in a global structure with<FONT COLOR="#000000">
+<FONT COLOR="#990000">// locks. May even be best as the structure used by the producer<FONT COLOR="#000000">
+<FONT COLOR="#990000">// consumer thing - if we run out of file space then process blocks<FONT COLOR="#000000">
+<FONT COLOR="#990000">// until another process drops the file via the close method.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// For now though, assume only one process.<FONT COLOR="#000000">
+bool <A HREF="process.h.html#Process">Process</A>::FileWrite(int ptrBuffer, int bufferSize, int fid)
+{
+  char *buffer = &amp;<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.h.html#Machine.mainMemory">mainMemory</A>[ptrBuffer];
+
+  if (buffer == NULL)
+  {
+      <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Cannot find string to write.\n");
+      return false;    
+  }
+
+  <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Attempting to write %s to file %d\n", buffer, fid);
+  if (fid == ConsoleOutput)
+  {
+    if (<A HREF="progtest.cc.html#console">console</A> == NULL) <A HREF="progtest.cc.html#console">console</A> = new <A HREF="syncconsole.h.html#SynchConsole">SynchConsole</A>(NULL, NULL);
+    <A HREF="progtest.cc.html#console">console</A>-&gt;WriteLine(buffer, bufferSize + 1);
+  } 
+  else if (fid == ConsoleInput)
+    {
+      <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Cannot write to console input.\n");
+      return false;
+    } 
+  else
+  {
+    <A HREF="openfile.h.html#OpenFile">OpenFile</A>* file = <A HREF="process.h.html#Process.openFileTable">openFileTable</A>[fid - <A HREF="process.h.html#FID_OFFSET">FID_OFFSET</A>];
+    if (file == NULL) {
+       <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "File does not exist&#33;\n");
+       return false;
+    }
+    file-&gt;Write(buffer, bufferSize + 1);
+  }
+  return true;
+}
+
+
+
+<A NAME="Process.FileRead"></A><FONT COLOR="#990000">// Read a string from file (or stdin) and put it back into machine memory.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// NOTE: buffersize is incremented by one so we can collect newlines from the stdin.<FONT COLOR="#000000">
+bool <A HREF="process.h.html#Process">Process</A>::FileRead(int ptrBuffer, int bufferSize, int fid)
+{
+  if (bufferSize == 0)
+    {
+      <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Cannot read zero bytes.\n");
+      return false;
+    }
+
+  char *buffer = (char *)malloc(sizeof(char *) * (bufferSize +1));
+  <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Attempting to read %d bytes from file %d\n", bufferSize, fid);
+  
+  if (fid == ConsoleInput)
+  {
+    <FONT COLOR="#990000">// Get the console and read from it.<FONT COLOR="#000000">
+    if (<A HREF="progtest.cc.html#console">console</A> == NULL) <A HREF="progtest.cc.html#console">console</A> = new <A HREF="syncconsole.h.html#SynchConsole">SynchConsole</A>(NULL, NULL);
+    <A HREF="progtest.cc.html#console">console</A>-&gt;ReadLine(buffer, bufferSize + 1);
+  }
+  else if (fid == ConsoleOutput)
+  {
+    <FONT COLOR="#990000">// Can't read from console output. <FONT COLOR="#000000">
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Cannot read from console output.\n");
+    return false;
+  }
+  else 
+  {
+    <FONT COLOR="#990000">// Read bytes from the file.<FONT COLOR="#000000">
+    <A HREF="openfile.h.html#OpenFile">OpenFile</A>* file = <A HREF="process.h.html#Process.openFileTable">openFileTable</A>[fid - <A HREF="process.h.html#FID_OFFSET">FID_OFFSET</A>];
+    if (file == NULL) {
+      <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "File does not exist&#33;\n");
+      return false;
+    }
+    file-&gt;Read(buffer, bufferSize + 1);
+  }
+  int len = strlen(buffer);
+  <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Read string %s with len %d\n", buffer, len);
+
+  strcpy(&amp;<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.h.html#Machine.mainMemory">mainMemory</A>[ptrBuffer], buffer);
+  <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.WriteRegister">WriteRegister</A>(2, len);
+  return true;
+}
+
+
+
+<A NAME="Process.ProcessFork"></A><FONT COLOR="#990000">// Fork the process<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Within this function we want to create a new stack, and then attach<FONT COLOR="#000000">
+<FONT COLOR="#990000">// it to a new kernal thread.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// The fork simply creates a new thread with a reference to the same address <FONT COLOR="#000000">
+<FONT COLOR="#990000">// space as the current kernal thread. It then creates a new stack in this<FONT COLOR="#000000">
+<FONT COLOR="#990000">// address space, assuming enough memory is available.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// <FONT COLOR="#000000">
+<FONT COLOR="#990000">// There's no need to worry about the registers since the thread code, in <FONT COLOR="#000000">
+<FONT COLOR="#990000">// the words of the comment in the initRegisters<FONT COLOR="#000000">
+<FONT COLOR="#990000">// function, "will be saved/restored into the currentThread-&gt;userRegisters<FONT COLOR="#000000">
+<FONT COLOR="#990000">// when this thread (that is, the kernal thread) is context switched out."<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// The kernal thread forks to the global function ForkUserThread which is<FONT COLOR="#000000">
+<FONT COLOR="#990000">// described above.<FONT COLOR="#000000">
+bool <A HREF="process.h.html#Process">Process</A>::ProcessFork(int funcPtr)
+{
+  <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Forking, arg 0x%x \n", funcPtr);
+
+  <A HREF="process.h.html#Process.threadCount">threadCount</A>++;
+
+  char* tname = (char *)malloc(sizeof(char) * (16 + strlen(this-&gt;<A HREF="process.h.html#Process.name">name</A>)));
+  sprintf(tname, "Thread - %s %d", this-&gt;<A HREF="process.h.html#Process.name">name</A>, <A HREF="process.h.html#Process.threadCount">threadCount</A>);
+  <A HREF="thread.h.html#Thread">Thread</A>* thread = new <A HREF="thread.h.html#Thread">Thread</A>(tname);
+
+  <FONT COLOR="#990000">// Use the current thread address space<FONT COLOR="#000000">
+  <FONT COLOR="#990000">// and create a new stack within the space...<FONT COLOR="#000000">
+  thread-&gt;space = <A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread.h.html#Thread.space">space</A>;
+  if (false == thread-&gt;space-&gt;CreateStack())
+  {
+    delete thread;
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Create stack failed - not enough memory available.\n");
+    return false;
+  }
+
+  this-&gt;<A HREF="process.h.html#Process.threads">threads</A>-&gt;<A HREF="list.cc.html#List.Append">Append</A>(thread);
+
+  thread-&gt;Fork(<A HREF="exception_cc.html#ForkUserThread">ForkUserThread</A>, funcPtr);
+  return true;
+}
+  
+
+
+<A NAME="Process.ProcessYield"></A><FONT COLOR="#990000">// Yield the current process.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// When this is called, the thread that replaces current thread<FONT COLOR="#000000">
+<FONT COLOR="#990000">// will be "woken" up by the scheduler. This means all the registers<FONT COLOR="#000000">
+<FONT COLOR="#990000">// (including the program counter) will be restored.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// The thread will return execution to HandleException, and will<FONT COLOR="#000000">
+<FONT COLOR="#990000">// immediately increment the PC.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// In other words, we don't need to do anything more here than call<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Yield on the current thread.<FONT COLOR="#000000">
+void <A HREF="process.h.html#Process">Process</A>::ProcessYield()
+{
+  <A HREF="utility.cc.html#DEBUG">DEBUG</A>('p', "Thread yielding %s\n", <A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread.h.html#Thread.getName">getName</A>());
+  <A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread.cc.html#Thread.Yield">Yield</A>();
+}
+  
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

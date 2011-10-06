@@ -1,0 +1,56 @@
+<HTML><TITLE>scheduler.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>scheduler.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// scheduler.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Data structures for the thread dispatcher and scheduler.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Primarily, the list of threads that are ready to run.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef SCHEDULER_H<FONT COLOR="#000000">
+<A NAME="SCHEDULER_H"></A><FONT COLOR="#007700">#define SCHEDULER_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="list_h.html">list.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="thread_h.html">thread.h</A>"<FONT COLOR="#000000">
+
+<A NAME="Scheduler"></A><FONT COLOR="#990000">// The following class defines the scheduler/dispatcher abstraction -- <FONT COLOR="#000000">
+<FONT COLOR="#990000">// the data structures and operations needed to keep track of which <FONT COLOR="#000000">
+<FONT COLOR="#990000">// thread is running, and which threads are ready but not running.<FONT COLOR="#000000">
+
+class Scheduler {
+  public:
+    <A HREF="scheduler_cc.html#Scheduler.Scheduler">Scheduler</A>();			<FONT COLOR="#990000">// Initialize list of ready threads <FONT COLOR="#000000">
+    ~<A HREF="scheduler_cc.html#Scheduler.~Scheduler">Scheduler</A>();			<FONT COLOR="#990000">// De-allocate ready list<FONT COLOR="#000000">
+
+    void <A HREF="scheduler_cc.html#Scheduler.ReadyToRun">ReadyToRun</A>(<A HREF="thread_h.html#Thread">Thread</A>* thread);	<FONT COLOR="#990000">// Thread can be dispatched.<FONT COLOR="#000000">
+    <A HREF="thread_h.html#Thread">Thread</A>* <A HREF="scheduler_cc.html#Scheduler.FindNextToRun">FindNextToRun</A>();		<FONT COLOR="#990000">// Dequeue first thread on the ready <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// list, if any, and return thread.<FONT COLOR="#000000">
+    void <A HREF="scheduler_cc.html#Scheduler.Run">Run</A>(<A HREF="thread_h.html#Thread">Thread</A>* nextThread);	<FONT COLOR="#990000">// Cause nextThread to start running<FONT COLOR="#000000">
+    void <A HREF="scheduler_cc.html#Scheduler.Print">Print</A>();			<FONT COLOR="#990000">// Print contents of ready list<FONT COLOR="#000000">
+    
+  private:
+    <A HREF="list_h.html#List">List</A> *<A NAME="Scheduler.readyList">readyList</A>;  		<FONT COLOR="#990000">// queue of threads that are ready to run,<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// but not running<FONT COLOR="#000000">
+};
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// SCHEDULER_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

@@ -1,0 +1,84 @@
+<HTML><TITLE>bitmap.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>bitmap.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 13:33:49 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// bitmap.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Data structures defining a bitmap -- an array of bits each of which<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	can be either on or off.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Represented as an array of unsigned integers, on which we do<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	modulo arithmetic to find the bit we are interested in.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	The bitmap can be parameterized with with the number of bits being <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	managed.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef BITMAP_H<FONT COLOR="#000000">
+<A NAME="BITMAP_H"></A><FONT COLOR="#007700">#define BITMAP_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="utility_h.html">utility.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="openfile_h.html">openfile.h</A>"<FONT COLOR="#000000">
+
+<A NAME="BitsInByte"></A><FONT COLOR="#990000">// Definitions helpful for representing a bitmap as an array of integers<FONT COLOR="#000000">
+<FONT COLOR="#007700">#define BitsInByte 	8<FONT COLOR="#000000">
+<A NAME="BitsInWord"></A><FONT COLOR="#007700">#define BitsInWord 	32<FONT COLOR="#000000">
+
+<A NAME="BitMap"></A><FONT COLOR="#990000">// The following class defines a "bitmap" -- an array of bits,<FONT COLOR="#000000">
+<FONT COLOR="#990000">// each of which can be independently set, cleared, and tested.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Most useful for managing the allocation of the elements of an array --<FONT COLOR="#000000">
+<FONT COLOR="#990000">// for instance, disk sectors, or main memory pages.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Each bit represents whether the corresponding sector or page is<FONT COLOR="#000000">
+<FONT COLOR="#990000">// in use or free.<FONT COLOR="#000000">
+
+class BitMap {
+  public:
+    <A HREF="bitmap_cc.html#BitMap.BitMap">BitMap</A>(int nitems);		<FONT COLOR="#990000">// Initialize a bitmap, with "nitems" bits<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// initially, all bits are cleared.<FONT COLOR="#000000">
+    ~<A HREF="bitmap_cc.html#BitMap.~BitMap">BitMap</A>();			<FONT COLOR="#990000">// De-allocate bitmap<FONT COLOR="#000000">
+    
+    void <A HREF="bitmap_cc.html#BitMap.Mark">Mark</A>(int which);   	<FONT COLOR="#990000">// Set the "nth" bit<FONT COLOR="#000000">
+    void <A HREF="bitmap_cc.html#BitMap.Clear">Clear</A>(int which);  	<FONT COLOR="#990000">// Clear the "nth" bit<FONT COLOR="#000000">
+    bool <A HREF="bitmap_cc.html#BitMap.Test">Test</A>(int which);   	<FONT COLOR="#990000">// Is the "nth" bit set?<FONT COLOR="#000000">
+    int <A HREF="bitmap_cc.html#BitMap.Find">Find</A>();            	<FONT COLOR="#990000">// Return the &#35; of a clear bit, and as a side<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// effect, set the bit. <FONT COLOR="#000000">
+				<FONT COLOR="#990000">// If no bits are clear, return -1.<FONT COLOR="#000000">
+    int <A HREF="bitmap_cc.html#BitMap.NumClear">NumClear</A>();		<FONT COLOR="#990000">// Return the number of clear bits<FONT COLOR="#000000">
+
+    void <A HREF="bitmap_cc.html#BitMap.Print">Print</A>();		<FONT COLOR="#990000">// Print contents of bitmap<FONT COLOR="#000000">
+    
+    <FONT COLOR="#990000">// These aren't needed until FILESYS, when we will need to read and <FONT COLOR="#000000">
+    <FONT COLOR="#990000">// write the bitmap to a file<FONT COLOR="#000000">
+    void <A HREF="bitmap_cc.html#BitMap.FetchFrom">FetchFrom</A>(<A HREF="openfile_h.html#OpenFile">OpenFile</A> *file); 	<FONT COLOR="#990000">// fetch contents from disk <FONT COLOR="#000000">
+    void <A HREF="bitmap_cc.html#BitMap.WriteBack">WriteBack</A>(<A HREF="openfile_h.html#OpenFile">OpenFile</A> *file); 	<FONT COLOR="#990000">// write contents to disk<FONT COLOR="#000000">
+
+  private:
+    int <A NAME="BitMap.numBits">numBits</A>;			<FONT COLOR="#990000">// number of bits in the bitmap<FONT COLOR="#000000">
+    int <A NAME="BitMap.numWords">numWords</A>;			<FONT COLOR="#990000">// number of words of bitmap storage<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// (rounded up if numBits is not a<FONT COLOR="#000000">
+					<FONT COLOR="#990000">//  multiple of the number of bits in<FONT COLOR="#000000">
+					<FONT COLOR="#990000">//  a word)<FONT COLOR="#000000">
+    unsigned int *<A NAME="BitMap.map">map</A>;			<FONT COLOR="#990000">// bit storage<FONT COLOR="#000000">
+};
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// BITMAP_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

@@ -1,0 +1,259 @@
+<HTML><TITLE>addrspace.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>addrspace.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 23:18:38 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// addrspace.cc <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Routines to manage address spaces (executing user programs).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	In order to run a user program, you must:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	1. link with the -N -T 0 option <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	2. run coff2noff to convert the object file to Nachos format<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		(Nachos object code format is essentially just a simpler<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		version of the UNIX executable object code format)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	3. load the NOFF file into the Nachos file system<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		(if you haven't implemented the file system yet, you<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		don't need to do this last step)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="addrspace_h.html">addrspace.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "noff.h"<FONT COLOR="#000000">
+
+<A NAME="SwapHeader"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// SwapHeader<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Do little endian to big endian conversion on the bytes in the <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	object file header, in case the file was generated on a little<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	endian machine, and we're now running on a big endian machine.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+static void  SwapHeader (NoffHeader *noffH)
+{
+	noffH-&gt;noffMagic = <A HREF="translate.cc.html#WordToHost">WordToHost</A>(noffH-&gt;noffMagic);
+	noffH-&gt;code.size = <A HREF="translate.cc.html#WordToHost">WordToHost</A>(noffH-&gt;code.size);
+	noffH-&gt;code.virtualAddr = <A HREF="translate.cc.html#WordToHost">WordToHost</A>(noffH-&gt;code.virtualAddr);
+	noffH-&gt;code.inFileAddr = <A HREF="translate.cc.html#WordToHost">WordToHost</A>(noffH-&gt;code.inFileAddr);
+	noffH-&gt;initData.size = <A HREF="translate.cc.html#WordToHost">WordToHost</A>(noffH-&gt;initData.size);
+	noffH-&gt;initData.virtualAddr = <A HREF="translate.cc.html#WordToHost">WordToHost</A>(noffH-&gt;initData.virtualAddr);
+	noffH-&gt;initData.inFileAddr = <A HREF="translate.cc.html#WordToHost">WordToHost</A>(noffH-&gt;initData.inFileAddr);
+	noffH-&gt;uninitData.size = <A HREF="translate.cc.html#WordToHost">WordToHost</A>(noffH-&gt;uninitData.size);
+	noffH-&gt;uninitData.virtualAddr = <A HREF="translate.cc.html#WordToHost">WordToHost</A>(noffH-&gt;uninitData.virtualAddr);
+	noffH-&gt;uninitData.inFileAddr = <A HREF="translate.cc.html#WordToHost">WordToHost</A>(noffH-&gt;uninitData.inFileAddr);
+}
+
+<A NAME="AddrSpace.AddrSpace"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// AddrSpace::AddrSpace<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Create an address space to run a user program.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Load the program from a file "executable", and set everything<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	up so that we can start executing user instructions.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Assumes that the object code file is in NOFF format.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	First, set up the translation from program memory to physical <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	memory.  For now, this is really simple (1:1), since we are<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	only uniprogramming, and we have a single unsegmented page table<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"executable" is the file containing the object code to load into memory<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="addrspace.h.html#AddrSpace">AddrSpace</A>::AddrSpace(<A HREF="openfile.h.html#OpenFile">OpenFile</A> *executable)
+{
+    NoffHeader noffH;
+    unsigned int i, size;
+
+    executable-&gt;ReadAt((char *)&amp;noffH, sizeof(noffH), 0);
+    if ((noffH.noffMagic != NOFFMAGIC) &amp&amp; 
+		(<A HREF="translate.cc.html#WordToHost">WordToHost</A>(noffH.noffMagic) == NOFFMAGIC))
+    	<A HREF="addrspace_cc.html#SwapHeader">SwapHeader</A>(&amp;noffH);
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>(noffH.noffMagic == NOFFMAGIC);
+
+<FONT COLOR="#990000">// how big is address space?<FONT COLOR="#000000">
+    size = noffH.code.size + noffH.initData.size + noffH.uninitData.size 
+			+ <A HREF="addrspace.h.html#UserStackSize">UserStackSize</A>;	<FONT COLOR="#990000">// we need to increase the size<FONT COLOR="#000000">
+						<FONT COLOR="#990000">// to leave room for the stack<FONT COLOR="#000000">
+    <A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A> = <A HREF="utility.h.html#divRoundUp">divRoundUp</A>(size, <A HREF="machine.h.html#PageSize">PageSize</A>);
+    size = <A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A> * <A HREF="machine.h.html#PageSize">PageSize</A>;
+
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>(<A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A> &lt;= <A HREF="machine.h.html#NumPhysPages">NumPhysPages</A>);		<FONT COLOR="#990000">// check we're not trying<FONT COLOR="#000000">
+						<FONT COLOR="#990000">// to run anything too big --<FONT COLOR="#000000">
+						<FONT COLOR="#990000">// at least until we have<FONT COLOR="#000000">
+						<FONT COLOR="#990000">// virtual memory<FONT COLOR="#000000">
+
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "Initializing address space, num pages %d, size %d\n", 
+					<A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A>, size);
+<FONT COLOR="#990000">// first, set up the translation <FONT COLOR="#000000">
+    <A HREF="addrspace.h.html#AddrSpace.pageTable">pageTable</A> = new <A HREF="translate.h.html#TranslationEntry">TranslationEntry</A>[<A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A>];
+    for (i = 0; i &lt; <A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A>; i++) {
+	<A HREF="addrspace.h.html#AddrSpace.pageTable">pageTable</A>[i].virtualPage = i;	<FONT COLOR="#990000">// for now, virtual page &#35; = phys page &#35;<FONT COLOR="#000000">
+	<A HREF="addrspace.h.html#AddrSpace.pageTable">pageTable</A>[i].physicalPage = i;
+	<A HREF="addrspace.h.html#AddrSpace.pageTable">pageTable</A>[i].valid = TRUE;
+	<A HREF="addrspace.h.html#AddrSpace.pageTable">pageTable</A>[i].use = FALSE;
+	<A HREF="addrspace.h.html#AddrSpace.pageTable">pageTable</A>[i].dirty = FALSE;
+	<A HREF="addrspace.h.html#AddrSpace.pageTable">pageTable</A>[i].readOnly = FALSE;  <FONT COLOR="#990000">// if the code segment was entirely on <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// a separate page, we could set its <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// pages to be read-only<FONT COLOR="#000000">
+    }
+    
+<FONT COLOR="#990000">// zero out the entire address space, to zero the unitialized data segment <FONT COLOR="#000000">
+<FONT COLOR="#990000">// and the stack segment<FONT COLOR="#000000">
+    bzero(<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.h.html#Machine.mainMemory">mainMemory</A>, size);
+
+<FONT COLOR="#990000">// then, copy in the code and data segments into memory<FONT COLOR="#000000">
+    if (noffH.code.size &gt; 0) {
+        <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "Initializing code segment, at 0x%x, size %d\n", 
+			noffH.code.virtualAddr, noffH.code.size);
+        executable-&gt;ReadAt(&amp;(<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.h.html#Machine.mainMemory">mainMemory</A>[noffH.code.virtualAddr]),
+			noffH.code.size, noffH.code.inFileAddr);
+    }
+    if (noffH.initData.size &gt; 0) {
+        <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "Initializing data segment, at 0x%x, size %d\n", 
+			noffH.initData.virtualAddr, noffH.initData.size);
+        executable-&gt;ReadAt(&amp;(<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.h.html#Machine.mainMemory">mainMemory</A>[noffH.initData.virtualAddr]),
+			noffH.initData.size, noffH.initData.inFileAddr);
+    }
+
+}
+
+<A NAME="AddrSpace.~AddrSpace"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// AddrSpace::~AddrSpace<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Dealloate an address space.  Nothing for now&#33;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="addrspace.h.html#AddrSpace">AddrSpace</A>::~AddrSpace()
+{
+   delete <A HREF="addrspace.h.html#AddrSpace.pageTable">pageTable</A>;
+}
+
+
+
+<FONT COLOR="#007700">#ifdef CHANGED<FONT COLOR="#000000">
+<A NAME="AddrSpace.CreateStack"></A><FONT COLOR="#990000">// COMP 305 Project &#35;2<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright David Petrie 2008<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Makes a new stack for the thread.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// - Adds new pages to the page table. Makes the same calculation as<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   was made in the address space constructor - adds UserStackSize/PageSize pages<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   to the page table.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Show an error message if no memory is available.<FONT COLOR="#000000">
+bool <A HREF="addrspace.h.html#AddrSpace">AddrSpace</A>::CreateStack()
+{
+  int numNewPages = <A HREF="utility.h.html#divRoundUp">divRoundUp</A>(<A HREF="addrspace.h.html#UserStackSize">UserStackSize</A>, <A HREF="machine.h.html#PageSize">PageSize</A>);
+  int newSize = (<A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A> + numNewPages) * <A HREF="machine.h.html#PageSize">PageSize</A>;
+
+  if (<A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A> + numNewPages &lt;= <A HREF="machine.h.html#NumPhysPages">NumPhysPages</A>)
+  {
+    <A HREF="translate.h.html#TranslationEntry">TranslationEntry</A> *newPageTable = new <A HREF="translate.h.html#TranslationEntry">TranslationEntry</A>[<A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A> + numNewPages];
+    
+    int i;
+    for (i = 0; i &lt; <A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A>; i++) {
+      newPageTable[i] = <A HREF="addrspace.h.html#AddrSpace.pageTable">pageTable</A>[i];
+    }
+    for (i = <A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A>; i &lt; <A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A> + numNewPages; i++)
+    {
+	newPageTable[i].virtualPage = i;
+	newPageTable[i].physicalPage = i;
+	newPageTable[i].valid = TRUE;
+	newPageTable[i].use = FALSE;
+	newPageTable[i].dirty = FALSE;
+	newPageTable[i].readOnly = FALSE;
+    }
+    <A HREF="addrspace.h.html#AddrSpace.pageTable">pageTable</A> = newPageTable;
+    <A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A> = (<A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A> + numNewPages);
+    return true;
+  } else {
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "No room available on the stack");
+    return false;
+  }
+}
+
+<A NAME="AddrSpace.GetNumPages"></A><FONT COLOR="#990000">// Removes a stack allocation created in MakeStack once a thread is "Finish()ed"<FONT COLOR="#000000">
+<FONT COLOR="#990000">// - Get the stack register and find the page to remove.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// - Remove the pages that were created.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// - Invalidate the entries in the page table.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// NOTE: not implementing this for Project 2<FONT COLOR="#000000">
+<FONT COLOR="#990000">//void AddrSpace::RemoveStack()<FONT COLOR="#000000">
+<FONT COLOR="#990000">//{<FONT COLOR="#000000">
+<FONT COLOR="#990000">//}<FONT COLOR="#000000">
+
+unsigned int <A HREF="addrspace.h.html#AddrSpace">AddrSpace</A>::GetNumPages()
+{
+  return <A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A>;
+}
+
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+<A NAME="AddrSpace.InitRegisters"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// AddrSpace::InitRegisters<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Set the initial values for the user-level register set.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	We write these directly into the "machine" registers, so<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	that we can immediately jump to user code.  Note that these<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	will be saved/restored into the currentThread-&gt;userRegisters<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	when this thread is context switched out.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="addrspace.h.html#AddrSpace">AddrSpace</A>::InitRegisters()
+{
+    int i;
+
+    for (i = 0; i &lt; <A HREF="machine.h.html#NumTotalRegs">NumTotalRegs</A>; i++)
+	<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.WriteRegister">WriteRegister</A>(i, 0);
+
+    <FONT COLOR="#990000">// Initial program counter -- must be location of "Start"<FONT COLOR="#000000">
+    <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.WriteRegister">WriteRegister</A>(<A HREF="machine.h.html#PCReg">PCReg</A>, 0);	
+
+    <FONT COLOR="#990000">// Need to also tell MIPS where next instruction is, because<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// of branch delay possibility<FONT COLOR="#000000">
+    <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.WriteRegister">WriteRegister</A>(<A HREF="machine.h.html#NextPCReg">NextPCReg</A>, 4);
+
+   <FONT COLOR="#990000">// Set the stack register to the end of the address space, where we<FONT COLOR="#000000">
+   <FONT COLOR="#990000">// allocated the stack; but subtract off a bit, to make sure we don't<FONT COLOR="#000000">
+   <FONT COLOR="#990000">// accidentally reference off the end&#33;<FONT COLOR="#000000">
+    <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.cc.html#Machine.WriteRegister">WriteRegister</A>(<A HREF="machine.h.html#StackReg">StackReg</A>, <A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A> * <A HREF="machine.h.html#PageSize">PageSize</A> - 16);
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "Initializing stack register to %d\n", <A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A> * <A HREF="machine.h.html#PageSize">PageSize</A> - 16);
+}
+
+<A NAME="AddrSpace.SaveState"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// AddrSpace::SaveState<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	On a context switch, save any machine state, specific<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	to this address space, that needs saving.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	For now, nothing&#33;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="addrspace.h.html#AddrSpace">AddrSpace</A>::SaveState() 
+{}
+
+<A NAME="AddrSpace.RestoreState"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// AddrSpace::RestoreState<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	On a context switch, restore the machine state so that<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	this address space can run.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      For now, tell the machine where to find the page table.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="addrspace.h.html#AddrSpace">AddrSpace</A>::RestoreState() 
+{
+    <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.h.html#Machine.pageTable">pageTable</A> = <A HREF="addrspace.h.html#AddrSpace.pageTable">pageTable</A>;
+    <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine.h.html#Machine.pageTableSize">pageTableSize</A> = <A HREF="addrspace.h.html#AddrSpace.numPages">numPages</A>;
+}
+</PRE>
+</BODY></HTML>

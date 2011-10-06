@@ -1,0 +1,75 @@
+<HTML><TITLE>process.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>process.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 20:38:51 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#007700">#include &lt;iostream&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="process_h.html">process.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="list_h.html">list.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="openfile_h.html">openfile.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="addrspace_h.html">addrspace.h</A>"<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef CHANGED<FONT COLOR="#000000">
+<FONT COLOR="#990000">// COMP 305 Project &#35;2<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright David Petrie 2008<FONT COLOR="#000000">
+extern void <A HREF="exception_cc.html#InitExceptions">InitExceptions</A>();
+extern void <A HREF="exception_cc.html#InitProcess">InitProcess</A>(<A HREF="process_h.html#Process">Process</A>* process);
+extern void <A HREF="exception_cc.html#ForkUserThread">ForkUserThread</A>(int funcPtr);
+extern void <A HREF="exception_cc.html#IncrementPC">IncrementPC</A>();
+
+
+<A NAME="StartProcess"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// StartProcess<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Run a user program.  Open the executable, load it into<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	memory, and jump to it.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+
+void StartProcess(char *filename)
+{
+  
+    <A HREF="openfile.h.html#OpenFile">OpenFile</A> *executable = <A HREF="system.cc.html#fileSystem">fileSystem</A>-&gt;<A HREF="filesys.h.html#FileSystem.Open">Open</A>(filename);
+    <A HREF="addrspace.h.html#AddrSpace">AddrSpace</A> *space;
+
+    if (executable == NULL) {
+	printf("Unable to open file %s\n", filename);
+	return;
+    }
+
+    <A HREF="exception_cc.html#InitExceptions">InitExceptions</A>();
+
+    space = new <A HREF="addrspace.h.html#AddrSpace">AddrSpace</A>(executable);
+  
+    <A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread.h.html#Thread.space">space</A> = space;
+
+    <A HREF="process_h.html#Process">Process</A>* process = new <A HREF="process_h.html#Process">Process</A>(filename);
+
+    <A HREF="exception_cc.html#InitProcess">InitProcess</A>(process);
+
+    delete executable;			<FONT COLOR="#990000">// close file<FONT COLOR="#000000">
+
+    space-&gt;InitRegisters();		<FONT COLOR="#990000">// set the initial register values<FONT COLOR="#000000">
+    space-&gt;RestoreState();		<FONT COLOR="#990000">// load page table register<FONT COLOR="#000000">
+
+    <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="mipssim.cc.html#Machine.Run">Run</A>();			<FONT COLOR="#990000">// jump to the user progam<FONT COLOR="#000000">
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>(FALSE);			<FONT COLOR="#990000">// machine-&gt;Run never returns;<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// the address space exits<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// by doing the syscall "exit"<FONT COLOR="#000000">
+}
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

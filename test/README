@@ -1,0 +1,28 @@
+README (Ian Welch, 9 April 2005)
+
+Test programs for project 2. 
+
+1) catfile
+
+prints out the contents of Makefile to the console
+
+2) copyconsole
+
+reads 12 characters from the console and prints them on the console
+
+3) forktest
+
+forks a thread, the parent thread prints "Hello World" twice and the
+forked thread prints "Goodbye World" once
+
+4) halt
+
+simply runs and halts the Nachos machine
+
+5) helloworld
+
+prints "Hello World" on the console
+
+6) writefile
+
+reads a line at a time and writes to the file "newfile", reads and writes up to 120 characters

@@ -1,0 +1,73 @@
+<HTML><TITLE>syncconsole.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>syncconsole.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 13:33:49 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#007700">#include "<A HREF="syncconsole_h.html">syncconsole.h</A>"<FONT COLOR="#000000">
+
+<A NAME="SynchConsole.SynchConsole"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// SynchConsole::SynchConsole(readfile,writefile)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    Initialize the synchronous interface, which in turn synchronizes<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    the physical console.  Pass NULL file names to use stdin and<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    stdout.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="syncconsole_h.html#SynchConsole">SynchConsole</A>::SynchConsole(char *readFile, char *writeFile)
+{
+  <A HREF="syncconsole_h.html#SynchConsole.lock">lock</A> = new <A HREF="synch.h.html#Lock">Lock</A>("Synch console lock");
+  <A HREF="syncconsole_h.html#readAvail">readAvail</A> = new <A HREF="synch.h.html#Semaphore">Semaphore</A>("Synch console read semaphore",0);
+  <A HREF="syncconsole_h.html#writeDone">writeDone</A> = new <A HREF="synch.h.html#Semaphore">Semaphore</A>("Synch console write semaphore",0);
+  <A HREF="syncconsole_h.html#SynchConsole.console">console</A> = new <A HREF="console_h.html#Console">Console</A>(readFile,writeFile,<A HREF="syncconsole_h.html#ReadAvail">ReadAvail</A>,<A HREF="syncconsole_h.html#WriteDone">WriteDone</A>,0);
+}
+
+<A NAME="SynchConsole.~SynchConsole"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  SynchConsole::~SynchConsole()<FONT COLOR="#000000">
+<FONT COLOR="#990000">//     Clean up the console.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="syncconsole_h.html#SynchConsole">SynchConsole</A>::~SynchConsole()
+{
+  delete <A HREF="syncconsole_h.html#SynchConsole.console">console</A>;
+  delete <A HREF="syncconsole_h.html#SynchConsole.lock">lock</A>;
+  delete <A HREF="syncconsole_h.html#readAvail">readAvail</A>;
+  delete <A HREF="syncconsole_h.html#writeDone">writeDone</A>;
+}
+
+<A NAME="SynchConsole.ReadLine"></A>void <A HREF="syncconsole_h.html#SynchConsole">SynchConsole</A>::ReadLine(char *databuf,int length)
+{
+  int idx = 0;
+  <A HREF="syncconsole_h.html#SynchConsole.lock">lock</A>-&gt;<A HREF="synch.cc.html#Lock.Acquire">Acquire</A>();              <FONT COLOR="#990000">// sole access to the console<FONT COLOR="#000000">
+  for (; length&gt;0; length--) {
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a',"getting char from console\n");
+    <A HREF="syncconsole_h.html#readAvail">readAvail</A>-&gt;<A HREF="synch.cc.html#Semaphore.P">P</A>();                         <FONT COLOR="#990000">// wait for interrupt<FONT COLOR="#000000">
+    databuf[idx++] = <A HREF="syncconsole_h.html#SynchConsole.console">console</A>-&gt;<A HREF="console_cc.html#Console.GetChar">GetChar</A>();    <FONT COLOR="#990000">// input one character at a time<FONT COLOR="#000000">
+  }
+  <A HREF="syncconsole_h.html#SynchConsole.lock">lock</A>-&gt;<A HREF="synch.cc.html#Lock.Release">Release</A>();
+}
+
+<A NAME="SynchConsole.WriteLine"></A>void <A HREF="syncconsole_h.html#SynchConsole">SynchConsole</A>::WriteLine(char *databuf,int length)
+{
+  int idx = 0;
+  <A HREF="syncconsole_h.html#SynchConsole.lock">lock</A>-&gt;<A HREF="synch.cc.html#Lock.Acquire">Acquire</A>();              <FONT COLOR="#990000">// sole access to the console<FONT COLOR="#000000">
+  for (; length&gt;0; length--) {
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a',"Putting char to console\n");
+    <A HREF="syncconsole_h.html#SynchConsole.console">console</A>-&gt;<A HREF="console_cc.html#Console.PutChar">PutChar</A>(databuf[idx++]);    <FONT COLOR="#990000">// output one character at a time<FONT COLOR="#000000">
+    <A HREF="syncconsole_h.html#writeDone">writeDone</A>-&gt;<A HREF="synch.cc.html#Semaphore.P">P</A>();                      <FONT COLOR="#990000">// wait for interrupt<FONT COLOR="#000000">
+  }
+  <A HREF="syncconsole_h.html#SynchConsole.lock">lock</A>-&gt;<A HREF="synch.cc.html#Lock.Release">Release</A>();
+}
+</PRE>
+</BODY></HTML>

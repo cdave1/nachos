@@ -1,0 +1,265 @@
+<HTML><TITLE>synch.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>synch.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// synch.cc <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Routines for synchronizing threads.  Three kinds of<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	synchronization routines are defined here: semaphores, locks <FONT COLOR="#000000">
+<FONT COLOR="#990000">//   	and condition variables (the implementation of the last two<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	are left to the reader).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Any implementation of a synchronization routine needs some<FONT COLOR="#000000">
+<FONT COLOR="#990000">// primitive atomic operation.  We assume Nachos is running on<FONT COLOR="#000000">
+<FONT COLOR="#990000">// a uniprocessor, and thus atomicity can be provided by<FONT COLOR="#000000">
+<FONT COLOR="#990000">// turning off interrupts.  While interrupts are disabled, no<FONT COLOR="#000000">
+<FONT COLOR="#990000">// context switch can occur, and thus the current thread is guaranteed<FONT COLOR="#000000">
+<FONT COLOR="#990000">// to hold the CPU throughout, until interrupts are reenabled.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Because some of these routines might be called with interrupts<FONT COLOR="#000000">
+<FONT COLOR="#990000">// already disabled (Semaphore::V for one), instead of turning<FONT COLOR="#000000">
+<FONT COLOR="#990000">// on interrupts at the end of the atomic operation, we always simply<FONT COLOR="#000000">
+<FONT COLOR="#990000">// re-set the interrupt state back to its original value (whether<FONT COLOR="#000000">
+<FONT COLOR="#990000">// that be disabled or enabled).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="synch_h.html">synch.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+
+<A NAME="Semaphore.Semaphore"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Semaphore::Semaphore<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Initialize a semaphore, so that it can be used for synchronization.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"debugName" is an arbitrary name, useful for debugging.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"initialValue" is the initial value of the semaphore.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="synch_h.html#Semaphore">Semaphore</A>::Semaphore(char* debugName, int initialValue)
+{
+    <A HREF="synch_h.html#Semaphore.name">name</A> = debugName;
+    <A HREF="synch_h.html#Semaphore.value">value</A> = initialValue;
+    <A HREF="synch_h.html#Semaphore.queue">queue</A> = new <A HREF="list_h.html#List">List</A>;
+}
+
+<A NAME="Semaphore.~Semaphore"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Semaphore::Semaphore<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	De-allocate semaphore, when no longer needed.  Assume no one<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	is still waiting on the semaphore&#33;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="synch_h.html#Semaphore">Semaphore</A>::~Semaphore()
+{
+    delete <A HREF="synch_h.html#Semaphore.queue">queue</A>;
+}
+
+<A NAME="Semaphore.P"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Semaphore::P<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Wait until semaphore value &gt; 0, then decrement.  Checking the<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	value and decrementing must be done atomically, so we<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	need to disable interrupts before checking the value.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Note that Thread::Sleep assumes that interrupts are disabled<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	when it is called.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="synch_h.html#Semaphore">Semaphore</A>::P()
+{
+    <A HREF="interrupt_h.html#IntStatus">IntStatus</A> oldLevel = <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(<A HREF="interrupt_h.html#IntOff">IntOff</A>);	<FONT COLOR="#990000">// disable interrupts<FONT COLOR="#000000">
+    
+    while (<A HREF="synch_h.html#Semaphore.value">value</A> == 0) { 			<FONT COLOR="#990000">// semaphore not available<FONT COLOR="#000000">
+	<A HREF="synch_h.html#Semaphore.queue">queue</A>-&gt;<A HREF="list_cc.html#List.Append">Append</A>((void *)<A HREF="system_cc.html#currentThread">currentThread</A>);	<FONT COLOR="#990000">// so go to sleep<FONT COLOR="#000000">
+	<A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_cc.html#Thread.Sleep">Sleep</A>();
+    } 
+    <A HREF="synch_h.html#Semaphore.value">value</A>--; 					<FONT COLOR="#990000">// semaphore available, <FONT COLOR="#000000">
+						<FONT COLOR="#990000">// consume its value<FONT COLOR="#000000">
+    
+    (void) <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(oldLevel);	<FONT COLOR="#990000">// re-enable interrupts<FONT COLOR="#000000">
+}
+
+<A NAME="Semaphore.V"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Semaphore::V<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Increment semaphore value, waking up a waiter if necessary.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	As with P(), this operation must be atomic, so we need to disable<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	interrupts.  Scheduler::ReadyToRun() assumes that threads<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	are disabled when it is called.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="synch_h.html#Semaphore">Semaphore</A>::V()
+{
+    <A HREF="thread_h.html#Thread">Thread</A> *thread;
+    <A HREF="interrupt_h.html#IntStatus">IntStatus</A> oldLevel = <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(<A HREF="interrupt_h.html#IntOff">IntOff</A>);
+
+    thread = (<A HREF="thread_h.html#Thread">Thread</A> *)<A HREF="synch_h.html#Semaphore.queue">queue</A>-&gt;<A HREF="list_cc.html#List.Remove">Remove</A>();
+    if (thread != NULL)	   <FONT COLOR="#990000">// make thread ready, consuming the V immediately<FONT COLOR="#000000">
+	<A HREF="system_cc.html#scheduler">scheduler</A>-&gt;<A HREF="scheduler_cc.html#Scheduler.ReadyToRun">ReadyToRun</A>(thread);
+    <A HREF="synch_h.html#Semaphore.value">value</A>++;
+    (void) <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(oldLevel);
+}
+
+
+
+
+
+<FONT COLOR="#007700">#ifdef CHANGED<FONT COLOR="#000000">
+
+<A NAME="Lock.Lock"></A><FONT COLOR="#990000">// A lock wraps around a semaphore.<FONT COLOR="#000000">
+<A HREF="synch_h.html#Lock">Lock</A>::Lock(char* debugName) 
+{
+  <A HREF="synch_h.html#Lock.name">name</A> = debugName;
+  <A HREF="synch_h.html#Lock.lockOwner">lockOwner</A> = NULL;
+  <A HREF="synch_h.html#Lock.sem">sem</A> = new <A HREF="synch_h.html#Semaphore">Semaphore</A>(debugName, 1);
+}
+
+
+<A NAME="Lock.~Lock"></A><A HREF="synch_h.html#Lock">Lock</A>::~Lock() 
+{
+  delete <A HREF="synch_h.html#Lock.sem">sem</A>;
+}
+
+
+<A NAME="Lock.Acquire"></A><FONT COLOR="#990000">// Current thread attempts to acquire the lock.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Thread will sleep if another thread has the lock.<FONT COLOR="#000000">
+void <A HREF="synch_h.html#Lock">Lock</A>::Acquire() 
+{
+  <A HREF="interrupt_h.html#IntStatus">IntStatus</A> oldLevel = <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(<A HREF="interrupt_h.html#IntOff">IntOff</A>);
+  <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Thread \"%s\" is acquiring lock.\n", <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>());
+  <A HREF="synch_h.html#Lock.sem">sem</A>-&gt;<A HREF="synch_cc.html#Semaphore.P">P</A>();
+  <A HREF="synch_h.html#Lock.lockOwner">lockOwner</A> = <A HREF="system_cc.html#currentThread">currentThread</A>;
+  (void) <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(oldLevel);
+}
+
+
+<A NAME="Lock.Release"></A><FONT COLOR="#990000">// Current thread releases the lock, and wakes another thread blocked on the<FONT COLOR="#000000">
+<FONT COLOR="#990000">// lock.<FONT COLOR="#000000">
+void <A HREF="synch_h.html#Lock">Lock</A>::Release() 
+{
+  <A HREF="interrupt_h.html#IntStatus">IntStatus</A> oldLevel = <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(<A HREF="interrupt_h.html#IntOff">IntOff</A>);
+  <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Thread \"%s\" is RELEASING lock.\n", <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>());
+  <A HREF="synch_h.html#Lock.sem">sem</A>-&gt;<A HREF="synch_cc.html#Semaphore.V">V</A>();
+  <A HREF="synch_h.html#Lock.lockOwner">lockOwner</A> = NULL;
+  (void) <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(oldLevel);
+}
+
+
+<A NAME="Lock.isHeldByCurrentThread"></A>bool <A HREF="synch_h.html#Lock">Lock</A>::isHeldByCurrentThread()
+{
+  return (<A HREF="synch_h.html#Lock.lockOwner">lockOwner</A> == <A HREF="system_cc.html#currentThread">currentThread</A>);
+}
+
+
+<A NAME="Lock.getOwner"></A><FONT COLOR="#990000">// Just returns a pointer to the thread that holds the lock.<FONT COLOR="#000000">
+<A HREF="thread_h.html#Thread">Thread</A>* <A HREF="synch_h.html#Lock">Lock</A>::getOwner()
+{
+  return <A HREF="synch_h.html#Lock.lockOwner">lockOwner</A>;
+}
+
+
+
+<A NAME="Condition.Condition"></A><FONT COLOR="#990000">// Condition lock is just a binary semaphore.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// A lot of the condition variable code is borrowed from the Semaphore<FONT COLOR="#000000">
+<FONT COLOR="#990000">// above.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Engineering note: My initial approach here was to use a semaphore<FONT COLOR="#000000">
+<FONT COLOR="#990000">// to implement the condition lock. However, there was no easy <FONT COLOR="#000000">
+<FONT COLOR="#990000">// way to ensure that the thread awoken by the semaphore is the one we <FONT COLOR="#000000">
+<FONT COLOR="#990000">// actually want to wake up. Far better to have the condition lock <FONT COLOR="#000000">
+<FONT COLOR="#990000">// manage the queue of processes itself.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Because of this, the condition is almost identical to the<FONT COLOR="#000000">
+<FONT COLOR="#990000">// semaphore, with some additional code to ensure that the thread<FONT COLOR="#000000">
+<FONT COLOR="#990000">// being woken or put to sleep is indeed the owner of the lock.<FONT COLOR="#000000">
+<A HREF="synch_h.html#Condition">Condition</A>::Condition(char* debugName) 
+{
+  <A HREF="synch_h.html#Condition.name">name</A> = debugName;
+  <A HREF="synch_h.html#Condition.queue">queue</A> = new <A HREF="list_h.html#List">List</A>;
+}
+
+
+<A NAME="Condition.~Condition"></A><A HREF="synch_h.html#Condition">Condition</A>::~Condition() 
+{
+  delete <A HREF="synch_h.html#Condition.queue">queue</A>;
+}
+
+
+<A NAME="Condition.Wait"></A><FONT COLOR="#990000">// Wait on the condition variable. If the currentThread owns the lock<FONT COLOR="#000000">
+<FONT COLOR="#990000">// then the thread is added to the condition variable's queue, and<FONT COLOR="#000000">
+<FONT COLOR="#990000">// then put to sleep.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// If another thread calls Signal, then this thread will eventually be<FONT COLOR="#000000">
+<FONT COLOR="#990000">// woken up, and will resume by attempting to acquire the lock.<FONT COLOR="#000000">
+void <A HREF="synch_h.html#Condition">Condition</A>::Wait(<A HREF="synch_h.html#Lock">Lock</A>* conditionLock) 
+{ 
+  <A HREF="interrupt_h.html#IntStatus">IntStatus</A> oldLevel = <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(<A HREF="interrupt_h.html#IntOff">IntOff</A>);
+  <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Thread \"%s\" is waiting on condition \"%s\"\n", <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>(), <A HREF="synch_h.html#Condition.name">name</A>);
+
+  <FONT COLOR="#990000">// We want to release the lock, but only if the thread that has the lock<FONT COLOR="#000000">
+  <FONT COLOR="#990000">// is also the thread that is calling Wait.<FONT COLOR="#000000">
+  <A HREF="thread_h.html#Thread">Thread</A>* lockOwner = conditionLock-&gt;getOwner();
+  if (lockOwner != NULL) {
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>(lockOwner == <A HREF="system_cc.html#currentThread">currentThread</A>);
+    <A HREF="synch_h.html#Condition.queue">queue</A>-&gt;<A HREF="list_cc.html#List.Append">Append</A>((void *)<A HREF="system_cc.html#currentThread">currentThread</A>);
+
+    conditionLock-&gt;Release();
+    <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Thread \"%s\" is BLOCKED on condition \"%s\"\n", <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>(), <A HREF="synch_h.html#Condition.name">name</A>);
+    <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_cc.html#Thread.Sleep">Sleep</A>();
+    <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Thread \"%s\" has woken and is about to get lock.\n", <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>());
+    conditionLock-&gt;Acquire();
+  }
+  (void) <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(oldLevel);
+}
+
+
+<A NAME="Condition.Signal"></A><FONT COLOR="#990000">// Signals on the condition variable.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// This will wake a thread blocked on the condition variable.<FONT COLOR="#000000">
+void <A HREF="synch_h.html#Condition">Condition</A>::Signal(<A HREF="synch_h.html#Lock">Lock</A>* conditionLock) 
+{
+  <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Thread \"%s\" is signalling processes blocked on condition \"%s\"\n", <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>(), <A HREF="synch_h.html#Condition.name">name</A>);
+
+  <A HREF="thread_h.html#Thread">Thread</A> *thread;
+  <A HREF="interrupt_h.html#IntStatus">IntStatus</A> oldLevel = <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(<A HREF="interrupt_h.html#IntOff">IntOff</A>);
+
+  if (<A HREF="synch_h.html#Condition.queue">queue</A>-&gt;<A HREF="list_cc.html#List.IsEmpty">IsEmpty</A>() == false) {
+    thread = (<A HREF="thread_h.html#Thread">Thread</A> *)<A HREF="synch_h.html#Condition.queue">queue</A>-&gt;<A HREF="list_cc.html#List.Remove">Remove</A>();
+    <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "- woke up thread \"%s\"\n", thread-&gt;getName());
+    if (thread != NULL) <A HREF="system_cc.html#scheduler">scheduler</A>-&gt;<A HREF="scheduler_cc.html#Scheduler.ReadyToRun">ReadyToRun</A>(thread);
+  }
+  (void) <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(oldLevel);
+}
+
+
+<A NAME="Condition.Broadcast"></A><FONT COLOR="#990000">// Wakes all threads blocked on the condition variable.<FONT COLOR="#000000">
+void <A HREF="synch_h.html#Condition">Condition</A>::Broadcast(<A HREF="synch_h.html#Lock">Lock</A>* conditionLock) 
+{
+  <A HREF="thread_h.html#Thread">Thread</A> *thread;
+  <A HREF="interrupt_h.html#IntStatus">IntStatus</A> oldLevel = <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(<A HREF="interrupt_h.html#IntOff">IntOff</A>);
+
+  <FONT COLOR="#990000">// TODO: check if the current thread holds the lock<FONT COLOR="#000000">
+  while (<A HREF="synch_h.html#Condition.queue">queue</A>-&gt;<A HREF="list_cc.html#List.IsEmpty">IsEmpty</A>() == false) {
+    thread = (<A HREF="thread_h.html#Thread">Thread</A> *)<A HREF="synch_h.html#Condition.queue">queue</A>-&gt;<A HREF="list_cc.html#List.Remove">Remove</A>();
+    if (thread != NULL) <A HREF="system_cc.html#scheduler">scheduler</A>-&gt;<A HREF="scheduler_cc.html#Scheduler.ReadyToRun">ReadyToRun</A>(thread);
+  }
+  (void) <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(oldLevel);
+}
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

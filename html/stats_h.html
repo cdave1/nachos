@@ -1,0 +1,80 @@
+<HTML><TITLE>stats.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>stats.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// stats.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Data structures for gathering statistics about Nachos performance.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// DO NOT CHANGE -- these stats are maintained by the machine emulation<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef STATS_H<FONT COLOR="#000000">
+<A NAME="STATS_H"></A><FONT COLOR="#007700">#define STATS_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+
+<A NAME="Statistics"></A><FONT COLOR="#990000">// The following class defines the statistics that are to be kept<FONT COLOR="#000000">
+<FONT COLOR="#990000">// about Nachos behavior -- how much time (ticks) elapsed, how<FONT COLOR="#000000">
+<FONT COLOR="#990000">// many user instructions executed, etc.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// The fields in this class are public to make it easier to update.<FONT COLOR="#000000">
+
+class Statistics {
+  public:
+    int <A NAME="Statistics.totalTicks">totalTicks</A>;      	<FONT COLOR="#990000">// Total time running Nachos<FONT COLOR="#000000">
+    int <A NAME="Statistics.idleTicks">idleTicks</A>;       	<FONT COLOR="#990000">// Time spent idle (no threads to run)<FONT COLOR="#000000">
+    int <A NAME="Statistics.systemTicks">systemTicks</A>;	 	<FONT COLOR="#990000">// Time spent executing system code<FONT COLOR="#000000">
+    int <A NAME="Statistics.userTicks">userTicks</A>;       	<FONT COLOR="#990000">// Time spent executing user code<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// (this is also equal to &#35; of<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// user instructions executed)<FONT COLOR="#000000">
+
+    int <A NAME="Statistics.numDiskReads">numDiskReads</A>;		<FONT COLOR="#990000">// number of disk read requests<FONT COLOR="#000000">
+    int <A NAME="Statistics.numDiskWrites">numDiskWrites</A>;		<FONT COLOR="#990000">// number of disk write requests<FONT COLOR="#000000">
+    int <A NAME="Statistics.numConsoleCharsRead">numConsoleCharsRead</A>;	<FONT COLOR="#990000">// number of characters read from the keyboard<FONT COLOR="#000000">
+    int <A NAME="Statistics.numConsoleCharsWritten">numConsoleCharsWritten</A>; <FONT COLOR="#990000">// number of characters written to the display<FONT COLOR="#000000">
+    int <A NAME="Statistics.numPageFaults">numPageFaults</A>;		<FONT COLOR="#990000">// number of virtual memory page faults<FONT COLOR="#000000">
+    int <A NAME="Statistics.numPacketsSent">numPacketsSent</A>;		<FONT COLOR="#990000">// number of packets sent over the network<FONT COLOR="#000000">
+    int <A NAME="Statistics.numPacketsRecvd">numPacketsRecvd</A>;	<FONT COLOR="#990000">// number of packets received over the network<FONT COLOR="#000000">
+
+    <A HREF="stats_cc.html#Statistics.Statistics">Statistics</A>(); 		<FONT COLOR="#990000">// initialize everything to zero<FONT COLOR="#000000">
+
+    void <A HREF="stats_cc.html#Statistics.Print">Print</A>();		<FONT COLOR="#990000">// print collected statistics<FONT COLOR="#000000">
+};
+
+<A NAME="UserTick"></A><FONT COLOR="#990000">// Constants used to reflect the relative time an operation would<FONT COLOR="#000000">
+<FONT COLOR="#990000">// take in a real system.  A "tick" is a just a unit of time -- if you <FONT COLOR="#000000">
+<FONT COLOR="#990000">// like, a microsecond.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Since Nachos kernel code is directly executed, and the time spent<FONT COLOR="#000000">
+<FONT COLOR="#990000">// in the kernel measured by the number of calls to enable interrupts,<FONT COLOR="#000000">
+<FONT COLOR="#990000">// these time constants are none too exact.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#define UserTick 	1	<FONT COLOR="#990000">// advance for each user-level instruction <FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="SystemTick"></A><FONT COLOR="#007700">#define SystemTick 	10 	<FONT COLOR="#990000">// advance each time interrupts are enabled<FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="RotationTime"></A><FONT COLOR="#007700">#define RotationTime 	500 	<FONT COLOR="#990000">// time disk takes to rotate one sector<FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="SeekTime"></A><FONT COLOR="#007700">#define SeekTime 	500    	<FONT COLOR="#990000">// time disk takes to seek past one track<FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="ConsoleTime"></A><FONT COLOR="#007700">#define ConsoleTime 	100	<FONT COLOR="#990000">// time to read or write one character<FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="NetworkTime"></A><FONT COLOR="#007700">#define NetworkTime 	100   	<FONT COLOR="#990000">// time to send or receive one packet<FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="TimerTicks"></A><FONT COLOR="#007700">#define TimerTicks 	100    	<FONT COLOR="#990000">// (average) time between timer interrupts<FONT COLOR="#000000"><FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// STATS_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

@@ -1,0 +1,706 @@
+<HTML><TITLE>mipssim.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>mipssim.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 13:33:49 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// mipssim.cc -- simulate a MIPS R2/3000 processor<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   This code has been adapted from Ousterhout's MIPSSIM package.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   Byte ordering is little-endian, so we can be compatible with<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   DEC RISC systems.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   DO NOT CHANGE -- part of the machine emulation<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="machine_h.html">machine.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="mipssim_h.html">mipssim.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+
+<A NAME="Mult"></A>static void Mult(int a, int b, bool signedArith, int* hiPtr, int* loPtr);
+
+<A NAME="Machine.Run"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Machine::Run<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Simulate the execution of a user-level program on Nachos.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Called by the kernel when the program starts up; never returns.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	This routine is re-entrant, in that it can be called multiple<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	times concurrently -- one for each thread executing user code.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="machine_h.html#Machine">Machine</A>::Run()
+{
+    <A HREF="machine_h.html#Instruction">Instruction</A> *instr = new <A HREF="machine_h.html#Instruction">Instruction</A>;  <FONT COLOR="#990000">// storage for decoded instruction<FONT COLOR="#000000">
+
+    if(<A HREF="utility.cc.html#DebugIsEnabled">DebugIsEnabled</A>('m'))
+        printf("Starting thread \"%s\" at time %d\n",
+	       <A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread.h.html#Thread.getName">getName</A>(), <A HREF="system.cc.html#stats">stats</A>-&gt;<A HREF="stats.h.html#Statistics.totalTicks">totalTicks</A>);
+    <A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.h.html#Interrupt.setStatus">setStatus</A>(<A HREF="interrupt.h.html#UserMode">UserMode</A>);
+    for (;;) {
+        <A HREF="mipssim_cc.html#Machine.OneInstruction">OneInstruction</A>(instr);
+	<A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.cc.html#Interrupt.OneTick">OneTick</A>();
+	if (<A HREF="machine_h.html#Machine.singleStep">singleStep</A> &amp&amp; (<A HREF="machine_h.html#Machine.runUntilTime">runUntilTime</A> &lt;= <A HREF="system.cc.html#stats">stats</A>-&gt;<A HREF="stats.h.html#Statistics.totalTicks">totalTicks</A>))
+	  <A HREF="machine_cc.html#Machine.Debugger">Debugger</A>();
+    }
+}
+
+
+<A NAME="TypeToReg"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// TypeToReg<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Retrieve the register &#35; referred to in an instruction. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+static int  TypeToReg(<A HREF="mipssim_h.html#RegType">RegType</A> reg, <A HREF="machine_h.html#Instruction">Instruction</A> *instr)
+{
+    switch (reg) {
+      case <A HREF="mipssim_h.html#RS">RS</A>:
+	return instr-&gt;rs;
+      case <A HREF="mipssim_h.html#RT">RT</A>:
+	return instr-&gt;rt;
+      case <A HREF="mipssim_h.html#RD">RD</A>:
+	return instr-&gt;rd;
+      case <A HREF="mipssim_h.html#EXTRA">EXTRA</A>:
+	return instr-&gt;extra;
+      default:
+	return -1;
+    }
+}
+
+<A NAME="Machine.OneInstruction"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Machine::OneInstruction<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Execute one instruction from a user-level program<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	If there is any kind of exception or interrupt, we invoke the <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	exception handler, and when it returns, we return to Run(), which<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	will re-invoke us in a loop.  This allows us to<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	re-start the instruction execution from the beginning, in<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	case any of our state has changed.  On a syscall,<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	the OS software must increment the PC so execution begins<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	at the instruction immediately after the syscall. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	This routine is re-entrant, in that it can be called multiple<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	times concurrently -- one for each thread executing user code.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	We get re-entrancy by never caching any data -- we always re-start the<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	simulation from scratch each time we are called (or after trapping<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	back to the Nachos kernel on an exception or interrupt), and we always<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	store all data back to the machine registers and memory before<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	leaving.  This allows the Nachos kernel to control our behavior<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	by controlling the contents of memory, the translation table,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	and the register set.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="machine_h.html#Machine">Machine</A>::OneInstruction(<A HREF="machine_h.html#Instruction">Instruction</A> *instr)
+{
+    int raw;
+    int nextLoadReg = 0; 	
+    int nextLoadValue = 0; 	<FONT COLOR="#990000">// record delayed load operation, to apply<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// in the future<FONT COLOR="#000000">
+
+    <FONT COLOR="#990000">// Fetch instruction <FONT COLOR="#000000">
+    if (!<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="translate_cc.html#Machine.ReadMem">ReadMem</A>(<A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#PCReg">PCReg</A>], 4, &amp;raw))
+	return;			<FONT COLOR="#990000">// exception occurred<FONT COLOR="#000000">
+    instr-&gt;value = raw;
+    instr-&gt;Decode();
+
+    if (<A HREF="utility.cc.html#DebugIsEnabled">DebugIsEnabled</A>('m')) {
+       struct <A HREF="mipssim_h.html#OpString">OpString</A> *str = &amp;<A HREF="mipssim_h.html#opStrings">opStrings</A>[instr-&gt;opCode];
+
+       <A HREF="utility.h.html#ASSERT">ASSERT</A>(instr-&gt;opCode &lt;= <A HREF="mipssim_h.html#MaxOpcode">MaxOpcode</A>);
+       printf("At PC = 0x%x: ", <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#PCReg">PCReg</A>]);
+       printf(str-&gt;string, <A HREF="mipssim_cc.html#TypeToReg">TypeToReg</A>(str-&gt;args[0], instr), 
+		<A HREF="mipssim_cc.html#TypeToReg">TypeToReg</A>(str-&gt;args[1], instr), <A HREF="mipssim_cc.html#TypeToReg">TypeToReg</A>(str-&gt;args[2], instr));
+       printf("\n");
+       }
+    
+    <FONT COLOR="#990000">// Compute next pc, but don't install in case there's an error or branch.<FONT COLOR="#000000">
+    int pcAfter = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#NextPCReg">NextPCReg</A>] + 4;
+    int sum, diff, tmp, value;
+    unsigned int rs, rt, imm;
+
+    <FONT COLOR="#990000">// Execute the instruction (cf. Kane's book)<FONT COLOR="#000000">
+    switch (instr-&gt;opCode) {
+	
+      case <A HREF="mipssim_h.html#OP_ADD">OP_ADD</A>:
+	sum = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] + <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	if (!((<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &#94; <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt]) &amp; <A HREF="mipssim_h.html#SIGN_BIT">SIGN_BIT</A>) &amp&amp;
+	    ((<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &#94; sum) &amp; <A HREF="mipssim_h.html#SIGN_BIT">SIGN_BIT</A>)) {
+	    <A HREF="machine_cc.html#Machine.RaiseException">RaiseException</A>(OverflowException, 0);
+	    return;
+	}
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = sum;
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_ADDI">OP_ADDI</A>:
+	sum = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] + instr-&gt;extra;
+	if (!((<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &#94; instr-&gt;extra) &amp; <A HREF="mipssim_h.html#SIGN_BIT">SIGN_BIT</A>) &amp&amp;
+	    ((instr-&gt;extra &#94; sum) &amp; <A HREF="mipssim_h.html#SIGN_BIT">SIGN_BIT</A>)) {
+	    <A HREF="machine_cc.html#Machine.RaiseException">RaiseException</A>(OverflowException, 0);
+	    return;
+	}
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] = sum;
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_ADDIU">OP_ADDIU</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] + instr-&gt;extra;
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_ADDU">OP_ADDU</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] + <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_AND">OP_AND</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &amp; <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_ANDI">OP_ANDI</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &amp; (instr-&gt;extra &amp; 0xffff);
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_BEQ">OP_BEQ</A>:
+	if (<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] == <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt])
+	    pcAfter = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#NextPCReg">NextPCReg</A>] + <A HREF="mipssim_h.html#IndexToAddr">IndexToAddr</A>(instr-&gt;extra);
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_BGEZAL">OP_BGEZAL</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="mipssim_h.html#R31">R31</A>] = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#NextPCReg">NextPCReg</A>] + 4;
+      case <A HREF="mipssim_h.html#OP_BGEZ">OP_BGEZ</A>:
+	if (!(<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &amp; <A HREF="mipssim_h.html#SIGN_BIT">SIGN_BIT</A>))
+	    pcAfter = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#NextPCReg">NextPCReg</A>] + <A HREF="mipssim_h.html#IndexToAddr">IndexToAddr</A>(instr-&gt;extra);
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_BGTZ">OP_BGTZ</A>:
+	if (<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &gt; 0)
+	    pcAfter = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#NextPCReg">NextPCReg</A>] + <A HREF="mipssim_h.html#IndexToAddr">IndexToAddr</A>(instr-&gt;extra);
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_BLEZ">OP_BLEZ</A>:
+	if (<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &lt;= 0)
+	    pcAfter = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#NextPCReg">NextPCReg</A>] + <A HREF="mipssim_h.html#IndexToAddr">IndexToAddr</A>(instr-&gt;extra);
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_BLTZAL">OP_BLTZAL</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="mipssim_h.html#R31">R31</A>] = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#NextPCReg">NextPCReg</A>] + 4;
+      case <A HREF="mipssim_h.html#OP_BLTZ">OP_BLTZ</A>:
+	if (<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &amp; <A HREF="mipssim_h.html#SIGN_BIT">SIGN_BIT</A>)
+	    pcAfter = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#NextPCReg">NextPCReg</A>] + <A HREF="mipssim_h.html#IndexToAddr">IndexToAddr</A>(instr-&gt;extra);
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_BNE">OP_BNE</A>:
+	if (<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] != <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt])
+	    pcAfter = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#NextPCReg">NextPCReg</A>] + <A HREF="mipssim_h.html#IndexToAddr">IndexToAddr</A>(instr-&gt;extra);
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_DIV">OP_DIV</A>:
+	if (<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] == 0) {
+	    <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoReg">LoReg</A>] = 0;
+	    <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#HiReg">HiReg</A>] = 0;
+	} else {
+	    <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoReg">LoReg</A>] =  <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] / <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	    <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#HiReg">HiReg</A>] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] % <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	}
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_DIVU">OP_DIVU</A>:	  
+	  rs = (unsigned int) <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs];
+	  rt = (unsigned int) <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	  if (rt == 0) {
+	      <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoReg">LoReg</A>] = 0;
+	      <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#HiReg">HiReg</A>] = 0;
+	  } else {
+	      tmp = rs / rt;
+	      <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoReg">LoReg</A>] = (int) tmp;
+	      tmp = rs % rt;
+	      <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#HiReg">HiReg</A>] = (int) tmp;
+	  }
+	  break;
+	
+      case <A HREF="mipssim_h.html#OP_JAL">OP_JAL</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="mipssim_h.html#R31">R31</A>] = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#NextPCReg">NextPCReg</A>] + 4;
+      case <A HREF="mipssim_h.html#OP_J">OP_J</A>:
+	pcAfter = (pcAfter &amp; 0xf0000000) | <A HREF="mipssim_h.html#IndexToAddr">IndexToAddr</A>(instr-&gt;extra);
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_JALR">OP_JALR</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#NextPCReg">NextPCReg</A>] + 4;
+      case <A HREF="mipssim_h.html#OP_JR">OP_JR</A>:
+	pcAfter = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs];
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_LB">OP_LB</A>:
+      case <A HREF="mipssim_h.html#OP_LBU">OP_LBU</A>:
+	tmp = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] + instr-&gt;extra;
+	if (!<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="translate_cc.html#Machine.ReadMem">ReadMem</A>(tmp, 1, &amp;value))
+	    return;
+
+	if ((value &amp; 0x80) &amp&amp; (instr-&gt;opCode == <A HREF="mipssim_h.html#OP_LB">OP_LB</A>))
+	    value |= 0xffffff00;
+	else
+	    value &amp;= 0xff;
+	nextLoadReg = instr-&gt;rt;
+	nextLoadValue = value;
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_LH">OP_LH</A>:
+      case <A HREF="mipssim_h.html#OP_LHU">OP_LHU</A>:	  
+	tmp = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] + instr-&gt;extra;
+	if (tmp &amp; 0x1) {
+	    <A HREF="machine_cc.html#Machine.RaiseException">RaiseException</A>(AddressErrorException, tmp);
+	    return;
+	}
+	if (!<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="translate_cc.html#Machine.ReadMem">ReadMem</A>(tmp, 2, &amp;value))
+	    return;
+
+	if ((value &amp; 0x8000) &amp&amp; (instr-&gt;opCode == <A HREF="mipssim_h.html#OP_LH">OP_LH</A>))
+	    value |= 0xffff0000;
+	else
+	    value &amp;= 0xffff;
+	nextLoadReg = instr-&gt;rt;
+	nextLoadValue = value;
+	break;
+      	
+      case <A HREF="mipssim_h.html#OP_LUI">OP_LUI</A>:
+	<A HREF="utility.cc.html#DEBUG">DEBUG</A>('m', "Executing: LUI r%d,%d\n", instr-&gt;rt, instr-&gt;extra);
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] = instr-&gt;extra &lt&lt; 16;
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_LW">OP_LW</A>:
+	tmp = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] + instr-&gt;extra;
+	if (tmp &amp; 0x3) {
+	    <A HREF="machine_cc.html#Machine.RaiseException">RaiseException</A>(AddressErrorException, tmp);
+	    return;
+	}
+	if (!<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="translate_cc.html#Machine.ReadMem">ReadMem</A>(tmp, 4, &amp;value))
+	    return;
+	nextLoadReg = instr-&gt;rt;
+	nextLoadValue = value;
+	break;
+    	
+      case <A HREF="mipssim_h.html#OP_LWL">OP_LWL</A>:	  
+	tmp = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] + instr-&gt;extra;
+
+	<FONT COLOR="#990000">// ReadMem assumes all 4 byte requests are aligned on an even <FONT COLOR="#000000">
+	<FONT COLOR="#990000">// word boundary.  Also, the little endian/big endian swap code would<FONT COLOR="#000000">
+        <FONT COLOR="#990000">// fail (I think) if the other cases are ever exercised.<FONT COLOR="#000000">
+	<A HREF="utility.h.html#ASSERT">ASSERT</A>((tmp &amp; 0x3) == 0);  
+
+	if (!<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="translate_cc.html#Machine.ReadMem">ReadMem</A>(tmp, 4, &amp;value))
+	    return;
+	if (<A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoadReg">LoadReg</A>] == instr-&gt;rt)
+	    nextLoadValue = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoadValueReg">LoadValueReg</A>];
+	else
+	    nextLoadValue = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	switch (tmp &amp; 0x3) {
+	  case 0:
+	    nextLoadValue = value;
+	    break;
+	  case 1:
+	    nextLoadValue = (nextLoadValue &amp; 0xff) | (value &lt&lt; 8);
+	    break;
+	  case 2:
+	    nextLoadValue = (nextLoadValue &amp; 0xffff) | (value &lt&lt; 16);
+	    break;
+	  case 3:
+	    nextLoadValue = (nextLoadValue &amp; 0xffffff) | (value &lt&lt; 24);
+	    break;
+	}
+	nextLoadReg = instr-&gt;rt;
+	break;
+      	
+      case <A HREF="mipssim_h.html#OP_LWR">OP_LWR</A>:
+	tmp = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] + instr-&gt;extra;
+
+	<FONT COLOR="#990000">// ReadMem assumes all 4 byte requests are aligned on an even <FONT COLOR="#000000">
+	<FONT COLOR="#990000">// word boundary.  Also, the little endian/big endian swap code would<FONT COLOR="#000000">
+        <FONT COLOR="#990000">// fail (I think) if the other cases are ever exercised.<FONT COLOR="#000000">
+	<A HREF="utility.h.html#ASSERT">ASSERT</A>((tmp &amp; 0x3) == 0);  
+
+	if (!<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="translate_cc.html#Machine.ReadMem">ReadMem</A>(tmp, 4, &amp;value))
+	    return;
+	if (<A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoadReg">LoadReg</A>] == instr-&gt;rt)
+	    nextLoadValue = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoadValueReg">LoadValueReg</A>];
+	else
+	    nextLoadValue = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	switch (tmp &amp; 0x3) {
+	  case 0:
+	    nextLoadValue = (nextLoadValue &amp; 0xffffff00) |
+		((value &gt&gt; 24) &amp; 0xff);
+	    break;
+	  case 1:
+	    nextLoadValue = (nextLoadValue &amp; 0xffff0000) |
+		((value &gt&gt; 16) &amp; 0xffff);
+	    break;
+	  case 2:
+	    nextLoadValue = (nextLoadValue &amp; 0xff000000)
+		| ((value &gt&gt; 8) &amp; 0xffffff);
+	    break;
+	  case 3:
+	    nextLoadValue = value;
+	    break;
+	}
+	nextLoadReg = instr-&gt;rt;
+	break;
+    	
+      case <A HREF="mipssim_h.html#OP_MFHI">OP_MFHI</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#HiReg">HiReg</A>];
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_MFLO">OP_MFLO</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoReg">LoReg</A>];
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_MTHI">OP_MTHI</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#HiReg">HiReg</A>] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs];
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_MTLO">OP_MTLO</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoReg">LoReg</A>] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs];
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_MULT">OP_MULT</A>:
+	<A HREF="mipssim_cc.html#Mult">Mult</A>(<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs], <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt], TRUE,
+	     &amp;<A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#HiReg">HiReg</A>], &amp;<A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoReg">LoReg</A>]);
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_MULTU">OP_MULTU</A>:
+	<A HREF="mipssim_cc.html#Mult">Mult</A>(<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs], <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt], FALSE,
+	     &amp;<A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#HiReg">HiReg</A>], &amp;<A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoReg">LoReg</A>]);
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_NOR">OP_NOR</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = ~(<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] | <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt]);
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_OR">OP_OR</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] | <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs];
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_ORI">OP_ORI</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] | (instr-&gt;extra &amp; 0xffff);
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_SB">OP_SB</A>:
+	if (!<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="translate_cc.html#Machine.WriteMem">WriteMem</A>((unsigned) 
+		(<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] + instr-&gt;extra), 1, <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt]))
+	    return;
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_SH">OP_SH</A>:
+	if (!<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="translate_cc.html#Machine.WriteMem">WriteMem</A>((unsigned) 
+		(<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] + instr-&gt;extra), 2, <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt]))
+	    return;
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_SLL">OP_SLL</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] &lt&lt; instr-&gt;extra;
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_SLLV">OP_SLLV</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] &lt&lt;
+	    (<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &amp; 0x1f);
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_SLT">OP_SLT</A>:
+	if (<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &lt; <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt])
+	    <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = 1;
+	else
+	    <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = 0;
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_SLTI">OP_SLTI</A>:
+	if (<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &lt; instr-&gt;extra)
+	    <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] = 1;
+	else
+	    <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] = 0;
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_SLTIU">OP_SLTIU</A>:	  
+	rs = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs];
+	imm = instr-&gt;extra;
+	if (rs &lt; imm)
+	    <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] = 1;
+	else
+	    <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] = 0;
+	break;
+      	
+      case <A HREF="mipssim_h.html#OP_SLTU">OP_SLTU</A>:	  
+	rs = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs];
+	rt = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	if (rs &lt; rt)
+	    <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = 1;
+	else
+	    <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = 0;
+	break;
+      	
+      case <A HREF="mipssim_h.html#OP_SRA">OP_SRA</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] &gt&gt; instr-&gt;extra;
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_SRAV">OP_SRAV</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] &gt&gt;
+	    (<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &amp; 0x1f);
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_SRL">OP_SRL</A>:
+	tmp = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	tmp &gt&gt;= instr-&gt;extra;
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = tmp;
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_SRLV">OP_SRLV</A>:
+	tmp = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	tmp &gt&gt;= (<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &amp; 0x1f);
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = tmp;
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_SUB">OP_SUB</A>:	  
+	diff = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] - <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	if (((<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &#94; <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt]) &amp; <A HREF="mipssim_h.html#SIGN_BIT">SIGN_BIT</A>) &amp&amp;
+	    ((<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &#94; diff) &amp; <A HREF="mipssim_h.html#SIGN_BIT">SIGN_BIT</A>)) {
+	    <A HREF="machine_cc.html#Machine.RaiseException">RaiseException</A>(OverflowException, 0);
+	    return;
+	}
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = diff;
+	break;
+      	
+      case <A HREF="mipssim_h.html#OP_SUBU">OP_SUBU</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] - <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_SW">OP_SW</A>:
+	if (!<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="translate_cc.html#Machine.WriteMem">WriteMem</A>((unsigned) 
+		(<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] + instr-&gt;extra), 4, <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt]))
+	    return;
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_SWL">OP_SWL</A>:	  
+	tmp = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] + instr-&gt;extra;
+
+	<FONT COLOR="#990000">// The little endian/big endian swap code would<FONT COLOR="#000000">
+        <FONT COLOR="#990000">// fail (I think) if the other cases are ever exercised.<FONT COLOR="#000000">
+	<A HREF="utility.h.html#ASSERT">ASSERT</A>((tmp &amp; 0x3) == 0);  
+
+	if (!<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="translate_cc.html#Machine.ReadMem">ReadMem</A>((tmp &amp; ~0x3), 4, &amp;value))
+	    return;
+	switch (tmp &amp; 0x3) {
+	  case 0:
+	    value = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	    break;
+	  case 1:
+	    value = (value &amp; 0xff000000) | ((<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] &gt&gt; 8) &amp;
+					    0xffffff);
+	    break;
+	  case 2:
+	    value = (value &amp; 0xffff0000) | ((<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] &gt&gt; 16) &amp;
+					    0xffff);
+	    break;
+	  case 3:
+	    value = (value &amp; 0xffffff00) | ((<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] &gt&gt; 24) &amp;
+					    0xff);
+	    break;
+	}
+	if (!<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="translate_cc.html#Machine.WriteMem">WriteMem</A>((tmp &amp; ~0x3), 4, value))
+	    return;
+	break;
+    	
+      case <A HREF="mipssim_h.html#OP_SWR">OP_SWR</A>:	  
+	tmp = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] + instr-&gt;extra;
+
+	<FONT COLOR="#990000">// The little endian/big endian swap code would<FONT COLOR="#000000">
+        <FONT COLOR="#990000">// fail (I think) if the other cases are ever exercised.<FONT COLOR="#000000">
+	<A HREF="utility.h.html#ASSERT">ASSERT</A>((tmp &amp; 0x3) == 0);  
+
+	if (!<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="translate_cc.html#Machine.ReadMem">ReadMem</A>((tmp &amp; ~0x3), 4, &amp;value))
+	    return;
+	switch (tmp &amp; 0x3) {
+	  case 0:
+	    value = (value &amp; 0xffffff) | (<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] &lt&lt; 24);
+	    break;
+	  case 1:
+	    value = (value &amp; 0xffff) | (<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] &lt&lt; 16);
+	    break;
+	  case 2:
+	    value = (value &amp; 0xff) | (<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] &lt&lt; 8);
+	    break;
+	  case 3:
+	    value = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	    break;
+	}
+	if (!<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="translate_cc.html#Machine.WriteMem">WriteMem</A>((tmp &amp; ~0x3), 4, value))
+	    return;
+	break;
+    	
+      case <A HREF="mipssim_h.html#OP_SYSCALL">OP_SYSCALL</A>:
+	<A HREF="machine_cc.html#Machine.RaiseException">RaiseException</A>(SyscallException, 0);
+	return; 
+	
+      case <A HREF="mipssim_h.html#OP_XOR">OP_XOR</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rd] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &#94; <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt];
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_XORI">OP_XORI</A>:
+	<A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rt] = <A HREF="machine_h.html#Machine.registers">registers</A>[instr-&gt;rs] &#94; (instr-&gt;extra &amp; 0xffff);
+	break;
+	
+      case <A HREF="mipssim_h.html#OP_RES">OP_RES</A>:
+      case <A HREF="mipssim_h.html#OP_UNIMP">OP_UNIMP</A>:
+	<A HREF="machine_cc.html#Machine.RaiseException">RaiseException</A>(IllegalInstrException, 0);
+	return;
+	
+      default:
+	<A HREF="utility.h.html#ASSERT">ASSERT</A>(FALSE);
+    }
+    
+    <FONT COLOR="#990000">// Now we have successfully executed the instruction.<FONT COLOR="#000000">
+    
+    <FONT COLOR="#990000">// Do any delayed load operation<FONT COLOR="#000000">
+    <A HREF="mipssim_cc.html#Machine.DelayedLoad">DelayedLoad</A>(nextLoadReg, nextLoadValue);
+    
+    <FONT COLOR="#990000">// Advance program counters.<FONT COLOR="#000000">
+    <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#PrevPCReg">PrevPCReg</A>] = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#PCReg">PCReg</A>];	<FONT COLOR="#990000">// for debugging, in case we<FONT COLOR="#000000">
+						<FONT COLOR="#990000">// are jumping into lala-land<FONT COLOR="#000000">
+    <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#PCReg">PCReg</A>] = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#NextPCReg">NextPCReg</A>];
+    <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#NextPCReg">NextPCReg</A>] = pcAfter;
+}
+
+<A NAME="Machine.DelayedLoad"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Machine::DelayedLoad<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Simulate effects of a delayed load.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	NOTE -- RaiseException/CheckInterrupts must also call DelayedLoad,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	since any delayed load must get applied before we trap to the kernel.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="machine_h.html#Machine">Machine</A>::DelayedLoad(int nextReg, int nextValue)
+{
+    <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoadReg">LoadReg</A>]] = <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoadValueReg">LoadValueReg</A>];
+    <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoadReg">LoadReg</A>] = nextReg;
+    <A HREF="machine_h.html#Machine.registers">registers</A>[<A HREF="machine_h.html#LoadValueReg">LoadValueReg</A>] = nextValue;
+    <A HREF="machine_h.html#Machine.registers">registers</A>[0] = 0; 	<FONT COLOR="#990000">// and always make sure R0 stays zero.<FONT COLOR="#000000">
+}
+
+<A NAME="Instruction.Decode"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Instruction::Decode<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Decode a MIPS instruction <FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="machine_h.html#Instruction">Instruction</A>::Decode()
+{
+    <A HREF="mipssim_h.html#OpInfo">OpInfo</A> *opPtr;
+    
+    <A HREF="machine_h.html#Instruction.rs">rs</A> = (<A HREF="machine_h.html#Instruction.value">value</A> &gt&gt; 21) &amp; 0x1f;
+    <A HREF="machine_h.html#Instruction.rt">rt</A> = (<A HREF="machine_h.html#Instruction.value">value</A> &gt&gt; 16) &amp; 0x1f;
+    <A HREF="machine_h.html#Instruction.rd">rd</A> = (<A HREF="machine_h.html#Instruction.value">value</A> &gt&gt; 11) &amp; 0x1f;
+    opPtr = &amp;<A HREF="mipssim_h.html#opTable">opTable</A>[(<A HREF="machine_h.html#Instruction.value">value</A> &gt&gt; 26) &amp; 0x3f];
+    opCode = opPtr-&gt;opCode;
+    if (opPtr-&gt;format == <A HREF="mipssim_h.html#IFMT">IFMT</A>) {
+	<A HREF="machine_h.html#Instruction.extra">extra</A> = <A HREF="machine_h.html#Instruction.value">value</A> &amp; 0xffff;
+	if (<A HREF="machine_h.html#Instruction.extra">extra</A> &amp; 0x8000) {
+    	   <A HREF="machine_h.html#Instruction.extra">extra</A> |= 0xffff0000;
+	}
+    } else if (opPtr-&gt;format == <A HREF="mipssim_h.html#RFMT">RFMT</A>) {
+	<A HREF="machine_h.html#Instruction.extra">extra</A> = (<A HREF="machine_h.html#Instruction.value">value</A> &gt&gt; 6) &amp; 0x1f;
+    } else {
+	<A HREF="machine_h.html#Instruction.extra">extra</A> = <A HREF="machine_h.html#Instruction.value">value</A> &amp; 0x3ffffff;
+    }
+    if (<A HREF="machine_h.html#Instruction.opCode">opCode</A> == <A HREF="mipssim_h.html#SPECIAL">SPECIAL</A>) {
+	<A HREF="machine_h.html#Instruction.opCode">opCode</A> = <A HREF="mipssim_h.html#specialTable">specialTable</A>[<A HREF="machine_h.html#Instruction.value">value</A> &amp; 0x3f];
+    } else if (<A HREF="machine_h.html#Instruction.opCode">opCode</A> == <A HREF="mipssim_h.html#BCOND">BCOND</A>) {
+	int i = <A HREF="machine_h.html#Instruction.value">value</A> &amp; 0x1f0000;
+
+	if (i == 0) {
+    	    <A HREF="machine_h.html#Instruction.opCode">opCode</A> = <A HREF="mipssim_h.html#OP_BLTZ">OP_BLTZ</A>;
+	} else if (i == 0x10000) {
+    	    <A HREF="machine_h.html#Instruction.opCode">opCode</A> = <A HREF="mipssim_h.html#OP_BGEZ">OP_BGEZ</A>;
+	} else if (i == 0x100000) {
+    	    <A HREF="machine_h.html#Instruction.opCode">opCode</A> = <A HREF="mipssim_h.html#OP_BLTZAL">OP_BLTZAL</A>;
+	} else if (i == 0x110000) {
+    	    <A HREF="machine_h.html#Instruction.opCode">opCode</A> = <A HREF="mipssim_h.html#OP_BGEZAL">OP_BGEZAL</A>;
+	} else {
+    	    <A HREF="machine_h.html#Instruction.opCode">opCode</A> = <A HREF="mipssim_h.html#OP_UNIMP">OP_UNIMP</A>;
+	}
+    }
+}
+
+<A NAME="Mult"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Mult<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Simulate R2000 multiplication.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	The words at *hiPtr and *loPtr are overwritten with the<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	double-length result of the multiplication.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+static void Mult(int a, int b, bool signedArith, int* hiPtr, int* loPtr)
+{
+    if ((a == 0) || (b == 0)) {
+	*hiPtr = *loPtr = 0;
+	return;
+    }
+
+    <FONT COLOR="#990000">// Compute the sign of the result, then make everything positive<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// so unsigned computation can be done in the main loop.<FONT COLOR="#000000">
+    bool negative = FALSE;
+    if (signedArith) {
+	if (a &lt; 0) {
+	    negative = !negative;
+	    a = -a;
+	}
+	if (b &lt; 0) {
+	    negative = !negative;
+	    b = -b;
+	}
+    }
+
+    <FONT COLOR="#990000">// Compute the result in unsigned arithmetic (check a's bits one at<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// a time, and add in a shifted value of b).<FONT COLOR="#000000">
+    unsigned int bLo = b;
+    unsigned int bHi = 0;
+    unsigned int lo = 0;
+    unsigned int hi = 0;
+    for (int i = 0; i &lt; 32; i++) {
+	if (a &amp; 1) {
+	    lo += bLo;
+	    if (lo &lt; bLo)  <FONT COLOR="#990000">// Carry out of the low bits?<FONT COLOR="#000000">
+		hi += 1;
+	    hi += bHi;
+	    if ((a &amp; 0xfffffffe) == 0)
+		break;
+	}
+	bHi &lt&lt;= 1;
+	if (bLo &amp; 0x80000000)
+	    bHi |= 1;
+	
+	bLo &lt&lt;= 1;
+	a &gt&gt;= 1;
+    }
+
+    <FONT COLOR="#990000">// If the result is supposed to be negative, compute the two's<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// complement of the double-word result.<FONT COLOR="#000000">
+    if (negative) {
+	hi = ~hi;
+	lo = ~lo;
+	lo++;
+	if (lo == 0)
+	    hi++;
+    }
+    
+    *hiPtr = (int) hi;
+    *loPtr = (int) lo;
+}
+</PRE>
+</BODY></HTML>

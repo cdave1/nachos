@@ -1,0 +1,116 @@
+<HTML><TITLE>bridge.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>bridge.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// David Petrie<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 300148086<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Bridge.cc<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Data structure that allows concurrent access to a Bridge.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Threads arrive at the bridge, cross, then exit. The<FONT COLOR="#000000">
+<FONT COLOR="#990000">// synchronisation primitives ensure that there are no<FONT COLOR="#000000">
+<FONT COLOR="#990000">// collisions on the bridge, or that not too many vehicles<FONT COLOR="#000000">
+<FONT COLOR="#990000">// are on the bridge at the same time.<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef CHANGED<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="bridge_h.html">bridge.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="synch_h.html">synch.h</A>"<FONT COLOR="#000000">
+
+<A NAME="Bridge.Bridge"></A><A HREF="bridge_h.html#Bridge">Bridge</A>::Bridge(int <A HREF="utility_h.html#max">max</A>)
+{
+  <A HREF="bridge_h.html#Bridge.full">full</A> = new <A HREF="synch_h.html#Condition">Condition</A>("Bridge full");
+  <A HREF="bridge_h.html#Bridge.mutex">mutex</A> = new <A HREF="synch_h.html#Lock">Lock</A>("Bridge");
+
+  <A HREF="bridge_h.html#Bridge.currDirection">currDirection</A> = 0;
+  <A HREF="bridge_h.html#Bridge.maxCars">maxCars</A> = <A HREF="utility_h.html#max">max</A>;
+  <A HREF="bridge_h.html#Bridge.totalCars">totalCars</A> = 0;
+  <A HREF="bridge_h.html#Bridge.inCS">inCS</A> = 0;
+}
+
+
+<A NAME="Bridge.~Bridge"></A><A HREF="bridge_h.html#Bridge">Bridge</A>::~Bridge()
+{
+  delete <A HREF="bridge_h.html#Bridge.full">full</A>;
+  delete <A HREF="bridge_h.html#Bridge.mutex">mutex</A>;
+}
+
+
+<A NAME="Bridge.ArriveBridge"></A><FONT COLOR="#990000">// Car arrives at the bridge.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Invariants for the critical section:<FONT COLOR="#000000">
+<FONT COLOR="#990000">// - There are no cars on the bridge<FONT COLOR="#000000">
+<FONT COLOR="#990000">// - OR there are less than "maxCars" on the bridge, and they <FONT COLOR="#000000">
+<FONT COLOR="#990000">//   are travelling in the same direction as the passed value.<FONT COLOR="#000000">
+void <A HREF="bridge_h.html#Bridge">Bridge</A>::ArriveBridge(int direction)
+{
+  <A HREF="bridge_h.html#Bridge.mutex">mutex</A>-&gt;<A HREF="synch_cc.html#Lock.Acquire">Acquire</A>();
+  printf("%s arriving at bridge (direction: %d)\n", <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>(), direction);
+
+  while ((<A HREF="bridge_h.html#Bridge.totalCars">totalCars</A> &gt; 0) &amp&amp; ((<A HREF="bridge_h.html#Bridge.totalCars">totalCars</A> == <A HREF="bridge_h.html#Bridge.maxCars">maxCars</A>) || (<A HREF="bridge_h.html#Bridge.currDirection">currDirection</A> != direction)))
+  {
+    printf("- %s waiting to enter bridge (direction: %d) - ", <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>(), direction);
+    printf("%d cars on bridge in dir %d\n", <A HREF="bridge_h.html#Bridge.totalCars">totalCars</A>, <A HREF="bridge_h.html#Bridge.currDirection">currDirection</A>);
+    <A HREF="bridge_h.html#Bridge.full">full</A>-&gt;<A HREF="synch_cc.html#Condition.Wait">Wait</A>(<A HREF="bridge_h.html#Bridge.mutex">mutex</A>);
+  }
+  printf("%s entering bridge (direction: %d)\n", <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>(), direction);
+
+  <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Thread \"%s\" is ENTERING critical section \n", <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>());
+  <A HREF="utility_h.html#ASSERT">ASSERT</A>(<A HREF="bridge_h.html#Bridge.inCS">inCS</A> == 0);
+  <A HREF="bridge_h.html#Bridge.inCS">inCS</A>++;
+  <A HREF="bridge_h.html#Bridge.totalCars">totalCars</A>++;
+  <A HREF="bridge_h.html#Bridge.currDirection">currDirection</A> = direction;
+  <A HREF="bridge_h.html#Bridge.inCS">inCS</A>--;
+  <A HREF="utility_h.html#ASSERT">ASSERT</A>(<A HREF="bridge_h.html#Bridge.inCS">inCS</A> == 0);
+  <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Thread \"%s\" is EXITING critical section.\n",  <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>());
+
+  <A HREF="bridge_h.html#Bridge.mutex">mutex</A>-&gt;<A HREF="synch_cc.html#Lock.Release">Release</A>();
+}
+
+
+<A NAME="Bridge.CrossBridge"></A><FONT COLOR="#990000">// Just some debug trivia as the car crosses the bridge...<FONT COLOR="#000000">
+void <A HREF="bridge_h.html#Bridge">Bridge</A>::CrossBridge(int direction)
+{
+  <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "%s crossing bridge (direction: %d)\n", <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>(), direction);
+}
+
+
+<A NAME="Bridge.ExitBridge"></A><FONT COLOR="#990000">// Thread wants to exit the bridge.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Simply needs to acquire the lock in order to exit the bridge.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Also signals any threads blocked on a full bridge.<FONT COLOR="#000000">
+void <A HREF="bridge_h.html#Bridge">Bridge</A>::ExitBridge(int direction)
+{
+  <A HREF="bridge_h.html#Bridge.mutex">mutex</A>-&gt;<A HREF="synch_cc.html#Lock.Acquire">Acquire</A>();
+  printf("%s exiting bridge (direction: %d)\n", <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>(), direction);
+
+  <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Thread \"%s\" is ENTERING critical section.\n",  <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>());
+  <A HREF="utility_h.html#ASSERT">ASSERT</A>(<A HREF="bridge_h.html#Bridge.inCS">inCS</A> == 0);
+  <A HREF="bridge_h.html#Bridge.inCS">inCS</A>++;
+  <A HREF="bridge_h.html#Bridge.totalCars">totalCars</A>--;
+  <A HREF="bridge_h.html#Bridge.inCS">inCS</A>--;
+  <A HREF="utility_h.html#ASSERT">ASSERT</A>(<A HREF="bridge_h.html#Bridge.inCS">inCS</A> == 0);
+  <A HREF="utility_cc.html#DEBUG">DEBUG</A>('t', "Thread \"%s\" is EXITING critical section.\n",  <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.getName">getName</A>());
+
+  <A HREF="bridge_h.html#Bridge.full">full</A>-&gt;<A HREF="synch_cc.html#Condition.Signal">Signal</A>(<A HREF="bridge_h.html#Bridge.mutex">mutex</A>);
+  <A HREF="bridge_h.html#Bridge.mutex">mutex</A>-&gt;<A HREF="synch_cc.html#Lock.Release">Release</A>();
+}
+
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

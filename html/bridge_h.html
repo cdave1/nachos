@@ -1,0 +1,45 @@
+<HTML><TITLE>bridge.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>bridge.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// David Petrie<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 300148086<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Header file for Bridge.cc (see that file for more)...<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="list_h.html">list.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="synch_h.html">synch.h</A>"<FONT COLOR="#000000">
+
+<A NAME="Bridge"></A>class Bridge {
+ public:
+  <A HREF="bridge_cc.html#Bridge.Bridge">Bridge</A>(int <A HREF="utility_h.html#max">max</A>);
+  ~<A HREF="bridge_cc.html#Bridge.~Bridge">Bridge</A>();
+
+  void <A HREF="bridge_cc.html#Bridge.ArriveBridge">ArriveBridge</A>(int direction);
+  void <A HREF="bridge_cc.html#Bridge.CrossBridge">CrossBridge</A>(int direction);
+  void <A HREF="bridge_cc.html#Bridge.ExitBridge">ExitBridge</A>(int direction);
+
+ private:
+  <A HREF="synch_h.html#Lock">Lock</A> *<A NAME="Bridge.mutex">mutex</A>;
+  <A HREF="synch_h.html#Condition">Condition</A> *<A NAME="Bridge.full">full</A>;
+  int <A NAME="Bridge.currDirection">currDirection</A>;
+  int <A NAME="Bridge.totalCars">totalCars</A>;
+  int <A NAME="Bridge.maxCars">maxCars</A>;
+  int <A NAME="Bridge.inCS">inCS</A>;
+};
+</PRE>
+</BODY></HTML>

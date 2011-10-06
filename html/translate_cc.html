@@ -1,0 +1,268 @@
+<HTML><TITLE>translate.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>translate.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 13:33:49 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// translate.cc <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Routines to translate virtual addresses to physical addresses.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Software sets up a table of legal translations.  We look up<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	in the table on every memory reference to find the true physical<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	memory location.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Two types of translation are supported here.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Linear page table -- the virtual page &#35; is used as an index<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	into the table, to find the physical page &#35;.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Translation lookaside buffer -- associative lookup in the table<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	to find an entry with the same virtual page &#35;.  If found,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	this entry is used for the translation.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	If not, it traps to software with an exception. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	In practice, the TLB is much smaller than the amount of physical<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	memory (16 entries is common on a machine that has 1000's of<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	pages).  Thus, there must also be a backup translation scheme<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	(such as page tables), but the hardware doesn't need to know<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	anything at all about that.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Note that the contents of the TLB are specific to an address space.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	If the address space changes, so does the contents of the TLB&#33;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// DO NOT CHANGE -- part of the machine emulation<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="machine_h.html">machine.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="addrspace_h.html">addrspace.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+
+<A NAME="WordToHost"></A><FONT COLOR="#990000">// Routines for converting Words and Short Words to and from the<FONT COLOR="#000000">
+<FONT COLOR="#990000">// simulated machine's format of little endian.  These end up<FONT COLOR="#000000">
+<FONT COLOR="#990000">// being NOPs when the host machine is also little endian (DEC and Intel).<FONT COLOR="#000000">
+
+unsigned int WordToHost(unsigned int word) {
+<FONT COLOR="#007700">#ifdef HOST_IS_BIG_ENDIAN<FONT COLOR="#000000">
+	 register unsigned long result;
+	 result = (word &gt&gt; 24) &amp; 0x000000ff;
+	 result |= (word &gt&gt; 8) &amp; 0x0000ff00;
+	 result |= (word &lt&lt; 8) &amp; 0x00ff0000;
+	 result |= (word &lt&lt; 24) &amp; 0xff000000;
+	 return result;
+<FONT COLOR="#007700">#else <FONT COLOR="#000000">
+	 return word;
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">/* HOST_IS_BIG_ENDIAN */<FONT COLOR="#000000"><FONT COLOR="#000000">
+}
+
+<A NAME="ShortToHost"></A>unsigned short ShortToHost(unsigned short shortword) {
+<FONT COLOR="#007700">#ifdef HOST_IS_BIG_ENDIAN<FONT COLOR="#000000">
+	 register unsigned short result;
+	 result = (shortword &lt&lt; 8) &amp; 0xff00;
+	 result |= (shortword &gt&gt; 8) &amp; 0x00ff;
+	 return result;
+<FONT COLOR="#007700">#else <FONT COLOR="#000000">
+	 return shortword;
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">/* HOST_IS_BIG_ENDIAN */<FONT COLOR="#000000"><FONT COLOR="#000000">
+}
+
+<A NAME="WordToMachine"></A>unsigned int WordToMachine(unsigned int word) { return <A HREF="translate_cc.html#WordToHost">WordToHost</A>(word); }
+
+<A NAME="ShortToMachine"></A>unsigned short ShortToMachine(unsigned short shortword) { return <A HREF="translate_cc.html#ShortToHost">ShortToHost</A>(shortword); }
+
+
+<A NAME="Machine.ReadMem"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Machine::ReadMem<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Read "size" (1, 2, or 4) bytes of virtual memory at "addr" into <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	the location pointed to by "value".<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   	Returns FALSE if the translation step from virtual to physical memory<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   	failed.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"addr" -- the virtual address to read from<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"size" -- the number of bytes to read (1, 2, or 4)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"value" -- the place to write the result<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+bool <A HREF="machine_h.html#Machine">Machine</A>::ReadMem(int addr, int size, int *value)
+{
+    int data;
+    <A HREF="machine_h.html#ExceptionType">ExceptionType</A> exception;
+    int physicalAddress;
+    
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "Reading VA 0x%x, size %d\n", addr, size);
+    
+    exception = <A HREF="translate_cc.html#Machine.Translate">Translate</A>(addr, &amp;physicalAddress, size, FALSE);
+    if (exception != <A HREF="machine_h.html#NoException">NoException</A>) {
+	<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine_cc.html#Machine.RaiseException">RaiseException</A>(exception, addr);
+	return FALSE;
+    }
+    switch (size) {
+      case 1:
+	data = <A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine_h.html#Machine.mainMemory">mainMemory</A>[physicalAddress];
+	*value = data;
+	break;
+	
+      case 2:
+	data = *(unsigned short *) &amp;<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine_h.html#Machine.mainMemory">mainMemory</A>[physicalAddress];
+	*value = <A HREF="translate_cc.html#ShortToHost">ShortToHost</A>(data);
+	break;
+	
+      case 4:
+	data = *(unsigned int *) &amp;<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine_h.html#Machine.mainMemory">mainMemory</A>[physicalAddress];
+	*value = <A HREF="translate_cc.html#WordToHost">WordToHost</A>(data);
+	break;
+
+      default: <A HREF="utility.h.html#ASSERT">ASSERT</A>(FALSE);
+    }
+    
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "\tvalue read = %8.8x\n", *value);
+    return (TRUE);
+}
+
+<A NAME="Machine.WriteMem"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Machine::WriteMem<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Write "size" (1, 2, or 4) bytes of the contents of "value" into<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	virtual memory at location "addr".<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   	Returns FALSE if the translation step from virtual to physical memory<FONT COLOR="#000000">
+<FONT COLOR="#990000">//   	failed.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"addr" -- the virtual address to write to<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"size" -- the number of bytes to be written (1, 2, or 4)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"value" -- the data to be written<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+bool <A HREF="machine_h.html#Machine">Machine</A>::WriteMem(int addr, int size, int value)
+{
+    <A HREF="machine_h.html#ExceptionType">ExceptionType</A> exception;
+    int physicalAddress;
+     
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "Writing VA 0x%x, size %d, value 0x%x\n", addr, size, value);
+
+    exception = <A HREF="translate_cc.html#Machine.Translate">Translate</A>(addr, &amp;physicalAddress, size, TRUE);
+    if (exception != <A HREF="machine_h.html#NoException">NoException</A>) {
+	<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine_cc.html#Machine.RaiseException">RaiseException</A>(exception, addr);
+	return FALSE;
+    }
+    switch (size) {
+      case 1:
+	<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine_h.html#Machine.mainMemory">mainMemory</A>[physicalAddress] = (unsigned char) (value &amp; 0xff);
+	break;
+
+      case 2:
+	*(unsigned short *) &amp;<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine_h.html#Machine.mainMemory">mainMemory</A>[physicalAddress]
+		= <A HREF="translate_cc.html#ShortToMachine">ShortToMachine</A>((unsigned short) (value &amp; 0xffff));
+	break;
+      
+      case 4:
+	*(unsigned int *) &amp;<A HREF="system.cc.html#machine">machine</A>-&gt;<A HREF="machine_h.html#Machine.mainMemory">mainMemory</A>[physicalAddress]
+		= <A HREF="translate_cc.html#WordToMachine">WordToMachine</A>((unsigned int) value);
+	break;
+	
+      default: <A HREF="utility.h.html#ASSERT">ASSERT</A>(FALSE);
+    }
+    
+    return TRUE;
+}
+
+<A NAME="Machine.Translate"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Machine::Translate<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Translate a virtual address into a physical address, using <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	either a page table or a TLB.  Check for alignment and all sorts <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	of other errors, and if everything is ok, set the use/dirty bits in <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	the translation table entry, and store the translated physical <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	address in "physAddr".  If there was an error, returns the type<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	of the exception.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"virtAddr" -- the virtual address to translate<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"physAddr" -- the place to store the physical address<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"size" -- the amount of memory being read or written<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	"writing" -- if TRUE, check the "read-only" bit in the TLB<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="machine_h.html#ExceptionType">ExceptionType</A> <A HREF="machine_h.html#Machine">Machine</A>::Translate(int virtAddr, int* physAddr, int size, bool writing)
+{
+    int i;
+    unsigned int vpn, offset;
+    <A HREF="translate_h.html#TranslationEntry">TranslationEntry</A> *entry;
+    unsigned int pageFrame;
+
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "\tTranslate 0x%x, %s: ", virtAddr, writing ? "write" : "read");
+
+<FONT COLOR="#990000">// check for alignment errors<FONT COLOR="#000000">
+    if (((size == 4) &amp&amp; (virtAddr &amp; 0x3)) || ((size == 2) &amp&amp; (virtAddr &amp; 0x1))){
+	<A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "alignment problem at %d, size %d&#33;\n", virtAddr, size);
+	return AddressErrorException;
+    }
+    
+    <FONT COLOR="#990000">// we must have either a TLB or a page table, but not both&#33;<FONT COLOR="#000000">
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>(<A HREF="machine_h.html#Machine.tlb">tlb</A> == NULL || <A HREF="machine_h.html#Machine.pageTable">pageTable</A> == NULL);	
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>(<A HREF="machine_h.html#Machine.tlb">tlb</A> != NULL || <A HREF="machine_h.html#Machine.pageTable">pageTable</A> != NULL);	
+
+<FONT COLOR="#990000">// calculate the virtual page number, and offset within the page,<FONT COLOR="#000000">
+<FONT COLOR="#990000">// from the virtual address<FONT COLOR="#000000">
+    vpn = (unsigned) virtAddr / <A HREF="machine_h.html#PageSize">PageSize</A>;
+    offset = (unsigned) virtAddr % <A HREF="machine_h.html#PageSize">PageSize</A>;
+    
+    if (<A HREF="machine_h.html#Machine.tlb">tlb</A> == NULL) {		<FONT COLOR="#990000">// =&gt; page table =&gt; vpn is index into table<FONT COLOR="#000000">
+	if (vpn &gt;= <A HREF="machine_h.html#Machine.pageTableSize">pageTableSize</A>) {
+	    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "virtual page &#35; %d too large for page table size %d&#33;\n", 
+			virtAddr, <A HREF="machine_h.html#Machine.pageTableSize">pageTableSize</A>);
+	    return AddressErrorException;
+	} else if (!<A HREF="machine_h.html#Machine.pageTable">pageTable</A>[vpn].valid) {
+	    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "virtual page &#35; %d too large for page table size %d&#33;\n", 
+			virtAddr, <A HREF="machine_h.html#Machine.pageTableSize">pageTableSize</A>);
+	    return PageFaultException;
+	}
+	entry = &amp;<A HREF="machine_h.html#Machine.pageTable">pageTable</A>[vpn];
+    } else {
+        for (entry = NULL, i = 0; i &lt; <A HREF="machine_h.html#TLBSize">TLBSize</A>; i++)
+    	    if (<A HREF="machine_h.html#Machine.tlb">tlb</A>[i].valid &amp&amp; (<A HREF="machine_h.html#Machine.tlb">tlb</A>[i].virtualPage == vpn)) {
+		entry = &amp;<A HREF="machine_h.html#Machine.tlb">tlb</A>[i];			<FONT COLOR="#990000">// FOUND&#33;<FONT COLOR="#000000">
+		break;
+	    }
+	if (entry == NULL) {				<FONT COLOR="#990000">// not found<FONT COLOR="#000000">
+    	    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "*** no valid TLB entry found for this virtual page&#33;\n");
+    	    return PageFaultException;		<FONT COLOR="#990000">// really, this is a TLB fault,<FONT COLOR="#000000">
+						<FONT COLOR="#990000">// the page may be in memory,<FONT COLOR="#000000">
+						<FONT COLOR="#990000">// but not in the TLB<FONT COLOR="#000000">
+	}
+    }
+
+    if (entry-&gt;readOnly &amp&amp; writing) {	<FONT COLOR="#990000">// trying to write to a read-only page<FONT COLOR="#000000">
+	<A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "%d mapped read-only at %d in TLB&#33;\n", virtAddr, i);
+	return ReadOnlyException;
+    }
+    pageFrame = entry-&gt;physicalPage;
+
+    <FONT COLOR="#990000">// if the pageFrame is too big, there is something really wrong&#33; <FONT COLOR="#000000">
+    <FONT COLOR="#990000">// An invalid translation was loaded into the page table or TLB. <FONT COLOR="#000000">
+    if (pageFrame &gt;= <A HREF="machine_h.html#NumPhysPages">NumPhysPages</A>) { 
+	<A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "*** frame %d &gt; %d&#33;\n", pageFrame, <A HREF="machine_h.html#NumPhysPages">NumPhysPages</A>);
+	return BusErrorException;
+    }
+    entry-&gt;use = TRUE;		<FONT COLOR="#990000">// set the use, dirty bits<FONT COLOR="#000000">
+    if (writing)
+	entry-&gt;dirty = TRUE;
+    *physAddr = pageFrame * <A HREF="machine_h.html#PageSize">PageSize</A> + offset;
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>((*physAddr &gt;= 0) &amp&amp; ((*physAddr + size) &lt;= <A HREF="machine_h.html#MemorySize">MemorySize</A>));
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('a', "phys addr = 0x%x\n", *physAddr);
+    return <A HREF="machine_h.html#NoException">NoException</A>;
+}
+</PRE>
+</BODY></HTML>

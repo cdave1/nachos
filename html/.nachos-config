@@ -1,0 +1,49 @@
+% .nachos-config
+% default configuration file for nachos-to-html utility
+
+backgroundColour = #FFFFFF  % white
+textColour = #000000        % black
+commentColour = #990000     % red
+hashColour = #007700        % green
+linkColour = #0000FF        % blue
+vlinkColour = #0000FF       % blue
+alinkColour = #FF0000       % red
+
+documentPath = http://www.mcs.vuw.ac.nz/cgi-bin/comp305
+imagePath = http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/
+serverPath = http://www.mcs.vuw.ac.nz/
+
+link Interrupts {
+	document: Interrupts.cgi
+	image: Cap.jpg
+	text: "How Nachos Simulates Interrupts"
+}
+
+link Threads {
+	document: Threads.cgi
+	image: Cap.jpg
+	text: "An Introduction to Nachos Threads"
+}
+
+link RoadMap {
+	document: http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/
+	image: Cap.jpg
+	text: "A Roadmap to Nachos"
+}
+
+class Thread {
+	link: Threads
+}
+
+class Interrupt {
+	link: Interrupts
+}
+
+header {
+	project: "Comp 305 Lab 1"
+	title
+	date
+	path
+	name: 
+	icons: RoadMap
+}

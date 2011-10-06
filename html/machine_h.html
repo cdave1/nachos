@@ -1,0 +1,234 @@
+<HTML><TITLE>machine.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>machine.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 13:33:49 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// machine.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Data structures for simulating the execution of user programs<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	running on top of Nachos.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	User programs are loaded into "mainMemory"; to Nachos,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	this looks just like an array of bytes.  Of course, the Nachos<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	kernel is in memory too -- but as in most machines these days,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	the kernel is loaded into a separate memory region from user<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	programs, and accesses to kernel memory are not translated or paged.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	In Nachos, user programs are executed one instruction at a time, <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	by the simulator.  Each memory reference is translated, checked<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	for errors, etc.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  DO NOT CHANGE -- part of the machine emulation<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef MACHINE_H<FONT COLOR="#000000">
+<A NAME="MACHINE_H"></A><FONT COLOR="#007700">#define MACHINE_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="utility_h.html">utility.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="translate_h.html">translate.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "disk.h"<FONT COLOR="#000000">
+
+<A NAME="PageSize"></A><FONT COLOR="#990000">// Definitions related to the size, and format of user memory<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#define PageSize 	SectorSize 	<FONT COLOR="#990000">// set the page size equal to<FONT COLOR="#000000"><FONT COLOR="#000000">
+					<FONT COLOR="#990000">// the disk sector size, for<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// simplicity<FONT COLOR="#000000">
+
+<A NAME="NumPhysPages"></A><FONT COLOR="#007700">#define NumPhysPages    32<FONT COLOR="#000000">
+<A NAME="MemorySize"></A><FONT COLOR="#007700">#define MemorySize 	(NumPhysPages * PageSize)<FONT COLOR="#000000">
+<A NAME="TLBSize"></A><FONT COLOR="#007700">#define TLBSize		4		<FONT COLOR="#990000">// if there is a TLB, make it small<FONT COLOR="#000000"><FONT COLOR="#000000">
+
+<A NAME="ExceptionType"></A>enum ExceptionType { <A NAME="NoException">NoException</A>,           <FONT COLOR="#990000">// Everything ok&#33;<FONT COLOR="#000000">
+		     SyscallException,      <FONT COLOR="#990000">// A program executed a system call.<FONT COLOR="#000000">
+		     PageFaultException,    <FONT COLOR="#990000">// No valid translation found<FONT COLOR="#000000">
+		     ReadOnlyException,     <FONT COLOR="#990000">// Write attempted to page marked <FONT COLOR="#000000">
+					    <FONT COLOR="#990000">// "read-only"<FONT COLOR="#000000">
+		     BusErrorException,     <FONT COLOR="#990000">// Translation resulted in an <FONT COLOR="#000000">
+					    <FONT COLOR="#990000">// invalid physical address<FONT COLOR="#000000">
+		     AddressErrorException, <FONT COLOR="#990000">// Unaligned reference or one that<FONT COLOR="#000000">
+					    <FONT COLOR="#990000">// was beyond the end of the<FONT COLOR="#000000">
+					    <FONT COLOR="#990000">// address space<FONT COLOR="#000000">
+		     OverflowException,     <FONT COLOR="#990000">// Integer overflow in add or sub.<FONT COLOR="#000000">
+		     IllegalInstrException, <FONT COLOR="#990000">// Unimplemented or reserved instr.<FONT COLOR="#000000">
+		     
+		     NumExceptionTypes
+};
+
+<A NAME="StackReg"></A><FONT COLOR="#990000">// User program CPU state.  The full set of MIPS registers, plus a few<FONT COLOR="#000000">
+<FONT COLOR="#990000">// more because we need to be able to start/stop a user program between<FONT COLOR="#000000">
+<FONT COLOR="#990000">// any two instructions (thus we need to keep track of things like load<FONT COLOR="#000000">
+<FONT COLOR="#990000">// delay slots, etc.)<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#define StackReg	29	<FONT COLOR="#990000">// User's stack pointer<FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="RetAddrReg"></A><FONT COLOR="#007700">#define RetAddrReg	31	<FONT COLOR="#990000">// Holds return address for procedure calls<FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="NumGPRegs"></A><FONT COLOR="#007700">#define NumGPRegs	32	<FONT COLOR="#990000">// 32 general purpose registers on MIPS<FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="HiReg"></A><FONT COLOR="#007700">#define HiReg		32	<FONT COLOR="#990000">// Double register to hold multiply result<FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="LoReg"></A><FONT COLOR="#007700">#define LoReg		33<FONT COLOR="#000000">
+<A NAME="PCReg"></A><FONT COLOR="#007700">#define PCReg		34	<FONT COLOR="#990000">// Current program counter<FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="NextPCReg"></A><FONT COLOR="#007700">#define NextPCReg	35	<FONT COLOR="#990000">// Next program counter (for branch delay) <FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="PrevPCReg"></A><FONT COLOR="#007700">#define PrevPCReg	36	<FONT COLOR="#990000">// Previous program counter (for debugging)<FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="LoadReg"></A><FONT COLOR="#007700">#define LoadReg		37	<FONT COLOR="#990000">// The register target of a delayed load.<FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="LoadValueReg"></A><FONT COLOR="#007700">#define LoadValueReg 	38	<FONT COLOR="#990000">// The value to be loaded by a delayed load.<FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="BadVAddrReg"></A><FONT COLOR="#007700">#define BadVAddrReg	39	<FONT COLOR="#990000">// The failing virtual address on an exception<FONT COLOR="#000000"><FONT COLOR="#000000">
+
+<A NAME="NumTotalRegs"></A><FONT COLOR="#007700">#define NumTotalRegs 	40<FONT COLOR="#000000">
+
+<A NAME="Instruction"></A><FONT COLOR="#990000">// The following class defines an instruction, represented in both<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	undecoded binary form<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      decoded to identify<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	    operation to do<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	    registers to act on<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	    any immediate operand value<FONT COLOR="#000000">
+
+class Instruction {
+  public:
+    void <A HREF="mipssim_cc.html#Instruction.Decode">Decode</A>();	<FONT COLOR="#990000">// decode the binary representation of the instruction<FONT COLOR="#000000">
+
+    unsigned int <A NAME="Instruction.value">value</A>; <FONT COLOR="#990000">// binary representation of the instruction<FONT COLOR="#000000">
+
+    char <A NAME="Instruction.opCode">opCode</A>;     <FONT COLOR="#990000">// Type of instruction.  This is NOT the same as the<FONT COLOR="#000000">
+    		     <FONT COLOR="#990000">// opcode field from the instruction: see defs in mips.h<FONT COLOR="#000000">
+    char <A NAME="Instruction.rs">rs</A>, <A NAME="Instruction.rt">rt</A>, <A NAME="Instruction.rd">rd</A>; <FONT COLOR="#990000">// Three registers from instruction.<FONT COLOR="#000000">
+    int <A NAME="Instruction.extra">extra</A>;       <FONT COLOR="#990000">// Immediate or target or shamt field or offset.<FONT COLOR="#000000">
+                     <FONT COLOR="#990000">// Immediates are sign-extended.<FONT COLOR="#000000">
+};
+
+<A NAME="Machine"></A><FONT COLOR="#990000">// The following class defines the simulated host workstation hardware, as <FONT COLOR="#000000">
+<FONT COLOR="#990000">// seen by user programs -- the CPU registers, main memory, etc.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// User programs shouldn't be able to tell that they are running on our <FONT COLOR="#000000">
+<FONT COLOR="#990000">// simulator or on the real hardware, except <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	we don't support floating point instructions<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	the system call interface to Nachos is not the same as UNIX <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	  (10 system calls in Nachos vs. 200 in UNIX&#33;)<FONT COLOR="#000000">
+<FONT COLOR="#990000">// If we were to implement more of the UNIX system calls, we ought to be<FONT COLOR="#000000">
+<FONT COLOR="#990000">// able to run Nachos on top of Nachos&#33;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// The procedures in this class are defined in machine.cc, mipssim.cc, and<FONT COLOR="#000000">
+<FONT COLOR="#990000">// translate.cc.<FONT COLOR="#000000">
+
+class Machine {
+  public:
+    <A HREF="machine_cc.html#Machine.Machine">Machine</A>(bool debug);	<FONT COLOR="#990000">// Initialize the simulation of the hardware<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// for running user programs<FONT COLOR="#000000">
+    ~<A HREF="machine_cc.html#Machine.~Machine">Machine</A>();			<FONT COLOR="#990000">// De-allocate the data structures<FONT COLOR="#000000">
+
+<FONT COLOR="#990000">// Routines callable by the Nachos kernel<FONT COLOR="#000000">
+    void <A HREF="mipssim_cc.html#Machine.Run">Run</A>();	 		<FONT COLOR="#990000">// Run a user program<FONT COLOR="#000000">
+
+    int <A HREF="machine_cc.html#Machine.ReadRegister">ReadRegister</A>(int num);	<FONT COLOR="#990000">// read the contents of a CPU register<FONT COLOR="#000000">
+
+    void <A HREF="machine_cc.html#Machine.WriteRegister">WriteRegister</A>(int num, int value);
+				<FONT COLOR="#990000">// store a value into a CPU register<FONT COLOR="#000000">
+
+
+<FONT COLOR="#990000">// Routines internal to the machine simulation -- DO NOT call these <FONT COLOR="#000000">
+
+    void <A HREF="mipssim_cc.html#Machine.OneInstruction">OneInstruction</A>(<A HREF="machine_h.html#Instruction">Instruction</A> *instr); 	
+    				<FONT COLOR="#990000">// Run one instruction of a user program.<FONT COLOR="#000000">
+    void <A HREF="mipssim_cc.html#Machine.DelayedLoad">DelayedLoad</A>(int nextReg, int nextVal);  	
+				<FONT COLOR="#990000">// Do a pending delayed load (modifying a reg)<FONT COLOR="#000000">
+    
+    bool <A HREF="translate_cc.html#Machine.ReadMem">ReadMem</A>(int addr, int size, int* value);
+    bool <A HREF="translate_cc.html#Machine.WriteMem">WriteMem</A>(int addr, int size, int value);
+    				<FONT COLOR="#990000">// Read or write 1, 2, or 4 bytes of virtual <FONT COLOR="#000000">
+				<FONT COLOR="#990000">// memory (at addr).  Return FALSE if a <FONT COLOR="#000000">
+				<FONT COLOR="#990000">// correct translation couldn't be found.<FONT COLOR="#000000">
+    
+    <A HREF="machine_h.html#ExceptionType">ExceptionType</A> <A HREF="translate_cc.html#Machine.Translate">Translate</A>(int virtAddr, int* physAddr, int size,bool writing);
+    				<FONT COLOR="#990000">// Translate an address, and check for <FONT COLOR="#000000">
+				<FONT COLOR="#990000">// alignment.  Set the use and dirty bits in <FONT COLOR="#000000">
+				<FONT COLOR="#990000">// the translation entry appropriately,<FONT COLOR="#000000">
+    				<FONT COLOR="#990000">// and return an exception code if the <FONT COLOR="#000000">
+				<FONT COLOR="#990000">// translation couldn't be completed.<FONT COLOR="#000000">
+
+    void <A HREF="machine_cc.html#Machine.RaiseException">RaiseException</A>(<A HREF="machine_h.html#ExceptionType">ExceptionType</A> which, int badVAddr);
+				<FONT COLOR="#990000">// Trap to the Nachos kernel, because of a<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// system call or other exception.  <FONT COLOR="#000000">
+
+    void <A HREF="machine_cc.html#Machine.Debugger">Debugger</A>();		<FONT COLOR="#990000">// invoke the user program debugger<FONT COLOR="#000000">
+    void <A HREF="machine_cc.html#Machine.DumpState">DumpState</A>();		<FONT COLOR="#990000">// print the user CPU and memory state <FONT COLOR="#000000">
+
+
+<FONT COLOR="#990000">// Data structures -- all of these are accessible to Nachos kernel code.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// "public" for convenience.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Note that *all* communication between the user program and the kernel <FONT COLOR="#000000">
+<FONT COLOR="#990000">// are in terms of these data structures.<FONT COLOR="#000000">
+
+    char *<A NAME="Machine.mainMemory">mainMemory</A>;		<FONT COLOR="#990000">// physical memory to store user program,<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// code and data, while executing<FONT COLOR="#000000">
+    int <A NAME="Machine.registers">registers</A>[<A HREF="machine_h.html#NumTotalRegs">NumTotalRegs</A>]; <FONT COLOR="#990000">// CPU registers, for executing user programs<FONT COLOR="#000000">
+
+
+<FONT COLOR="#990000">// NOTE: the hardware translation of virtual addresses in the user program<FONT COLOR="#000000">
+<FONT COLOR="#990000">// to physical addresses (relative to the beginning of "mainMemory")<FONT COLOR="#000000">
+<FONT COLOR="#990000">// can be controlled by one of:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	a traditional linear page table<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  	a software-loaded translation lookaside buffer (tlb) -- a cache of <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	  mappings of virtual page &#35;'s to physical page &#35;'s<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// If "tlb" is NULL, the linear page table is used<FONT COLOR="#000000">
+<FONT COLOR="#990000">// If "tlb" is non-NULL, the Nachos kernel is responsible for managing<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	the contents of the TLB.  But the kernel can use any data structure<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	it wants (eg, segmented paging) for handling TLB cache misses.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// <FONT COLOR="#000000">
+<FONT COLOR="#990000">// For simplicity, both the page table pointer and the TLB pointer are<FONT COLOR="#000000">
+<FONT COLOR="#990000">// public.  However, while there can be multiple page tables (one per address<FONT COLOR="#000000">
+<FONT COLOR="#990000">// space, stored in memory), there is only one TLB (implemented in hardware).<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Thus the TLB pointer should be considered as *read-only*, although <FONT COLOR="#000000">
+<FONT COLOR="#990000">// the contents of the TLB are free to be modified by the kernel software.<FONT COLOR="#000000">
+
+    <A HREF="translate_h.html#TranslationEntry">TranslationEntry</A> *<A NAME="Machine.tlb">tlb</A>;		<FONT COLOR="#990000">// this pointer should be considered <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// "read-only" to Nachos kernel code<FONT COLOR="#000000">
+
+    <A HREF="translate_h.html#TranslationEntry">TranslationEntry</A> *<A NAME="Machine.pageTable">pageTable</A>;
+    unsigned int <A NAME="Machine.pageTableSize">pageTableSize</A>;
+
+  private:
+    bool <A NAME="Machine.singleStep">singleStep</A>;		<FONT COLOR="#990000">// drop back into the debugger after each<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// simulated instruction<FONT COLOR="#000000">
+    int <A NAME="Machine.runUntilTime">runUntilTime</A>;		<FONT COLOR="#990000">// drop back into the debugger when simulated<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// time reaches this value<FONT COLOR="#000000">
+};
+
+extern void <A HREF="exception_cc.html#ExceptionHandler">ExceptionHandler</A>(<A HREF="machine_h.html#ExceptionType">ExceptionType</A> which);
+				<FONT COLOR="#990000">// Entry point into Nachos for handling<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// user system calls and exceptions<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// Defined in exception.cc<FONT COLOR="#000000">
+
+
+<A NAME="WordToHost"></A><FONT COLOR="#990000">// Routines for converting Words and Short Words to and from the<FONT COLOR="#000000">
+<FONT COLOR="#990000">// simulated machine's format of little endian.  If the host machine<FONT COLOR="#000000">
+<FONT COLOR="#990000">// is little endian (DEC and Intel), these end up being NOPs.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// What is stored in each format:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	host byte ordering:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	   kernel data structures<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	   user registers<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	simulated machine byte ordering:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	   contents of main memory<FONT COLOR="#000000">
+
+unsigned int WordToHost(unsigned int word);
+<A NAME="ShortToHost"></A>unsigned short ShortToHost(unsigned short shortword);
+<A NAME="WordToMachine"></A>unsigned int WordToMachine(unsigned int word);
+<A NAME="ShortToMachine"></A>unsigned short ShortToMachine(unsigned short shortword);
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// MACHINE_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

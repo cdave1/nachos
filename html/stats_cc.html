@@ -1,0 +1,63 @@
+<HTML><TITLE>stats.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>stats.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// stats.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Routines for managing statistics about Nachos performance.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// DO NOT CHANGE -- these stats are maintained by the machine emulation.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="utility_h.html">utility.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="stats_h.html">stats.h</A>"<FONT COLOR="#000000">
+
+<A NAME="Statistics.Statistics"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Statistics::Statistics<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Initialize performance metrics to zero, at system startup.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="stats_h.html#Statistics">Statistics</A>::Statistics()
+{
+    <A HREF="stats_h.html#Statistics.totalTicks">totalTicks</A> = <A HREF="stats_h.html#Statistics.idleTicks">idleTicks</A> = <A HREF="stats_h.html#Statistics.systemTicks">systemTicks</A> = <A HREF="stats_h.html#Statistics.userTicks">userTicks</A> = 0;
+    <A HREF="stats_h.html#Statistics.numDiskReads">numDiskReads</A> = <A HREF="stats_h.html#Statistics.numDiskWrites">numDiskWrites</A> = 0;
+    <A HREF="stats_h.html#Statistics.numConsoleCharsRead">numConsoleCharsRead</A> = <A HREF="stats_h.html#Statistics.numConsoleCharsWritten">numConsoleCharsWritten</A> = 0;
+    <A HREF="stats_h.html#Statistics.numPageFaults">numPageFaults</A> = <A HREF="stats_h.html#Statistics.numPacketsSent">numPacketsSent</A> = <A HREF="stats_h.html#Statistics.numPacketsRecvd">numPacketsRecvd</A> = 0;
+}
+
+<A NAME="Statistics.Print"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Statistics::Print<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Print performance metrics, when we've finished everything<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	at system shutdown.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="stats_h.html#Statistics">Statistics</A>::Print()
+{
+    printf("Ticks: total %d, idle %d, system %d, user %d\n", <A HREF="stats_h.html#Statistics.totalTicks">totalTicks</A>, 
+	<A HREF="stats_h.html#Statistics.idleTicks">idleTicks</A>, <A HREF="stats_h.html#Statistics.systemTicks">systemTicks</A>, <A HREF="stats_h.html#Statistics.userTicks">userTicks</A>);
+    printf("Disk I/O: reads %d, writes %d\n", <A HREF="stats_h.html#Statistics.numDiskReads">numDiskReads</A>, <A HREF="stats_h.html#Statistics.numDiskWrites">numDiskWrites</A>);
+    printf("Console I/O: reads %d, writes %d\n", <A HREF="stats_h.html#Statistics.numConsoleCharsRead">numConsoleCharsRead</A>, 
+	<A HREF="stats_h.html#Statistics.numConsoleCharsWritten">numConsoleCharsWritten</A>);
+    printf("Paging: faults %d\n", <A HREF="stats_h.html#Statistics.numPageFaults">numPageFaults</A>);
+    printf("Network I/O: packets received %d, sent %d\n", <A HREF="stats_h.html#Statistics.numPacketsRecvd">numPacketsRecvd</A>, 
+	<A HREF="stats_h.html#Statistics.numPacketsSent">numPacketsSent</A>);
+}
+</PRE>
+</BODY></HTML>

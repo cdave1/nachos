@@ -1,0 +1,96 @@
+<HTML><TITLE>producerconsumer.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>producerconsumer.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:10:26 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// David Petrie<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 300148086<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Producer consumer handler.<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef CHANGED<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;iostream&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="boundedbuffer_h.html">boundedbuffer.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="synch_h.html">synch.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "unistd.h"<FONT COLOR="#000000">
+
+
+<A NAME="b"></A><A HREF="boundedbuffer.h.html#BoundedBuffer">BoundedBuffer</A> *b;
+
+
+<A NAME="Producer"></A><FONT COLOR="#990000">// Producer appends the string to the<FONT COLOR="#000000">
+<FONT COLOR="#990000">// buffer one character at a time.<FONT COLOR="#000000">
+void Producer(int which)
+{
+  char* hw = "Hello World";
+
+  while (*hw != '\0') {
+    char *c = new char;
+    *c = *hw++;
+    <A HREF="producerconsumer_cc.html#b">b</A>-&gt;<A HREF="boundedbuffer.cc.html#BoundedBuffer.Append">Append</A>(c);
+    <A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread.cc.html#Thread.Yield">Yield</A>();
+  }
+}
+
+
+<A NAME="Consumer"></A><FONT COLOR="#990000">// Consumer consumers items from the buffer.<FONT COLOR="#000000">
+void Consumer(int which)
+{
+    int num;
+    char *c;
+    
+    for (num = 0; num &lt; 15; num++) {
+      c=(char *)<A HREF="producerconsumer_cc.html#b">b</A>-&gt;<A HREF="boundedbuffer.cc.html#BoundedBuffer.Take">Take</A>();
+      <A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread.cc.html#Thread.Yield">Yield</A>();
+    }
+}
+
+
+<A NAME="ProducerConsumer"></A><FONT COLOR="#990000">// main.cc calls this function.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Initialises a set of Producer and<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Consumer threads...<FONT COLOR="#000000">
+void ProducerConsumer()
+{
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('t', "Entering Producer/Consumer\n");
+    int maxProducers = 10;
+    int maxConsumers = 10;
+    char* name;
+
+    <A HREF="producerconsumer_cc.html#b">b</A> = new <A HREF="boundedbuffer.h.html#BoundedBuffer">BoundedBuffer</A>(10);
+    
+    <A HREF="thread.h.html#Thread">Thread</A> *producers[maxProducers];
+    <A HREF="thread.h.html#Thread">Thread</A> *consumers[maxConsumers];
+
+    for (int i = 0; i &lt; maxProducers; i++)
+    {     
+      name = (char *)malloc(sizeof(char) * 16);
+      sprintf(name, "Producer %d", i);
+      producers[i] = new <A HREF="thread.h.html#Thread">Thread</A>(name);
+      producers[i]-&gt;Fork(<A HREF="producerconsumer_cc.html#Producer">Producer</A>, i);
+    }
+
+    for (int j = 0; j &lt; maxConsumers; j++)
+    {
+      name = (char *)malloc(sizeof(char) * 16);
+      sprintf(name, "Consumer %d", j);
+      consumers[j] = new <A HREF="thread.h.html#Thread">Thread</A>(name);
+      consumers[j]-&gt;Fork(<A HREF="producerconsumer_cc.html#Consumer">Consumer</A>, j);
+    }
+}
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

@@ -1,0 +1,49 @@
+<HTML><TITLE>syncconsole.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>syncconsole.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 13:33:49 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// SynchConsole<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    Routines to synchronously access the console.  The console itself<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    is asynchronous.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//    A lock is used to ensure one read or write is done at a time.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="console_h.html">console.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="synch_h.html">synch.h</A>"<FONT COLOR="#000000">
+
+<A NAME="readAvail"></A>static <A HREF="synch.h.html#Semaphore">Semaphore</A> *readAvail;
+<A NAME="writeDone"></A>static <A HREF="synch.h.html#Semaphore">Semaphore</A> *writeDone;
+
+<A NAME="ReadAvail"></A>static void ReadAvail(int arg) { <A HREF="syncconsole_h.html#readAvail">readAvail</A>-&gt;<A HREF="synch.cc.html#Semaphore.V">V</A>(); }
+<A NAME="WriteDone"></A>static void WriteDone(int arg) { <A HREF="syncconsole_h.html#writeDone">writeDone</A>-&gt;<A HREF="synch.cc.html#Semaphore.V">V</A>(); }
+
+<A NAME="SynchConsole"></A>class SynchConsole {
+public:
+  <A HREF="syncconsole_cc.html#SynchConsole.SynchConsole">SynchConsole</A>(char* readFile, char* writeFile);
+  ~<A HREF="syncconsole_cc.html#SynchConsole.~SynchConsole">SynchConsole</A>();
+  void <A HREF="syncconsole_cc.html#SynchConsole.ReadLine">ReadLine</A>(char *databuf,int length);
+  void <A HREF="syncconsole_cc.html#SynchConsole.WriteLine">WriteLine</A>(char *databuf,int length);
+  
+private:
+  <A HREF="console_h.html#Console">Console</A> *<A NAME="SynchConsole.console">console</A>;
+  <A HREF="synch.h.html#Lock">Lock</A> *<A NAME="SynchConsole.lock">lock</A>;
+};
+
+</PRE>
+</BODY></HTML>

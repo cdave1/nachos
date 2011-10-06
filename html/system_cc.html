@@ -1,0 +1,218 @@
+<HTML><TITLE>system.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>system.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// system.cc <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Nachos initialization and cleanup routines.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+
+<A NAME="currentThread"></A><FONT COLOR="#990000">// This defines *all* of the global data structures used by Nachos.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// These are all initialized and de-allocated by this file.<FONT COLOR="#000000">
+
+<A HREF="thread_h.html#Thread">Thread</A> *currentThread;			<FONT COLOR="#990000">// the thread we are running now<FONT COLOR="#000000">
+<A NAME="threadToBeDestroyed"></A><A HREF="thread_h.html#Thread">Thread</A> *threadToBeDestroyed;  		<FONT COLOR="#990000">// the thread that just finished<FONT COLOR="#000000">
+<A NAME="scheduler"></A><A HREF="scheduler_h.html#Scheduler">Scheduler</A> *scheduler;			<FONT COLOR="#990000">// the ready list<FONT COLOR="#000000">
+<A NAME="interrupt"></A><A HREF="interrupt_h.html#Interrupt">Interrupt</A> *interrupt;			<FONT COLOR="#990000">// interrupt status<FONT COLOR="#000000">
+<A NAME="stats"></A><A HREF="stats_h.html#Statistics">Statistics</A> *stats;			<FONT COLOR="#990000">// performance metrics<FONT COLOR="#000000">
+<A NAME="timer"></A><A HREF="timer_h.html#Timer">Timer</A> *timer;				<FONT COLOR="#990000">// the hardware timer device,<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// for invoking context switches<FONT COLOR="#000000">
+<A NAME="nohalt"></A>bool nohalt = FALSE;                    <FONT COLOR="#990000">// make nachos auto-terminate<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef FILESYS_NEEDED<FONT COLOR="#000000">
+<A NAME="fileSystem"></A>FileSystem  *fileSystem;
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef FILESYS<FONT COLOR="#000000">
+<A NAME="synchDisk"></A>SynchDisk   *synchDisk;
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef USER_PROGRAM	<FONT COLOR="#990000">// requires either FILESYS or FILESYS_STUB<FONT COLOR="#000000"><FONT COLOR="#000000">
+<A NAME="machine"></A>Machine *machine;	<FONT COLOR="#990000">// user program memory and registers<FONT COLOR="#000000">
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef NETWORK<FONT COLOR="#000000">
+<A NAME="postOffice"></A>PostOffice *postOffice;
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+
+<FONT COLOR="#990000">// External definition, to allow us to take a pointer to this function<FONT COLOR="#000000">
+extern void <A HREF="system_cc.html#Cleanup">Cleanup</A>();
+
+
+<A NAME="TimerInterruptHandler"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// TimerInterruptHandler<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Interrupt handler for the timer device.  The timer device is<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	set up to interrupt the CPU periodically (once every TimerTicks).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	This routine is called each time there is a timer interrupt,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	with interrupts disabled.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Note that instead of calling Yield() directly (which would<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	suspend the interrupt handler, not the interrupted thread<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	which is what we wanted to context switch), we set a flag<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	so that once the interrupt handler is done, it will appear as <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	if the interrupted thread called Yield at the point it is <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	was interrupted.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"dummy" is because every interrupt handler takes one argument,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		whether it needs it or not.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+static void TimerInterruptHandler(int dummy)
+{
+    if (<A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_h.html#Interrupt.getStatus">getStatus</A>() != <A HREF="interrupt_h.html#IdleMode">IdleMode</A>)
+	<A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.YieldOnReturn">YieldOnReturn</A>();
+}
+
+<A NAME="Initialize"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Initialize<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Initialize Nachos global data structures.  Interpret command<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	line arguments in order to determine flags for the initialization.  <FONT COLOR="#000000">
+<FONT COLOR="#990000">// <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"argc" is the number of command line arguments (including the name<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		of the command) -- ex: "nachos -d +" -&gt; argc = 3 <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"argv" is an array of strings, one for each command line argument<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		ex: "nachos -d +" -&gt; argv = {"nachos", "-d", "+"}<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+void Initialize(int argc, char **argv)
+{
+    int argCount;
+    char* debugArgs = "";
+    bool randomYield = FALSE;
+
+<FONT COLOR="#007700">#ifdef USER_PROGRAM<FONT COLOR="#000000">
+    bool debugUserProg = FALSE;	<FONT COLOR="#990000">// single step user program<FONT COLOR="#000000">
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef FILESYS_NEEDED<FONT COLOR="#000000">
+    bool format = FALSE;	<FONT COLOR="#990000">// format disk<FONT COLOR="#000000">
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef NETWORK<FONT COLOR="#000000">
+    double rely = 1;		<FONT COLOR="#990000">// network reliability<FONT COLOR="#000000">
+    int netname = 0;		<FONT COLOR="#990000">// UNIX socket name<FONT COLOR="#000000">
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+    
+    for (argc--, argv++; argc &gt; 0; argc -= argCount, argv += argCount) {
+	argCount = 1;
+	if (!strcmp(*argv, "-d")) {
+	    if (argc == 1)
+		debugArgs = "+";	<FONT COLOR="#990000">// turn on all debug flags<FONT COLOR="#000000">
+	    else {
+	    	debugArgs = *(argv + 1);
+	    	argCount = 2;
+	    }
+	} else if (!strcmp(*argv, "-rs")) {
+	    <A HREF="utility_h.html#ASSERT">ASSERT</A>(argc &gt; 1);
+	    <A HREF="sysdep_cc.html#RandomInit">RandomInit</A>(atoi(*(argv + 1)));	<FONT COLOR="#990000">// initialize pseudo-random<FONT COLOR="#000000">
+						<FONT COLOR="#990000">// number generator<FONT COLOR="#000000">
+	    randomYield = TRUE;
+	    argCount = 2;
+	} else if (!strcmp(*argv, "-nh")){    
+    	    <A HREF="system_cc.html#nohalt">nohalt</A> = TRUE;	   
+	}
+
+<FONT COLOR="#007700">#ifdef USER_PROGRAM<FONT COLOR="#000000">
+	if (!strcmp(*argv, "-s"))
+	    debugUserProg = TRUE;
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef FILESYS_NEEDED<FONT COLOR="#000000">
+	if (!strcmp(*argv, "-f"))
+	    format = TRUE;
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef NETWORK<FONT COLOR="#000000">
+	if (!strcmp(*argv, "-l")) {
+	    <A HREF="utility_h.html#ASSERT">ASSERT</A>(argc &gt; 1);
+	    rely = atof(*(argv + 1));
+	    argCount = 2;
+	} else if (!strcmp(*argv, "-m")) {
+	    <A HREF="utility_h.html#ASSERT">ASSERT</A>(argc &gt; 1);
+	    netname = atoi(*(argv + 1));
+	    argCount = 2;
+	}
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+    }
+
+    <A HREF="utility_cc.html#DebugInit">DebugInit</A>(debugArgs);			<FONT COLOR="#990000">// initialize DEBUG messages<FONT COLOR="#000000">
+    <A HREF="system_cc.html#stats">stats</A> = new <A HREF="stats_h.html#Statistics">Statistics</A>();			<FONT COLOR="#990000">// collect statistics<FONT COLOR="#000000">
+    <A HREF="system_cc.html#interrupt">interrupt</A> = new <A HREF="interrupt_h.html#Interrupt">Interrupt</A>;			<FONT COLOR="#990000">// start up interrupt handling<FONT COLOR="#000000">
+    <A HREF="system_cc.html#scheduler">scheduler</A> = new <A HREF="scheduler_h.html#Scheduler">Scheduler</A>();		<FONT COLOR="#990000">// initialize the ready queue<FONT COLOR="#000000">
+    if (randomYield)				<FONT COLOR="#990000">// start the timer (if needed)<FONT COLOR="#000000">
+	<A HREF="system_cc.html#timer">timer</A> = new <A HREF="timer_h.html#Timer">Timer</A>(<A HREF="system_cc.html#TimerInterruptHandler">TimerInterruptHandler</A>, 0, randomYield);
+
+    <A HREF="system_cc.html#threadToBeDestroyed">threadToBeDestroyed</A> = NULL;
+
+    <FONT COLOR="#990000">// We didn't explicitly allocate the current thread we are running in.<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// But if it ever tries to give up the CPU, we better have a Thread<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// object to save its state. <FONT COLOR="#000000">
+    <A HREF="system_cc.html#currentThread">currentThread</A> = new <A HREF="thread_h.html#Thread">Thread</A>("main");		
+    <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_h.html#Thread.setStatus">setStatus</A>(<A HREF="thread_h.html#RUNNING">RUNNING</A>);
+
+    <A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_cc.html#Interrupt.Enable">Enable</A>();
+    <A HREF="sysdep_cc.html#CallOnUserAbort">CallOnUserAbort</A>(<A HREF="system_cc.html#Cleanup">Cleanup</A>);			<FONT COLOR="#990000">// if user hits ctl-C<FONT COLOR="#000000">
+    
+<FONT COLOR="#007700">#ifdef USER_PROGRAM<FONT COLOR="#000000">
+    <A HREF="system_cc.html#machine">machine</A> = new Machine(debugUserProg);	<FONT COLOR="#990000">// this must come first<FONT COLOR="#000000">
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef FILESYS<FONT COLOR="#000000">
+    <A HREF="system_cc.html#synchDisk">synchDisk</A> = new SynchDisk("DISK");
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef FILESYS_NEEDED<FONT COLOR="#000000">
+    <A HREF="system_cc.html#fileSystem">fileSystem</A> = new FileSystem(format);
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef NETWORK<FONT COLOR="#000000">
+    <A HREF="system_cc.html#postOffice">postOffice</A> = new PostOffice(netname, rely, 10);
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+}
+
+<A NAME="Cleanup"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Cleanup<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Nachos is halting.  De-allocate global data structures.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+void Cleanup()
+{
+    printf("\nCleaning up...\n");
+<FONT COLOR="#007700">#ifdef NETWORK<FONT COLOR="#000000">
+    delete <A HREF="system_cc.html#postOffice">postOffice</A>;
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+    
+<FONT COLOR="#007700">#ifdef USER_PROGRAM<FONT COLOR="#000000">
+    delete <A HREF="system_cc.html#machine">machine</A>;
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef FILESYS_NEEDED<FONT COLOR="#000000">
+    delete <A HREF="system_cc.html#fileSystem">fileSystem</A>;
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef FILESYS<FONT COLOR="#000000">
+    delete <A HREF="system_cc.html#synchDisk">synchDisk</A>;
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+    
+    delete <A HREF="system_cc.html#timer">timer</A>;
+    delete <A HREF="system_cc.html#scheduler">scheduler</A>;
+    delete <A HREF="system_cc.html#interrupt">interrupt</A>;
+    
+    <A HREF="sysdep_cc.html#Exit">Exit</A>(0);
+}
+
+</PRE>
+</BODY></HTML>

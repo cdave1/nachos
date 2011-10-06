@@ -1,0 +1,249 @@
+<HTML><TITLE>mipssim.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>mipssim.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 13:33:49 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// mipssim.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Internal data structures for simulating the MIPS instruction set.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  DO NOT CHANGE -- part of the machine emulation<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef MIPSSIM_H<FONT COLOR="#000000">
+<A NAME="MIPSSIM_H"></A><FONT COLOR="#007700">#define MIPSSIM_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+
+<FONT COLOR="#990000">/*
+ * OpCode values.  The names are straight from the MIPS
+ * manual except for the following special ones:
+ *
+ * OP_UNIMP -		means that this instruction is legal, but hasn't
+ *			been implemented in the simulator yet.
+ * OP_RES -		means that this is a reserved opcode (it isn't
+ *			supported by the architecture).
+ */<FONT COLOR="#000000">
+
+<A NAME="OP_ADD"></A><FONT COLOR="#007700">#define OP_ADD		1<FONT COLOR="#000000">
+<A NAME="OP_ADDI"></A><FONT COLOR="#007700">#define OP_ADDI		2<FONT COLOR="#000000">
+<A NAME="OP_ADDIU"></A><FONT COLOR="#007700">#define OP_ADDIU	3<FONT COLOR="#000000">
+<A NAME="OP_ADDU"></A><FONT COLOR="#007700">#define OP_ADDU		4<FONT COLOR="#000000">
+<A NAME="OP_AND"></A><FONT COLOR="#007700">#define OP_AND		5<FONT COLOR="#000000">
+<A NAME="OP_ANDI"></A><FONT COLOR="#007700">#define OP_ANDI		6<FONT COLOR="#000000">
+<A NAME="OP_BEQ"></A><FONT COLOR="#007700">#define OP_BEQ		7<FONT COLOR="#000000">
+<A NAME="OP_BGEZ"></A><FONT COLOR="#007700">#define OP_BGEZ		8<FONT COLOR="#000000">
+<A NAME="OP_BGEZAL"></A><FONT COLOR="#007700">#define OP_BGEZAL	9<FONT COLOR="#000000">
+<A NAME="OP_BGTZ"></A><FONT COLOR="#007700">#define OP_BGTZ		10<FONT COLOR="#000000">
+<A NAME="OP_BLEZ"></A><FONT COLOR="#007700">#define OP_BLEZ		11<FONT COLOR="#000000">
+<A NAME="OP_BLTZ"></A><FONT COLOR="#007700">#define OP_BLTZ		12<FONT COLOR="#000000">
+<A NAME="OP_BLTZAL"></A><FONT COLOR="#007700">#define OP_BLTZAL	13<FONT COLOR="#000000">
+<A NAME="OP_BNE"></A><FONT COLOR="#007700">#define OP_BNE		14<FONT COLOR="#000000">
+
+<A NAME="OP_DIV"></A><FONT COLOR="#007700">#define OP_DIV		16<FONT COLOR="#000000">
+<A NAME="OP_DIVU"></A><FONT COLOR="#007700">#define OP_DIVU		17<FONT COLOR="#000000">
+<A NAME="OP_J"></A><FONT COLOR="#007700">#define OP_J		18<FONT COLOR="#000000">
+<A NAME="OP_JAL"></A><FONT COLOR="#007700">#define OP_JAL		19<FONT COLOR="#000000">
+<A NAME="OP_JALR"></A><FONT COLOR="#007700">#define OP_JALR		20<FONT COLOR="#000000">
+<A NAME="OP_JR"></A><FONT COLOR="#007700">#define OP_JR		21<FONT COLOR="#000000">
+<A NAME="OP_LB"></A><FONT COLOR="#007700">#define OP_LB		22<FONT COLOR="#000000">
+<A NAME="OP_LBU"></A><FONT COLOR="#007700">#define OP_LBU		23<FONT COLOR="#000000">
+<A NAME="OP_LH"></A><FONT COLOR="#007700">#define OP_LH		24<FONT COLOR="#000000">
+<A NAME="OP_LHU"></A><FONT COLOR="#007700">#define OP_LHU		25<FONT COLOR="#000000">
+<A NAME="OP_LUI"></A><FONT COLOR="#007700">#define OP_LUI		26<FONT COLOR="#000000">
+<A NAME="OP_LW"></A><FONT COLOR="#007700">#define OP_LW		27<FONT COLOR="#000000">
+<A NAME="OP_LWL"></A><FONT COLOR="#007700">#define OP_LWL		28<FONT COLOR="#000000">
+<A NAME="OP_LWR"></A><FONT COLOR="#007700">#define OP_LWR		29<FONT COLOR="#000000">
+
+<A NAME="OP_MFHI"></A><FONT COLOR="#007700">#define OP_MFHI		31<FONT COLOR="#000000">
+<A NAME="OP_MFLO"></A><FONT COLOR="#007700">#define OP_MFLO		32<FONT COLOR="#000000">
+
+<A NAME="OP_MTHI"></A><FONT COLOR="#007700">#define OP_MTHI		34<FONT COLOR="#000000">
+<A NAME="OP_MTLO"></A><FONT COLOR="#007700">#define OP_MTLO		35<FONT COLOR="#000000">
+<A NAME="OP_MULT"></A><FONT COLOR="#007700">#define OP_MULT		36<FONT COLOR="#000000">
+<A NAME="OP_MULTU"></A><FONT COLOR="#007700">#define OP_MULTU	37<FONT COLOR="#000000">
+<A NAME="OP_NOR"></A><FONT COLOR="#007700">#define OP_NOR		38<FONT COLOR="#000000">
+<A NAME="OP_OR"></A><FONT COLOR="#007700">#define OP_OR		39<FONT COLOR="#000000">
+<A NAME="OP_ORI"></A><FONT COLOR="#007700">#define OP_ORI		40<FONT COLOR="#000000">
+<A NAME="OP_RFE"></A><FONT COLOR="#007700">#define OP_RFE		41<FONT COLOR="#000000">
+<A NAME="OP_SB"></A><FONT COLOR="#007700">#define OP_SB		42<FONT COLOR="#000000">
+<A NAME="OP_SH"></A><FONT COLOR="#007700">#define OP_SH		43<FONT COLOR="#000000">
+<A NAME="OP_SLL"></A><FONT COLOR="#007700">#define OP_SLL		44<FONT COLOR="#000000">
+<A NAME="OP_SLLV"></A><FONT COLOR="#007700">#define OP_SLLV		45<FONT COLOR="#000000">
+<A NAME="OP_SLT"></A><FONT COLOR="#007700">#define OP_SLT		46<FONT COLOR="#000000">
+<A NAME="OP_SLTI"></A><FONT COLOR="#007700">#define OP_SLTI		47<FONT COLOR="#000000">
+<A NAME="OP_SLTIU"></A><FONT COLOR="#007700">#define OP_SLTIU	48<FONT COLOR="#000000">
+<A NAME="OP_SLTU"></A><FONT COLOR="#007700">#define OP_SLTU		49<FONT COLOR="#000000">
+<A NAME="OP_SRA"></A><FONT COLOR="#007700">#define OP_SRA		50<FONT COLOR="#000000">
+<A NAME="OP_SRAV"></A><FONT COLOR="#007700">#define OP_SRAV		51<FONT COLOR="#000000">
+<A NAME="OP_SRL"></A><FONT COLOR="#007700">#define OP_SRL		52<FONT COLOR="#000000">
+<A NAME="OP_SRLV"></A><FONT COLOR="#007700">#define OP_SRLV		53<FONT COLOR="#000000">
+<A NAME="OP_SUB"></A><FONT COLOR="#007700">#define OP_SUB		54<FONT COLOR="#000000">
+<A NAME="OP_SUBU"></A><FONT COLOR="#007700">#define OP_SUBU		55<FONT COLOR="#000000">
+<A NAME="OP_SW"></A><FONT COLOR="#007700">#define OP_SW		56<FONT COLOR="#000000">
+<A NAME="OP_SWL"></A><FONT COLOR="#007700">#define OP_SWL		57<FONT COLOR="#000000">
+<A NAME="OP_SWR"></A><FONT COLOR="#007700">#define OP_SWR		58<FONT COLOR="#000000">
+<A NAME="OP_XOR"></A><FONT COLOR="#007700">#define OP_XOR		59<FONT COLOR="#000000">
+<A NAME="OP_XORI"></A><FONT COLOR="#007700">#define OP_XORI		60<FONT COLOR="#000000">
+<A NAME="OP_SYSCALL"></A><FONT COLOR="#007700">#define OP_SYSCALL	61<FONT COLOR="#000000">
+<A NAME="OP_UNIMP"></A><FONT COLOR="#007700">#define OP_UNIMP	62<FONT COLOR="#000000">
+<A NAME="OP_RES"></A><FONT COLOR="#007700">#define OP_RES		63<FONT COLOR="#000000">
+<A NAME="MaxOpcode"></A><FONT COLOR="#007700">#define MaxOpcode	63<FONT COLOR="#000000">
+
+<FONT COLOR="#990000">/*
+ * Miscellaneous definitions:
+ */<FONT COLOR="#000000">
+
+<A NAME="IndexToAddr"></A><FONT COLOR="#007700">#define IndexToAddr(x) ((x) &lt;&lt; 2)<FONT COLOR="#000000">
+
+<A NAME="SIGN_BIT"></A><FONT COLOR="#007700">#define SIGN_BIT	0x80000000<FONT COLOR="#000000">
+<A NAME="R31"></A><FONT COLOR="#007700">#define R31		31<FONT COLOR="#000000">
+
+<FONT COLOR="#990000">/*
+ * The table below is used to translate bits 31:26 of the instruction
+ * into a value suitable for the "opCode" field of a MemWord structure,
+ * or into a special value for further decoding.
+ */<FONT COLOR="#000000">
+
+<A NAME="SPECIAL"></A><FONT COLOR="#007700">#define SPECIAL 100<FONT COLOR="#000000">
+<A NAME="BCOND"></A><FONT COLOR="#007700">#define BCOND	101<FONT COLOR="#000000">
+
+<A NAME="IFMT"></A><FONT COLOR="#007700">#define IFMT 1<FONT COLOR="#000000">
+<A NAME="JFMT"></A><FONT COLOR="#007700">#define JFMT 2<FONT COLOR="#000000">
+<A NAME="RFMT"></A><FONT COLOR="#007700">#define RFMT 3<FONT COLOR="#000000">
+
+<A NAME="OpInfo"></A>struct OpInfo {
+    int <A NAME="OpInfo.opCode">opCode</A>;		<FONT COLOR="#990000">/* Translated op code. */<FONT COLOR="#000000">
+    int <A NAME="OpInfo.format">format</A>;		<FONT COLOR="#990000">/* Format type (IFMT or JFMT or RFMT) */<FONT COLOR="#000000">
+};
+
+<A NAME="opTable"></A>static <A HREF="mipssim_h.html#OpInfo">OpInfo</A> opTable[] = {
+    {<A HREF="mipssim_h.html#SPECIAL">SPECIAL</A>, <A HREF="mipssim_h.html#RFMT">RFMT</A>}, {<A HREF="mipssim_h.html#BCOND">BCOND</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_J">OP_J</A>, <A HREF="mipssim_h.html#JFMT">JFMT</A>}, {<A HREF="mipssim_h.html#OP_JAL">OP_JAL</A>, <A HREF="mipssim_h.html#JFMT">JFMT</A>},
+    {<A HREF="mipssim_h.html#OP_BEQ">OP_BEQ</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_BNE">OP_BNE</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_BLEZ">OP_BLEZ</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_BGTZ">OP_BGTZ</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>},
+    {<A HREF="mipssim_h.html#OP_ADDI">OP_ADDI</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_ADDIU">OP_ADDIU</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_SLTI">OP_SLTI</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_SLTIU">OP_SLTIU</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>},
+    {<A HREF="mipssim_h.html#OP_ANDI">OP_ANDI</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_ORI">OP_ORI</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_XORI">OP_XORI</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_LUI">OP_LUI</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>},
+    {<A HREF="mipssim_h.html#OP_UNIMP">OP_UNIMP</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_UNIMP">OP_UNIMP</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_UNIMP">OP_UNIMP</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_UNIMP">OP_UNIMP</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>},
+    {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>},
+    {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>},
+    {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>},
+    {<A HREF="mipssim_h.html#OP_LB">OP_LB</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_LH">OP_LH</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_LWL">OP_LWL</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_LW">OP_LW</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>},
+    {<A HREF="mipssim_h.html#OP_LBU">OP_LBU</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_LHU">OP_LHU</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_LWR">OP_LWR</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>},
+    {<A HREF="mipssim_h.html#OP_SB">OP_SB</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_SH">OP_SH</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_SWL">OP_SWL</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_SW">OP_SW</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>},
+    {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_SWR">OP_SWR</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>},
+    {<A HREF="mipssim_h.html#OP_UNIMP">OP_UNIMP</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_UNIMP">OP_UNIMP</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_UNIMP">OP_UNIMP</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_UNIMP">OP_UNIMP</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>},
+    {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>},
+    {<A HREF="mipssim_h.html#OP_UNIMP">OP_UNIMP</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_UNIMP">OP_UNIMP</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_UNIMP">OP_UNIMP</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_UNIMP">OP_UNIMP</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>},
+    {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}, {<A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#IFMT">IFMT</A>}
+};
+
+<FONT COLOR="#990000">/*
+ * The table below is used to convert the "funct" field of SPECIAL
+ * instructions into the "opCode" field of a MemWord.
+ */<FONT COLOR="#000000">
+
+<A NAME="specialTable"></A>static int specialTable[] = {
+    <A HREF="mipssim_h.html#OP_SLL">OP_SLL</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_SRL">OP_SRL</A>, <A HREF="mipssim_h.html#OP_SRA">OP_SRA</A>, <A HREF="mipssim_h.html#OP_SLLV">OP_SLLV</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_SRLV">OP_SRLV</A>, <A HREF="mipssim_h.html#OP_SRAV">OP_SRAV</A>,
+    <A HREF="mipssim_h.html#OP_JR">OP_JR</A>, <A HREF="mipssim_h.html#OP_JALR">OP_JALR</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_SYSCALL">OP_SYSCALL</A>, <A HREF="mipssim_h.html#OP_UNIMP">OP_UNIMP</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>,
+    <A HREF="mipssim_h.html#OP_MFHI">OP_MFHI</A>, <A HREF="mipssim_h.html#OP_MTHI">OP_MTHI</A>, <A HREF="mipssim_h.html#OP_MFLO">OP_MFLO</A>, <A HREF="mipssim_h.html#OP_MTLO">OP_MTLO</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>,
+    <A HREF="mipssim_h.html#OP_MULT">OP_MULT</A>, <A HREF="mipssim_h.html#OP_MULTU">OP_MULTU</A>, <A HREF="mipssim_h.html#OP_DIV">OP_DIV</A>, <A HREF="mipssim_h.html#OP_DIVU">OP_DIVU</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>,
+    <A HREF="mipssim_h.html#OP_ADD">OP_ADD</A>, <A HREF="mipssim_h.html#OP_ADDU">OP_ADDU</A>, <A HREF="mipssim_h.html#OP_SUB">OP_SUB</A>, <A HREF="mipssim_h.html#OP_SUBU">OP_SUBU</A>, <A HREF="mipssim_h.html#OP_AND">OP_AND</A>, <A HREF="mipssim_h.html#OP_OR">OP_OR</A>, <A HREF="mipssim_h.html#OP_XOR">OP_XOR</A>, <A HREF="mipssim_h.html#OP_NOR">OP_NOR</A>,
+    <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_SLT">OP_SLT</A>, <A HREF="mipssim_h.html#OP_SLTU">OP_SLTU</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>,
+    <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>,
+    <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>, <A HREF="mipssim_h.html#OP_RES">OP_RES</A>
+};
+
+
+<A NAME="RegType"></A><FONT COLOR="#990000">// Stuff to help print out each instruction, for debugging<FONT COLOR="#000000">
+
+enum RegType { <A NAME="NONE">NONE</A>, <A NAME="RS">RS</A>, <A NAME="RT">RT</A>, <A NAME="RD">RD</A>, <A NAME="EXTRA">EXTRA</A> }; 
+
+<A NAME="OpString"></A>struct OpString {
+    char *<A NAME="OpString.string">string</A>;	<FONT COLOR="#990000">// Printed version of instruction<FONT COLOR="#000000">
+    <A HREF="mipssim_h.html#RegType">RegType</A> <A NAME="OpString.args">args</A>[3];
+};
+
+<A NAME="opStrings"></A>static struct <A HREF="mipssim_h.html#OpString">OpString</A> opStrings[] = {
+	{"Shouldn't happen", {<A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"ADD r%d,r%d,r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>}},
+	{"ADDI r%d,r%d,%d", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>}},
+	{"ADDIU r%d,r%d,%d", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>}},
+	{"ADDU r%d,r%d,r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>}},
+	{"AND r%d,r%d,r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>}},
+	{"ANDI r%d,r%d,%d", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>}},
+	{"BEQ r%d,r%d,%d", {<A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>}},
+	{"BGEZ r%d,%d", {<A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"BGEZAL r%d,%d", {<A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"BGTZ r%d,%d", {<A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"BLEZ r%d,%d", {<A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"BLTZ r%d,%d", {<A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"BLTZAL r%d,%d", {<A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"BNE r%d,r%d,%d", {<A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>}},
+	{"Shouldn't happen", {<A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"DIV r%d,r%d", {<A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"DIVU r%d,r%d", {<A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"J %d", {<A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"JAL %d", {<A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"JALR r%d,r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"JR r%d,r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"LB r%d,%d(r%d)", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#RS">RS</A>}},
+	{"LBU r%d,%d(r%d)", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#RS">RS</A>}},
+	{"LH r%d,%d(r%d)", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#RS">RS</A>}},
+	{"LHU r%d,%d(r%d)", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#RS">RS</A>}},
+	{"LUI r%d,%d", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"LW r%d,%d(r%d)", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#RS">RS</A>}},
+	{"LWL r%d,%d(r%d)", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#RS">RS</A>}},
+	{"LWR r%d,%d(r%d)", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#RS">RS</A>}},
+	{"Shouldn't happen", {<A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"MFHI r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"MFLO r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"Shouldn't happen", {<A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"MTHI r%d", {<A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"MTLO r%d", {<A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"MULT r%d,r%d", {<A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"MULTU r%d,r%d", {<A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"NOR r%d,r%d,r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>}},
+	{"OR r%d,r%d,r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>}},
+	{"ORI r%d,r%d,%d", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>}},
+	{"RFE", {<A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"SB r%d,%d(r%d)", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#RS">RS</A>}},
+	{"SH r%d,%d(r%d)", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#RS">RS</A>}},
+	{"SLL r%d,r%d,%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>}},
+	{"SLLV r%d,r%d,r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#RS">RS</A>}},
+	{"SLT r%d,r%d,r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>}},
+	{"SLTI r%d,r%d,%d", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>}},
+	{"SLTIU r%d,r%d,%d", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>}},
+	{"SLTU r%d,r%d,r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>}},
+	{"SRA r%d,r%d,%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>}},
+	{"SRAV r%d,r%d,r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#RS">RS</A>}},
+	{"SRL r%d,r%d,%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>}},
+	{"SRLV r%d,r%d,r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#RS">RS</A>}},
+	{"SUB r%d,r%d,r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>}},
+	{"SUBU r%d,r%d,r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>}},
+	{"SW r%d,%d(r%d)", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#RS">RS</A>}},
+	{"SWL r%d,%d(r%d)", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#RS">RS</A>}},
+	{"SWR r%d,%d(r%d)", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>, <A HREF="mipssim_h.html#RS">RS</A>}},
+	{"XOR r%d,r%d,r%d", {<A HREF="mipssim_h.html#RD">RD</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#RT">RT</A>}},
+	{"XORI r%d,r%d,%d", {<A HREF="mipssim_h.html#RT">RT</A>, <A HREF="mipssim_h.html#RS">RS</A>, <A HREF="mipssim_h.html#EXTRA">EXTRA</A>}},
+	{"SYSCALL", {<A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"Unimplemented", {<A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}},
+	{"Reserved", {<A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>, <A HREF="mipssim_h.html#NONE">NONE</A>}}
+      };
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// MIPSSIM_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

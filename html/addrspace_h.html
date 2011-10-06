@@ -1,0 +1,68 @@
+<HTML><TITLE>addrspace.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>addrspace.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 20:29:30 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// addrspace.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Data structures to keep track of executing user programs <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	(address spaces).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	For now, we don't keep any information about address spaces.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	The user level CPU state is saved and restored in the thread<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	executing the user program (see thread.h).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef ADDRSPACE_H<FONT COLOR="#000000">
+<A NAME="ADDRSPACE_H"></A><FONT COLOR="#007700">#define ADDRSPACE_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="filesys_h.html">filesys.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="translate_h.html">translate.h</A>"<FONT COLOR="#000000">
+
+<A NAME="UserStackSize"></A><FONT COLOR="#007700">#define UserStackSize		1024 	<FONT COLOR="#990000">// increase this as necessary&#33;<FONT COLOR="#000000"><FONT COLOR="#000000">
+
+<A NAME="AddrSpace"></A>class AddrSpace {
+  public:
+    <A HREF="addrspace_cc.html#AddrSpace.AddrSpace">AddrSpace</A>(<A HREF="openfile.h.html#OpenFile">OpenFile</A> *executable);	<FONT COLOR="#990000">// Create an address space,<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// initializing it with the program<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// stored in the file "executable"<FONT COLOR="#000000">
+    ~<A HREF="addrspace_cc.html#AddrSpace.~AddrSpace">AddrSpace</A>();			<FONT COLOR="#990000">// De-allocate an address space<FONT COLOR="#000000">
+
+    void <A HREF="addrspace_cc.html#AddrSpace.InitRegisters">InitRegisters</A>();		<FONT COLOR="#990000">// Initialize user-level CPU registers,<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// before jumping to user code<FONT COLOR="#000000">
+
+    void <A HREF="addrspace_cc.html#AddrSpace.SaveState">SaveState</A>();			<FONT COLOR="#990000">// Save/restore address space-specific<FONT COLOR="#000000">
+    void <A HREF="addrspace_cc.html#AddrSpace.RestoreState">RestoreState</A>();		<FONT COLOR="#990000">// info on a context switch <FONT COLOR="#000000">
+
+<FONT COLOR="#007700">    #ifdef CHANGED<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// Stacks - make new stacks and remove old ones...<FONT COLOR="#000000">
+    bool <A HREF="addrspace_cc.html#AddrSpace.CreateStack">CreateStack</A>();
+    unsigned int <A HREF="addrspace_cc.html#AddrSpace.GetNumPages">GetNumPages</A>();
+<FONT COLOR="#007700">    #endif<FONT COLOR="#000000">
+
+  private:
+    <A HREF="translate.h.html#TranslationEntry">TranslationEntry</A> *<A NAME="AddrSpace.pageTable">pageTable</A>;	<FONT COLOR="#990000">// Assume linear page table translation<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// for now&#33;<FONT COLOR="#000000">
+    unsigned int <A NAME="AddrSpace.numPages">numPages</A>;		<FONT COLOR="#990000">// Number of pages in the virtual <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// address space<FONT COLOR="#000000">
+};
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// ADDRSPACE_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

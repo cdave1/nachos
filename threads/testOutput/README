@@ -1,0 +1,13 @@
+The following output was produced by the following commands:
+
+producerconsumer1.txt:
+./nachos -d t -pc -rs 10000 > testOutput/producerconsumer1.txt
+
+producerconsumer2.txt:
+./nachos -pc -rs 10000 > testOutput/producerconsumer2.txt
+
+bridgetest1.txt:
+./nachos -d t -bt -rs 10000 > testOutput/bridgetest1.txt
+
+bridgetest2.txt:
+./nachos -bt -rs 10000 > testOutput/bridgetest2.txt

@@ -1,0 +1,73 @@
+<HTML><TITLE>bridgetest.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>bridgetest.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// David Petrie<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 300148086<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Bridge testing handler.<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;iostream&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="bridge_h.html">bridge.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="synch_h.html">synch.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "unistd.h"<FONT COLOR="#000000">
+
+
+<A NAME="bridge"></A><A HREF="bridge_h.html#Bridge">Bridge</A> *bridge;
+
+
+<A NAME="Car"></A><FONT COLOR="#990000">// The car attempts to cross the bridge in repeatedly<FONT COLOR="#000000">
+<FONT COLOR="#990000">// opposing directions.<FONT COLOR="#000000">
+void Car(int which)
+{
+  int direction;
+  for (int i = 0; i &lt; 60; i++)
+  {
+    direction = i % 2;
+
+    <A HREF="bridgetest_cc.html#bridge">bridge</A>-&gt;<A HREF="bridge_cc.html#Bridge.ArriveBridge">ArriveBridge</A>(direction);
+    <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_cc.html#Thread.Yield">Yield</A>();
+    <A HREF="bridgetest_cc.html#bridge">bridge</A>-&gt;<A HREF="bridge_cc.html#Bridge.CrossBridge">CrossBridge</A>(direction);
+    <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_cc.html#Thread.Yield">Yield</A>();
+    <A HREF="bridgetest_cc.html#bridge">bridge</A>-&gt;<A HREF="bridge_cc.html#Bridge.ExitBridge">ExitBridge</A>(direction);
+    printf("Car %d has crossed the bridge in direction %d\n\n", which, direction);
+    <A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_cc.html#Thread.Yield">Yield</A>();
+  }
+}
+
+
+<A NAME="BridgeTest"></A><FONT COLOR="#990000">// Initialises a bridge and a set of cars.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Each car runs in a separate thread.<FONT COLOR="#000000">
+void BridgeTest()
+{
+  <A HREF="bridgetest_cc.html#bridge">bridge</A> = new <A HREF="bridge_h.html#Bridge">Bridge</A>(3);
+  int maxCars = 20;
+  char* name;
+  <A HREF="thread_h.html#Thread">Thread</A> *cars[maxCars];
+
+  for (int i = 0; i &lt; maxCars; i++)
+  {
+    name = (char *)malloc(sizeof(char) * 8);
+    sprintf(name, "Car %d", i);
+    cars[i] = new <A HREF="thread_h.html#Thread">Thread</A>(name);
+    cars[i]-&gt;Fork(<A HREF="bridgetest_cc.html#Car">Car</A>, i);
+  }  
+}
+
+</PRE>
+</BODY></HTML>

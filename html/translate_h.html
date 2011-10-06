@@ -1,0 +1,65 @@
+<HTML><TITLE>translate.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>translate.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 13:33:49 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// translate.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Data structures for managing the translation from <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	virtual page &#35; -&gt; physical page &#35;, used for managing<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	physical memory on behalf of user programs.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	The data structures in this file are "dual-use" - they<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	serve both as a page table entry, and as an entry in<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	a software-managed translation lookaside buffer (TLB).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Either way, each entry is of the form:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	&lt;virtual page &#35;, physical page &#35;&gt;.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// DO NOT CHANGE -- part of the machine emulation<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef TLB_H<FONT COLOR="#000000">
+<A NAME="TLB_H"></A><FONT COLOR="#007700">#define TLB_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="utility_h.html">utility.h</A>"<FONT COLOR="#000000">
+
+<A NAME="TranslationEntry"></A><FONT COLOR="#990000">// The following class defines an entry in a translation table -- either<FONT COLOR="#000000">
+<FONT COLOR="#990000">// in a page table or a TLB.  Each entry defines a mapping from one <FONT COLOR="#000000">
+<FONT COLOR="#990000">// virtual page to one physical page.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// In addition, there are some extra bits for access control (valid and <FONT COLOR="#000000">
+<FONT COLOR="#990000">// read-only) and some bits for usage information (use and dirty).<FONT COLOR="#000000">
+
+class TranslationEntry {
+  public:
+    int <A NAME="TranslationEntry.virtualPage">virtualPage</A>;  	<FONT COLOR="#990000">// The page number in virtual memory.<FONT COLOR="#000000">
+    int <A NAME="TranslationEntry.physicalPage">physicalPage</A>;  	<FONT COLOR="#990000">// The page number in real memory (relative to the<FONT COLOR="#000000">
+			<FONT COLOR="#990000">//  start of "mainMemory"<FONT COLOR="#000000">
+    bool <A NAME="TranslationEntry.valid">valid</A>;         <FONT COLOR="#990000">// If this bit is set, the translation is ignored.<FONT COLOR="#000000">
+			<FONT COLOR="#990000">// (In other words, the entry hasn't been initialized.)<FONT COLOR="#000000">
+    bool <A NAME="TranslationEntry.readOnly">readOnly</A>;	<FONT COLOR="#990000">// If this bit is set, the user program is not allowed<FONT COLOR="#000000">
+			<FONT COLOR="#990000">// to modify the contents of the page.<FONT COLOR="#000000">
+    bool <A NAME="TranslationEntry.use">use</A>;           <FONT COLOR="#990000">// This bit is set by the hardware every time the<FONT COLOR="#000000">
+			<FONT COLOR="#990000">// page is referenced or modified.<FONT COLOR="#000000">
+    bool <A NAME="TranslationEntry.dirty">dirty</A>;         <FONT COLOR="#990000">// This bit is set by the hardware every time the<FONT COLOR="#000000">
+			<FONT COLOR="#990000">// page is modified.<FONT COLOR="#000000">
+};
+
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

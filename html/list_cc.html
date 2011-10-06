@@ -1,0 +1,251 @@
+<HTML><TITLE>list.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>list.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// list.cc <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//     	Routines to manage a singly-linked list of "things".<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	A "ListElement" is allocated for each item to be put on the<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	list; it is de-allocated when the item is removed. This means<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      we don't need to keep a "next" pointer in every object we<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      want to put on a list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// <FONT COLOR="#000000">
+<FONT COLOR="#990000">//     	NOTE: Mutual exclusion must be provided by the caller.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  	If you want a synchronized list, you must use the routines <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	in synchlist.cc.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="list_h.html">list.h</A>"<FONT COLOR="#000000">
+
+<A NAME="ListElement.ListElement"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// ListElement::ListElement<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Initialize a list element, so it can be added somewhere on a list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"itemPtr" is the item to be put on the list.  It can be a pointer<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		to anything.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"sortKey" is the priority of the item, if any.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="list_h.html#ListElement">ListElement</A>::ListElement(void *itemPtr, int sortKey)
+{
+     <A HREF="list_h.html#ListElement.item">item</A> = itemPtr;
+     <A HREF="list_h.html#ListElement.key">key</A> = sortKey;
+     <A HREF="list_h.html#ListElement.next">next</A> = NULL;	<FONT COLOR="#990000">// assume we'll put it at the end of the list <FONT COLOR="#000000">
+}
+
+<A NAME="List.List"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// List::List<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Initialize a list, empty to start with.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Elements can now be added to the list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="list_h.html#List">List</A>::List()
+{ 
+    <A HREF="list_h.html#List.first">first</A> = <A HREF="list_h.html#List.last">last</A> = NULL; 
+}
+
+<A NAME="List.~List"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// List::~List<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Prepare a list for deallocation.  If the list still contains any <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	ListElements, de-allocate them.  However, note that we do *not*<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	de-allocate the "items" on the list -- this module allocates<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	and de-allocates the ListElements to keep track of each item,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	but a given item may be on multiple lists, so we can't<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	de-allocate them here.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="list_h.html#List">List</A>::~List()
+{ 
+    while (<A HREF="list_cc.html#List.Remove">Remove</A>() != NULL)
+	;	 <FONT COLOR="#990000">// delete all the list elements<FONT COLOR="#000000">
+}
+
+<A NAME="List.Append"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// List::Append<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Append an "item" to the end of the list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Allocate a ListElement to keep track of the item.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      If the list is empty, then this will be the only element.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Otherwise, put it at the end.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"item" is the thing to put on the list, it can be a pointer to <FONT COLOR="#000000">
+<FONT COLOR="#990000">//		anything.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="list_h.html#List">List</A>::Append(void *item)
+{
+    <A HREF="list_h.html#ListElement">ListElement</A> *element = new <A HREF="list_h.html#ListElement">ListElement</A>(item, 0);
+
+    if (<A HREF="list_cc.html#List.IsEmpty">IsEmpty</A>()) {		<FONT COLOR="#990000">// list is empty<FONT COLOR="#000000">
+	<A HREF="list_h.html#List.first">first</A> = element;
+	<A HREF="list_h.html#List.last">last</A> = element;
+    } else {			<FONT COLOR="#990000">// else put it after last<FONT COLOR="#000000">
+	<A HREF="list_h.html#List.last">last</A>-&gt;<A HREF="list_h.html#ListElement.next">next</A> = element;
+	<A HREF="list_h.html#List.last">last</A> = element;
+    }
+}
+
+<A NAME="List.Prepend"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// List::Prepend<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Put an "item" on the front of the list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Allocate a ListElement to keep track of the item.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      If the list is empty, then this will be the only element.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Otherwise, put it at the beginning.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"item" is the thing to put on the list, it can be a pointer to <FONT COLOR="#000000">
+<FONT COLOR="#990000">//		anything.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="list_h.html#List">List</A>::Prepend(void *item)
+{
+    <A HREF="list_h.html#ListElement">ListElement</A> *element = new <A HREF="list_h.html#ListElement">ListElement</A>(item, 0);
+
+    if (<A HREF="list_cc.html#List.IsEmpty">IsEmpty</A>()) {		<FONT COLOR="#990000">// list is empty<FONT COLOR="#000000">
+	<A HREF="list_h.html#List.first">first</A> = element;
+	<A HREF="list_h.html#List.last">last</A> = element;
+    } else {			<FONT COLOR="#990000">// else put it before first<FONT COLOR="#000000">
+	element-&gt;next = <A HREF="list_h.html#List.first">first</A>;
+	<A HREF="list_h.html#List.first">first</A> = element;
+    }
+}
+
+<A NAME="List.Remove"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// List::Remove<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Remove the first "item" from the front of the list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// <FONT COLOR="#000000">
+<FONT COLOR="#990000">// Returns:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Pointer to removed item, NULL if nothing on the list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void * <A HREF="list_h.html#List">List</A>::Remove()
+{
+    return <A HREF="list_cc.html#List.SortedRemove">SortedRemove</A>(NULL);  <FONT COLOR="#990000">// Same as SortedRemove, but ignore the key<FONT COLOR="#000000">
+}
+
+<A NAME="List.Mapcar"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// List::Mapcar<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Apply a function to each item on the list, by walking through  <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	the list, one element at a time.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Unlike LISP, this mapcar does not return anything&#33;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"func" is the procedure to apply to each element of the list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="list_h.html#List">List</A>::Mapcar(<A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A> func)
+{
+    for (<A HREF="list_h.html#ListElement">ListElement</A> *ptr = <A HREF="list_h.html#List.first">first</A>; ptr != NULL; ptr = ptr-&gt;next) {
+       <A HREF="utility_cc.html#DEBUG">DEBUG</A>('l', "In mapcar, about to invoke %x(%x)\n", func, ptr-&gt;item);
+       (*func)((int)ptr-&gt;item);
+    }
+}
+
+<A NAME="List.IsEmpty"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// List::IsEmpty<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Returns TRUE if the list is empty (has no items).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+bool <A HREF="list_h.html#List">List</A>::IsEmpty() 
+{ 
+    if (<A HREF="list_h.html#List.first">first</A> == NULL)
+        return TRUE;
+    else
+	return FALSE; 
+}
+
+<A NAME="List.SortedInsert"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// List::SortedInsert<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Insert an "item" into a list, so that the list elements are<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	sorted in increasing order by "sortKey".<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Allocate a ListElement to keep track of the item.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      If the list is empty, then this will be the only element.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Otherwise, walk through the list, one element at a time,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	to find where the new item should be placed.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"item" is the thing to put on the list, it can be a pointer to <FONT COLOR="#000000">
+<FONT COLOR="#990000">//		anything.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"sortKey" is the priority of the item.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="list_h.html#List">List</A>::SortedInsert(void *item, int sortKey)
+{
+    <A HREF="list_h.html#ListElement">ListElement</A> *element = new <A HREF="list_h.html#ListElement">ListElement</A>(item, sortKey);
+    <A HREF="list_h.html#ListElement">ListElement</A> *ptr;		<FONT COLOR="#990000">// keep track<FONT COLOR="#000000">
+
+    if (<A HREF="list_cc.html#List.IsEmpty">IsEmpty</A>()) {	<FONT COLOR="#990000">// if list is empty, put<FONT COLOR="#000000">
+        <A HREF="list_h.html#List.first">first</A> = element;
+        <A HREF="list_h.html#List.last">last</A> = element;
+    } else if (sortKey &lt; <A HREF="list_h.html#List.first">first</A>-&gt;<A HREF="list_h.html#ListElement.key">key</A>) {	
+		<FONT COLOR="#990000">// item goes on front of list<FONT COLOR="#000000">
+	element-&gt;next = <A HREF="list_h.html#List.first">first</A>;
+	<A HREF="list_h.html#List.first">first</A> = element;
+    } else {		<FONT COLOR="#990000">// look for first elt in list bigger than item<FONT COLOR="#000000">
+        for (ptr = <A HREF="list_h.html#List.first">first</A>; ptr-&gt;next != NULL; ptr = ptr-&gt;next) {
+            if (sortKey &lt; ptr-&gt;next-&gt;key) {
+		element-&gt;next = ptr-&gt;next;
+	        ptr-&gt;next = element;
+		return;
+	    }
+	}
+	<A HREF="list_h.html#List.last">last</A>-&gt;<A HREF="list_h.html#ListElement.next">next</A> = element;		<FONT COLOR="#990000">// item goes at end of list<FONT COLOR="#000000">
+	<A HREF="list_h.html#List.last">last</A> = element;
+    }
+}
+
+<A NAME="List.SortedRemove"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// List::SortedRemove<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Remove the first "item" from the front of a sorted list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// <FONT COLOR="#000000">
+<FONT COLOR="#990000">// Returns:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Pointer to removed item, NULL if nothing on the list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Sets *keyPtr to the priority value of the removed item<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	(this is needed by interrupt.cc, for instance).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"keyPtr" is a pointer to the location in which to store the <FONT COLOR="#000000">
+<FONT COLOR="#990000">//		priority of the removed item.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void * <A HREF="list_h.html#List">List</A>::SortedRemove(int *keyPtr)
+{
+    <A HREF="list_h.html#ListElement">ListElement</A> *element = <A HREF="list_h.html#List.first">first</A>;
+    void *thing;
+
+    if (<A HREF="list_cc.html#List.IsEmpty">IsEmpty</A>()) 
+	return NULL;
+
+    thing = <A HREF="list_h.html#List.first">first</A>-&gt;<A HREF="list_h.html#ListElement.item">item</A>;
+    if (<A HREF="list_h.html#List.first">first</A> == <A HREF="list_h.html#List.last">last</A>) {	<FONT COLOR="#990000">// list had one item, now has none <FONT COLOR="#000000">
+        <A HREF="list_h.html#List.first">first</A> = NULL;
+	<A HREF="list_h.html#List.last">last</A> = NULL;
+    } else {
+        <A HREF="list_h.html#List.first">first</A> = element-&gt;next;
+    }
+    if (keyPtr != NULL)
+        *keyPtr = element-&gt;key;
+    delete element;
+    return thing;
+}
+
+</PRE>
+</BODY></HTML>

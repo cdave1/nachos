@@ -1,0 +1,333 @@
+<HTML><TITLE>thread.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>thread.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 13:33:46 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// thread.cc <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Routines to manage threads.  There are four main operations:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Fork -- create a thread to run a procedure concurrently<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		with the caller (this is done in two steps -- first<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		allocate the Thread object, then call Fork on it)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Finish -- called when the forked procedure finishes, to clean up<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Yield -- relinquish control over the CPU to another ready thread<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Sleep -- relinquish control over the CPU, but thread is now blocked.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		In other words, it will not run again, until explicitly <FONT COLOR="#000000">
+<FONT COLOR="#990000">//		put back on the ready queue.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="thread_h.html">thread.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "switch.h"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="synch_h.html">synch.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+
+<A NAME="STACK_FENCEPOST"></A><FONT COLOR="#007700">#define STACK_FENCEPOST 0xdeadbeef	<FONT COLOR="#990000">// this is put at the top of the<FONT COLOR="#000000"><FONT COLOR="#000000">
+					<FONT COLOR="#990000">// execution stack, for detecting <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// stack overflows<FONT COLOR="#000000">
+
+<A NAME="Thread.Thread"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Thread::Thread<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Initialize a thread control block, so that we can then call<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Thread::Fork.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"threadName" is an arbitrary string, useful for debugging.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="thread.h.html#Thread">Thread</A>::Thread(char* threadName)
+{
+    <A HREF="thread.h.html#Thread.name">name</A> = threadName;
+    <A HREF="thread.h.html#Thread.stackTop">stackTop</A> = NULL;
+    <A HREF="thread.h.html#Thread.stack">stack</A> = NULL;
+    <A HREF="thread.h.html#Thread.status">status</A> = <A HREF="thread.h.html#JUST_CREATED">JUST_CREATED</A>;
+<FONT COLOR="#007700">#ifdef USER_PROGRAM<FONT COLOR="#000000">
+    <A HREF="thread.h.html#Thread.space">space</A> = NULL;
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+}
+
+<A NAME="Thread.~Thread"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Thread::~Thread<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	De-allocate a thread.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	NOTE: the current thread *cannot* delete itself directly,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	since it is still running on the stack that we need to delete.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      NOTE: if this is the main thread, we can't delete the stack<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      because we didn't allocate it -- we got it automatically<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      as part of starting up Nachos.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="thread.h.html#Thread">Thread</A>::~Thread()
+{
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('t', "Deleting thread \"%s\"\n", <A HREF="thread.h.html#Thread.name">name</A>);
+
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>(this != <A HREF="system.cc.html#currentThread">currentThread</A>);
+    if (<A HREF="thread.h.html#Thread.stack">stack</A> != NULL)
+	<A HREF="sysdep.cc.html#DeallocBoundedArray">DeallocBoundedArray</A>((char *) <A HREF="thread.h.html#Thread.stack">stack</A>, <A HREF="thread.h.html#StackSize">StackSize</A> * sizeof(int));
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('t', "Done, thread gone.\n");
+}
+
+<A NAME="Thread.Fork"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Thread::Fork<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Invoke (*func)(arg), allowing caller and callee to execute <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	concurrently.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	NOTE: although our definition allows only a single integer argument<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	to be passed to the procedure, it is possible to pass multiple<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	arguments by making them fields of a structure, and passing a pointer<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	to the structure as "arg".<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Implemented as the following steps:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		1. Allocate a stack<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		2. Initialize the stack so that a call to SWITCH will<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		cause it to run the procedure<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		3. Put the thread on the ready queue<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"func" is the procedure to run concurrently.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"arg" is a single argument to be passed to the procedure.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void  <A HREF="thread.h.html#Thread">Thread</A>::Fork(<A HREF="utility.h.html#VoidFunctionPtr">VoidFunctionPtr</A> func, int arg)
+{
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('t', "Forking thread \"%s\" with func = 0x%x, arg = %d\n",
+	  <A HREF="thread.h.html#Thread.name">name</A>, (int) func, arg);
+    
+    <A HREF="thread_cc.html#Thread.StackAllocate">StackAllocate</A>(func, arg);
+
+    <A HREF="interrupt.h.html#IntStatus">IntStatus</A> oldLevel = <A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.cc.html#Interrupt.SetLevel">SetLevel</A>(<A HREF="interrupt.h.html#IntOff">IntOff</A>);
+    <A HREF="system.cc.html#scheduler">scheduler</A>-&gt;<A HREF="scheduler.cc.html#Scheduler.ReadyToRun">ReadyToRun</A>(this);	<FONT COLOR="#990000">// ReadyToRun assumes that interrupts <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// are disabled&#33;<FONT COLOR="#000000">
+    (void) <A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.cc.html#Interrupt.SetLevel">SetLevel</A>(oldLevel);
+}    
+
+<A NAME="Thread.CheckOverflow"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Thread::CheckOverflow<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Check a thread's stack to see if it has overrun the space<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	that has been allocated for it.  If we had a smarter compiler,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	we wouldn't need to worry about this, but we don't.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	NOTE: Nachos will not catch all stack overflow conditions.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	In other words, your program may still crash because of an overflow.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	If you get bizarre results (such as seg faults where there is no code)<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	then you *may* need to increase the stack size.  You can avoid stack<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	overflows by not putting large data structures on the stack.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Don't do this: void foo() { int bigArray[10000]; ... }<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="thread.h.html#Thread">Thread</A>::CheckOverflow()
+{
+    if (<A HREF="thread.h.html#Thread.stack">stack</A> != NULL)
+<FONT COLOR="#007700">#ifdef HOST_SNAKE			<FONT COLOR="#990000">// Stacks grow upward on the Snakes<FONT COLOR="#000000"><FONT COLOR="#000000">
+	<A HREF="utility.h.html#ASSERT">ASSERT</A>(<A HREF="thread.h.html#Thread.stack">stack</A>[<A HREF="thread.h.html#StackSize">StackSize</A> - 1] == <A HREF="thread_cc.html#STACK_FENCEPOST">STACK_FENCEPOST</A>);
+<FONT COLOR="#007700">#else<FONT COLOR="#000000">
+	<A HREF="utility.h.html#ASSERT">ASSERT</A>(*<A HREF="thread.h.html#Thread.stack">stack</A> == <A HREF="thread_cc.html#STACK_FENCEPOST">STACK_FENCEPOST</A>);
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+}
+
+<A NAME="Thread.Finish"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Thread::Finish<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Called by ThreadRoot when a thread is done executing the <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	forked procedure.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	NOTE: we don't immediately de-allocate the thread data structure <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	or the execution stack, because we're still running in the thread <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	and we're still on the stack&#33;  Instead, we set "threadToBeDestroyed", <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	so that Scheduler::Run() will call the destructor, once we're<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	running in the context of a different thread.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	NOTE: we disable interrupts, so that we don't get a time slice <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	between setting threadToBeDestroyed, and going to sleep.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+void <A HREF="thread.h.html#Thread">Thread</A>::Finish ()
+{
+    (void) <A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.cc.html#Interrupt.SetLevel">SetLevel</A>(<A HREF="interrupt.h.html#IntOff">IntOff</A>);		
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>(this == <A HREF="system.cc.html#currentThread">currentThread</A>);
+    
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('t', "Finishing thread \"%s\"\n", <A HREF="thread.h.html#Thread.getName">getName</A>());
+    
+    <A HREF="system.cc.html#threadToBeDestroyed">threadToBeDestroyed</A> = <A HREF="system.cc.html#currentThread">currentThread</A>;
+    <A HREF="thread_cc.html#Thread.Sleep">Sleep</A>();					<FONT COLOR="#990000">// invokes SWITCH<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// not reached<FONT COLOR="#000000">
+}
+
+<A NAME="Thread.Yield"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Thread::Yield<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Relinquish the CPU if any other thread is ready to run.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	If so, put the thread on the end of the ready list, so that<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	it will eventually be re-scheduled.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	NOTE: returns immediately if no other thread on the ready queue.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Otherwise returns when the thread eventually works its way<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	to the front of the ready list and gets re-scheduled.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	NOTE: we disable interrupts, so that looking at the thread<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	on the front of the ready list, and switching to it, can be done<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	atomically.  On return, we re-set the interrupt level to its<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	original state, in case we are called with interrupts disabled. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Similar to Thread::Sleep(), but a little different.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="thread.h.html#Thread">Thread</A>::Yield ()
+{
+    <A HREF="thread.h.html#Thread">Thread</A> *nextThread;
+    <A HREF="interrupt.h.html#IntStatus">IntStatus</A> oldLevel = <A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.cc.html#Interrupt.SetLevel">SetLevel</A>(<A HREF="interrupt.h.html#IntOff">IntOff</A>);
+    
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>(this == <A HREF="system.cc.html#currentThread">currentThread</A>);
+    
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('t', "Yielding thread \"%s\"\n", <A HREF="thread.h.html#Thread.getName">getName</A>());
+    
+    nextThread = <A HREF="system.cc.html#scheduler">scheduler</A>-&gt;<A HREF="scheduler.cc.html#Scheduler.FindNextToRun">FindNextToRun</A>();
+    if (nextThread != NULL) {
+	<A HREF="system.cc.html#scheduler">scheduler</A>-&gt;<A HREF="scheduler.cc.html#Scheduler.ReadyToRun">ReadyToRun</A>(this);
+	<A HREF="system.cc.html#scheduler">scheduler</A>-&gt;<A HREF="scheduler.cc.html#Scheduler.Run">Run</A>(nextThread);
+    }
+    (void) <A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.cc.html#Interrupt.SetLevel">SetLevel</A>(oldLevel);
+}
+
+<A NAME="Thread.Sleep"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Thread::Sleep<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Relinquish the CPU, because the current thread is blocked<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	waiting on a synchronization variable (Semaphore, Lock, or Condition).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Eventually, some thread will wake this thread up, and put it<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	back on the ready queue, so that it can be re-scheduled.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	NOTE: if there are no threads on the ready queue, that means<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	we have no thread to run.  "Interrupt::Idle" is called<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	to signify that we should idle the CPU until the next I/O interrupt<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	occurs (the only thing that could cause a thread to become<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	ready to run).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	NOTE: we assume interrupts are already disabled, because it<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	is called from the synchronization routines which must<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	disable interrupts for atomicity.   We need interrupts off <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	so that there can't be a time slice between pulling the first thread<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	off the ready list, and switching to it.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+void <A HREF="thread.h.html#Thread">Thread</A>::Sleep ()
+{
+    <A HREF="thread.h.html#Thread">Thread</A> *nextThread;
+    
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>(this == <A HREF="system.cc.html#currentThread">currentThread</A>);
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>(<A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.h.html#Interrupt.getLevel">getLevel</A>() == <A HREF="interrupt.h.html#IntOff">IntOff</A>);
+    
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('t', "Sleeping thread \"%s\"\n", <A HREF="thread.h.html#Thread.getName">getName</A>());
+
+    <A HREF="thread.h.html#Thread.status">status</A> = <A HREF="thread.h.html#BLOCKED">BLOCKED</A>;
+    while ((nextThread = <A HREF="system.cc.html#scheduler">scheduler</A>-&gt;<A HREF="scheduler.cc.html#Scheduler.FindNextToRun">FindNextToRun</A>()) == NULL)
+	<A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.cc.html#Interrupt.Idle">Idle</A>();	<FONT COLOR="#990000">// no one to run, wait for an interrupt<FONT COLOR="#000000">
+        
+    <A HREF="system.cc.html#scheduler">scheduler</A>-&gt;<A HREF="scheduler.cc.html#Scheduler.Run">Run</A>(nextThread); <FONT COLOR="#990000">// returns when we've been signalled<FONT COLOR="#000000">
+}
+
+<A NAME="ThreadFinish"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// ThreadFinish, InterruptEnable, ThreadPrint<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Dummy functions because C++ does not allow a pointer to a member<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	function.  So in order to do this, we create a dummy C function<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	(which we can pass a pointer to), that then simply calls the <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	member function.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+static void ThreadFinish()    { <A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_cc.html#Thread.Finish">Finish</A>(); }
+<A NAME="InterruptEnable"></A>static void InterruptEnable() { <A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.cc.html#Interrupt.Enable">Enable</A>(); }
+<A NAME="ThreadPrint"></A>void ThreadPrint(int arg){ <A HREF="thread.h.html#Thread">Thread</A> *t = (<A HREF="thread.h.html#Thread">Thread</A> *)arg; t-&gt;Print(); }
+
+<A NAME="Thread.StackAllocate"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Thread::StackAllocate<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Allocate and initialize an execution stack.  The stack is<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	initialized with an initial stack frame for ThreadRoot, which:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		enables interrupts<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		calls (*func)(arg)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		calls Thread::Finish<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"func" is the procedure to be forked<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"arg" is the parameter to be passed to the procedure<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="thread.h.html#Thread">Thread</A>::StackAllocate (<A HREF="utility.h.html#VoidFunctionPtr">VoidFunctionPtr</A> func, int arg)
+{
+    <A HREF="thread.h.html#Thread.stack">stack</A> = (int *) <A HREF="sysdep.cc.html#AllocBoundedArray">AllocBoundedArray</A>(<A HREF="thread.h.html#StackSize">StackSize</A> * sizeof(int));
+
+<FONT COLOR="#007700">#ifdef HOST_SNAKE<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// HP stack works from low addresses to high addresses<FONT COLOR="#000000">
+    <A HREF="thread.h.html#Thread.stackTop">stackTop</A> = <A HREF="thread.h.html#Thread.stack">stack</A> + 16;	<FONT COLOR="#990000">// HP requires 64-byte frame marker<FONT COLOR="#000000">
+    <A HREF="thread.h.html#Thread.stack">stack</A>[<A HREF="thread.h.html#StackSize">StackSize</A> - 1] = <A HREF="thread_cc.html#STACK_FENCEPOST">STACK_FENCEPOST</A>;
+<FONT COLOR="#007700">#else<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// i386 &amp; MIPS &amp; SPARC stack works from high addresses to low addresses<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef HOST_SPARC<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// SPARC stack must contains at least 1 activation record to start with.<FONT COLOR="#000000">
+    <A HREF="thread.h.html#Thread.stackTop">stackTop</A> = <A HREF="thread.h.html#Thread.stack">stack</A> + <A HREF="thread.h.html#StackSize">StackSize</A> - 96;
+<FONT COLOR="#007700">#else  <FONT COLOR="#990000">// HOST_MIPS  || HOST_i386<FONT COLOR="#000000"><FONT COLOR="#000000">
+    <A HREF="thread.h.html#Thread.stackTop">stackTop</A> = <A HREF="thread.h.html#Thread.stack">stack</A> + <A HREF="thread.h.html#StackSize">StackSize</A> - 4;	<FONT COLOR="#990000">// -4 to be on the safe side&#33;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef HOST_i386<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// the 80386 passes the return address on the stack.  In order for<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// SWITCH() to go to ThreadRoot when we switch to this thread, the<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// return addres used in SWITCH() must be the starting address of<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// ThreadRoot.<FONT COLOR="#000000">
+    *(--<A HREF="thread.h.html#Thread.stackTop">stackTop</A>) = (int)ThreadRoot;
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+<FONT COLOR="#007700">#endif  <FONT COLOR="#990000">// HOST_SPARC<FONT COLOR="#000000"><FONT COLOR="#000000">
+    *<A HREF="thread.h.html#Thread.stack">stack</A> = <A HREF="thread_cc.html#STACK_FENCEPOST">STACK_FENCEPOST</A>;
+<FONT COLOR="#007700">#endif  <FONT COLOR="#990000">// HOST_SNAKE<FONT COLOR="#000000"><FONT COLOR="#000000">
+    
+    <A HREF="thread.h.html#Thread.machineState">machineState</A>[PCState] = (int) ThreadRoot;
+    <A HREF="thread.h.html#Thread.machineState">machineState</A>[StartupPCState] = (int) <A HREF="thread_cc.html#InterruptEnable">InterruptEnable</A>;
+    <A HREF="thread.h.html#Thread.machineState">machineState</A>[InitialPCState] = (int) func;
+    <A HREF="thread.h.html#Thread.machineState">machineState</A>[InitialArgState] = arg;
+    <A HREF="thread.h.html#Thread.machineState">machineState</A>[WhenDonePCState] = (int) <A HREF="thread_cc.html#ThreadFinish">ThreadFinish</A>;
+}
+
+<FONT COLOR="#007700">#ifdef USER_PROGRAM<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "machine.h"<FONT COLOR="#000000">
+
+<A NAME="Thread.SaveUserState"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Thread::SaveUserState<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Save the CPU state of a user program on a context switch.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Note that a user program thread has *two* sets of CPU registers -- <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	one for its state while executing user code, one for its state <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	while executing kernel code.  This routine saves the former.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="thread.h.html#Thread">Thread</A>::SaveUserState()
+{
+    for (int i = 0; i &lt; NumTotalRegs; i++)
+	<A HREF="thread.h.html#Thread.userRegisters">userRegisters</A>[i] = <A HREF="system.cc.html#machine">machine</A>-&gt;ReadRegister(i);
+}
+
+<A NAME="Thread.RestoreUserState"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Thread::RestoreUserState<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Restore the CPU state of a user program on a context switch.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Note that a user program thread has *two* sets of CPU registers -- <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	one for its state while executing user code, one for its state <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	while executing kernel code.  This routine restores the former.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="thread.h.html#Thread">Thread</A>::RestoreUserState()
+{
+    for (int i = 0; i &lt; NumTotalRegs; i++)
+	<A HREF="system.cc.html#machine">machine</A>-&gt;WriteRegister(i, <A HREF="thread.h.html#Thread.userRegisters">userRegisters</A>[i]);
+}
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

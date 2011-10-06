@@ -1,0 +1,92 @@
+<HTML><TITLE>utility.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>utility.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// utility.cc <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Debugging routines.  Allows users to control whether to <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	print DEBUG statements, based on a command line argument.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="utility_h.html">utility.h</A>"<FONT COLOR="#000000">
+
+<FONT COLOR="#990000">// this seems to be dependent on how the compiler is configured.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// if you have problems with va_start, try both of these alternatives<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef HOST_SNAKE<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;stdarg.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#else<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef HOST_SPARC<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;stdarg.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#else<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "/usr/include/stdarg.h"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+<A NAME="enableFlags"></A>static char *enableFlags = NULL; <FONT COLOR="#990000">// controls which DEBUG messages are printed <FONT COLOR="#000000">
+
+<A NAME="DebugInit"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// DebugInit<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Initialize so that only DEBUG messages with a flag in flagList <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	will be printed.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	If the flag is "+", we enable all DEBUG messages.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	"flagList" is a string of characters for whose DEBUG messages are <FONT COLOR="#000000">
+<FONT COLOR="#990000">//		to be enabled.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void DebugInit(char *flagList)
+{
+    <A HREF="utility_cc.html#enableFlags">enableFlags</A> = flagList;
+}
+
+<A NAME="DebugIsEnabled"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// DebugIsEnabled<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Return TRUE if DEBUG messages with "flag" are to be printed.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+bool DebugIsEnabled(char flag)
+{
+    if (<A HREF="utility_cc.html#enableFlags">enableFlags</A> != NULL)
+       return (strchr(<A HREF="utility_cc.html#enableFlags">enableFlags</A>, flag) != 0) 
+		|| (strchr(<A HREF="utility_cc.html#enableFlags">enableFlags</A>, '+') != 0);
+    else
+      return FALSE;
+}
+
+<A NAME="DEBUG"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// DEBUG<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      Print a debug message, if flag is enabled.  Like printf,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	only with an extra argument on the front.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void  DEBUG(char flag, char *format, ...)
+{
+    if (<A HREF="utility_cc.html#DebugIsEnabled">DebugIsEnabled</A>(flag)) {
+	va_list ap;
+	<FONT COLOR="#990000">// You will get an unused variable message here -- ignore it.<FONT COLOR="#000000">
+	va_start(ap, format);
+	vfprintf(stdout, format, ap);
+	va_end(ap);
+	fflush(stdout);
+    }
+}
+</PRE>
+</BODY></HTML>

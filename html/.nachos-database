@@ -1,0 +1,133 @@
+1209640931
+addrspace.cc
+
+AddrSpace.AddrSpace AddrSpace.CreateStack AddrSpace.GetNumPages AddrSpace.InitRegisters AddrSpace.RestoreState AddrSpace.SaveState AddrSpace.~AddrSpace SwapHeader:void 
+addrspace.h
+AddrSpace 
+ADDRSPACE_H AddrSpace.numPages:int AddrSpace.pageTable:TranslationEntry UserStackSize 
+bitmap.cc
+
+BitMap.BitMap BitMap.Clear BitMap.FetchFrom BitMap.Find BitMap.Mark BitMap.NumClear BitMap.Print BitMap.Test BitMap.WriteBack BitMap.~BitMap 
+bitmap.h
+BitMap 
+BITMAP_H BitMap.map:int BitMap.numBits:int BitMap.numWords:int BitsInByte BitsInWord 
+console.cc
+
+Console.CheckCharAvail Console.Console Console.GetChar Console.PutChar Console.WriteDone Console.~Console ConsoleReadPoll:void ConsoleWriteDone:void callArg:VoidFunctionPtr writeDone:Semaphore 
+console.h
+Console 
+CONSOLE_H Console.callArg:int Console.handlerArg:int Console.incoming:char Console.putBusy:bool Console.readFileNo:int Console.readHandler:VoidFunctionPtr Console.writeFileNo:int Console.writeHandler:VoidFunctionPtr 
+copyright.h
+
+copyright:char 
+exception.cc
+
+ExceptionHandler:void ForkUserThread:void IncrementPC:void InitExceptions:void InitProcess:void Process.ExitProcess Process.FileClose Process.FileCreate Process.FileOpen Process.FileRead Process.FileWrite Process.Process Process.ProcessFork Process.ProcessYield Process.~Process Processes:List console:Console currentProcess:Process 
+filesys.h
+FileSystem 
+FS_H FileSystem.Create FileSystem.Open FileSystem.Remove FileSystem.directoryFile:OpenFile FileSystem.freeMapFile:OpenFile 
+interrupt.cc
+
+Interrupt.ChangeLevel Interrupt.CheckIfDue Interrupt.DumpState Interrupt.Enable Interrupt.Halt Interrupt.Idle Interrupt.Interrupt Interrupt.OneTick Interrupt.Schedule Interrupt.SetLevel Interrupt.YieldOnReturn Interrupt.~Interrupt PendingInterrupt.PendingInterrupt PrintPending:void intLevelNames:char intTypeNames:char kind:IntType 
+interrupt.h
+IntStatus IntType Interrupt MachineStatus PendingInterrupt 
+ConsoleReadInt ConsoleWriteInt DiskInt INTERRUPT_H IdleMode IntOff IntOn Interrupt.IntType:int Interrupt.arg:int Interrupt.getLevel Interrupt.getStatus Interrupt.inHandler:bool Interrupt.level:IntStatus Interrupt.now:IntStatus Interrupt.pending:List Interrupt.setStatus Interrupt.status:MachineStatus Interrupt.when:int Interrupt.yieldOnReturn:bool PendingInterrupt.arg:int PendingInterrupt.handler:VoidFunctionPtr PendingInterrupt.type:IntType PendingInterrupt.when:int SystemMode TimerInt UserMode 
+list.cc
+
+List.Append List.IsEmpty List.List List.Mapcar List.Prepend List.Remove List.SortedInsert List.SortedRemove List.~List ListElement.ListElement 
+list.h
+List ListElement 
+LIST_H List.first:ListElement List.last:ListElement ListElement.item:void ListElement.key:int ListElement.next:ListElement 
+machine.cc
+
+CheckEndian:void Machine.Debugger Machine.DumpState Machine.Machine Machine.RaiseException Machine.ReadRegister Machine.WriteRegister Machine.~Machine exceptionNames:char 
+machine.h
+ExceptionType Instruction Machine 
+BadVAddrReg HiReg Instruction.extra:int Instruction.opCode:char Instruction.rd:char Instruction.rs:char Instruction.rt:char Instruction.value:int LoReg LoadReg LoadValueReg MACHINE_H Machine.mainMemory:char Machine.pageTable:TranslationEntry Machine.pageTableSize:int Machine.registers:int Machine.runUntilTime:int Machine.singleStep:bool Machine.tlb:TranslationEntry MemorySize NextPCReg NoException NumGPRegs NumPhysPages NumTotalRegs PCReg PageSize PrevPCReg RetAddrReg ShortToHost:short ShortToMachine:short StackReg TLBSize WordToHost:int WordToMachine:int 
+main.cc
+
+MAIN main:int 
+mipssim.cc
+
+Instruction.Decode Machine.DelayedLoad Machine.OneInstruction Machine.Run Mult:void TypeToReg:int 
+mipssim.h
+OpInfo OpString RegType 
+BCOND EXTRA IFMT IndexToAddr JFMT MIPSSIM_H MaxOpcode NONE OP_ADD OP_ADDI OP_ADDIU OP_ADDU OP_AND OP_ANDI OP_BEQ OP_BGEZ OP_BGEZAL OP_BGTZ OP_BLEZ OP_BLTZ OP_BLTZAL OP_BNE OP_DIV OP_DIVU OP_J OP_JAL OP_JALR OP_JR OP_LB OP_LBU OP_LH OP_LHU OP_LUI OP_LW OP_LWL OP_LWR OP_MFHI OP_MFLO OP_MTHI OP_MTLO OP_MULT OP_MULTU OP_NOR OP_OR OP_ORI OP_RES OP_RFE OP_SB OP_SH OP_SLL OP_SLLV OP_SLT OP_SLTI OP_SLTIU OP_SLTU OP_SRA OP_SRAV OP_SRL OP_SRLV OP_SUB OP_SUBU OP_SW OP_SWL OP_SWR OP_SYSCALL OP_UNIMP OP_XOR OP_XORI OpInfo.format:int OpInfo.opCode:int OpString.args:RegType OpString.string:char R31 RD RFMT RS RT SIGN_BIT SPECIAL opStrings:OpString opTable:OpInfo specialTable:int 
+openfile.h
+OpenFile 
+OPENFILE_H OpenFile.Length OpenFile.Read OpenFile.ReadAt OpenFile.Write OpenFile.WriteAt OpenFile.currentOffset:int OpenFile.file:int OpenFile.hdr:FileHeader OpenFile.seekPosition:int 
+process.cc
+
+StartProcess:void 
+process.h
+Process 
+FID_OFFSET MAX_OPEN_FILES Process.fileCounter:int Process.name:char Process.openFileTable:OpenFile Process.processNumber:int Process.processThread:Thread Process.threadCount:int Process.threads:List StartProcess:void 
+progtest.cc
+
+ConsoleTest:void ReadAvail:void WriteDone:void console:Console readAvail:Semaphore writeDone:Semaphore 
+scheduler.cc
+
+Scheduler.FindNextToRun Scheduler.Print Scheduler.ReadyToRun Scheduler.Run Scheduler.Scheduler Scheduler.~Scheduler 
+scheduler.h
+Scheduler 
+SCHEDULER_H Scheduler.readyList:List 
+stats.cc
+
+Statistics.Print Statistics.Statistics 
+stats.h
+Statistics 
+ConsoleTime NetworkTime RotationTime STATS_H SeekTime Statistics.idleTicks:int Statistics.numConsoleCharsRead:int Statistics.numConsoleCharsWritten:int Statistics.numDiskReads:int Statistics.numDiskWrites:int Statistics.numPacketsRecvd:int Statistics.numPacketsSent:int Statistics.numPageFaults:int Statistics.systemTicks:int Statistics.totalTicks:int Statistics.userTicks:int SystemTick TimerTicks UserTick 
+syncconsole.cc
+
+SynchConsole.ReadLine SynchConsole.SynchConsole SynchConsole.WriteLine SynchConsole.~SynchConsole 
+syncconsole.h
+SynchConsole 
+ReadAvail:void SynchConsole.console:Console SynchConsole.lock:Lock WriteDone:void readAvail:Semaphore writeDone:Semaphore 
+synch.cc
+
+Condition.Broadcast Condition.Condition Condition.Signal Condition.Wait Condition.~Condition Lock.Acquire Lock.Lock Lock.Release Lock.getOwner Lock.isHeldByCurrentThread Lock.~Lock Semaphore.P Semaphore.Semaphore Semaphore.V Semaphore.~Semaphore 
+synch.h
+Condition Lock Semaphore 
+Condition.getName Condition.lock:Lock Condition.name:char Condition.queue:List Lock.getName Lock.lockOwner:Thread Lock.name:char Lock.sem:Semaphore SYNCH_H Semaphore.getName Semaphore.name:char Semaphore.queue:List Semaphore.value:int 
+synchlist.cc
+
+SynchList.Append SynchList.Mapcar SynchList.Remove SynchList.SynchList SynchList.~SynchList 
+synchlist.h
+SynchList 
+SYNCHLIST_H SynchList.list:List SynchList.listEmpty:Condition SynchList.lock:Lock 
+sysdep.cc
+
+Abort:void AllocBoundedArray:char AssignNameToSocket:void CallOnUserAbort:void Close:void CloseSocket:void DeAssignNameToSocket:void DeallocBoundedArray:void Delay:void Exit:void InitSocketName:void Lseek:void OpenForReadWrite:int OpenForWrite:int OpenSocket:int PollFile:bool PollSocket:bool Random:int RandomInit:void Read:void ReadFromSocket:void ReadPartial:int SendToSocket:void Tell:int Unlink:bool WriteFile:void 
+sysdep.h
+
+SYSDEP_H 
+system.cc
+
+Cleanup:void Initialize:void TimerInterruptHandler:void currentThread:Thread fileSystem:FileSystem interrupt:Interrupt machine:Machine nohalt:bool postOffice:PostOffice scheduler:Scheduler stats:Statistics synchDisk:SynchDisk threadToBeDestroyed:Thread timer:Timer 
+system.h
+
+SYSTEM_H 
+thread.cc
+
+InterruptEnable:void STACK_FENCEPOST Thread.CheckOverflow Thread.Finish Thread.Fork Thread.RestoreUserState Thread.SaveUserState Thread.Sleep Thread.StackAllocate Thread.Thread Thread.Yield Thread.~Thread ThreadFinish:void ThreadPrint:void 
+thread.h
+Thread ThreadStatus 
+BLOCKED JUST_CREATED MachineStateSize READY RUNNING StackSize THREAD_H Thread.Print Thread.getName Thread.machineState:int Thread.name:char Thread.setStatus Thread.space:AddrSpace Thread.stack:int Thread.stackTop:int Thread.status:ThreadStatus Thread.userRegisters:int 
+timer.cc
+
+Timer.TimeOfNextInterrupt Timer.Timer Timer.TimerExpired TimerHandler:void 
+timer.h
+Timer 
+TIMER_H Timer.arg:int Timer.handler:VoidFunctionPtr Timer.randomize:bool 
+translate.cc
+
+Machine.ReadMem Machine.Translate Machine.WriteMem ShortToHost:short ShortToMachine:short WordToHost:int WordToMachine:int 
+translate.h
+TranslationEntry 
+TLB_H TranslationEntry.dirty:bool TranslationEntry.physicalPage:int TranslationEntry.readOnly:bool TranslationEntry.use:bool TranslationEntry.valid:bool TranslationEntry.virtualPage:int 
+utility.cc
+
+DEBUG:void DebugInit:void DebugIsEnabled:bool enableFlags:char 
+utility.h
+VoidFunctionPtr VoidNoArgFunctionPtr 
+ASSERT UTILITY_H divRoundDown divRoundUp max min 

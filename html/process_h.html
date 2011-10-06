@@ -1,0 +1,87 @@
+<HTML><TITLE>process.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>process.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 21:05:08 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#007700">#ifdef CHANGED<FONT COLOR="#000000">
+<FONT COLOR="#990000">// COMP 305 Project &#35;2<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright David Petrie 2008<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="thread_h.html">thread.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="addrspace_h.html">addrspace.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="list_h.html">list.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="openfile_h.html">openfile.h</A>"<FONT COLOR="#000000">
+
+<A NAME="MAX_OPEN_FILES"></A><FONT COLOR="#007700">#define MAX_OPEN_FILES 100<FONT COLOR="#000000">
+<A NAME="FID_OFFSET"></A><FONT COLOR="#007700">#define FID_OFFSET 2 <FONT COLOR="#990000">// So there are no clashes with the console file ids...<FONT COLOR="#000000"><FONT COLOR="#000000">
+
+<A NAME="StartProcess"></A>void StartProcess(char *filename);
+
+
+
+<A NAME="Process"></A><FONT COLOR="#990000">// Process<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All the system calls are on the process (though I guess they do not need to be).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// <FONT COLOR="#000000">
+class Process {
+ public:
+  <FONT COLOR="#990000">//Process(char* n, Thread* pThread);<FONT COLOR="#000000">
+  <A HREF="exception_cc.html#Process.Process">Process</A>(char* n);
+  ~<A HREF="exception_cc.html#Process.~Process">Process</A>();
+
+  <FONT COLOR="#990000">//bool Start();<FONT COLOR="#000000">
+
+  bool <A HREF="exception_cc.html#Process.ExitProcess">ExitProcess</A>(int status);
+  
+  <FONT COLOR="#990000">// Create a file<FONT COLOR="#000000">
+  bool <A HREF="exception_cc.html#Process.FileCreate">FileCreate</A>(int ptrFileName);
+
+  <FONT COLOR="#990000">// Open a file<FONT COLOR="#000000">
+  bool <A HREF="exception_cc.html#Process.FileOpen">FileOpen</A>(int ptrFileName);
+
+  <FONT COLOR="#990000">// Close a file<FONT COLOR="#000000">
+  bool <A HREF="exception_cc.html#Process.FileClose">FileClose</A>(int ptrFileName);
+  
+  <FONT COLOR="#990000">// Write a string to a file.<FONT COLOR="#000000">
+  bool <A HREF="exception_cc.html#Process.FileWrite">FileWrite</A>(int ptrBuffer, int bufferSize, int fid);
+
+  <FONT COLOR="#990000">// Read a character from a file<FONT COLOR="#000000">
+  bool <A HREF="exception_cc.html#Process.FileRead">FileRead</A>(int ptrBuffer, int bufferSize, int fid);
+
+  <FONT COLOR="#990000">// Fork the process<FONT COLOR="#000000">
+  bool <A HREF="exception_cc.html#Process.ProcessFork">ProcessFork</A>(int fnPtr);
+
+  <FONT COLOR="#990000">// Yield the process<FONT COLOR="#000000">
+  void <A HREF="exception_cc.html#Process.ProcessYield">ProcessYield</A>();
+    
+
+ private:
+    int <A NAME="Process.processNumber">processNumber</A>;
+    char* <A NAME="Process.name">name</A>;
+    <A HREF="thread.h.html#Thread">Thread</A>* <A NAME="Process.processThread">processThread</A>;
+    <A HREF="list.h.html#List">List</A>* <A NAME="Process.threads">threads</A>;
+    int <A NAME="Process.threadCount">threadCount</A>;
+    int <A NAME="Process.fileCounter">fileCounter</A>;
+    
+    <A HREF="openfile.h.html#OpenFile">OpenFile</A>* <A NAME="Process.openFileTable">openFileTable</A>[<A HREF="process_h.html#MAX_OPEN_FILES">MAX_OPEN_FILES</A>];
+    
+};
+
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

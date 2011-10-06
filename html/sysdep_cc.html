@@ -1,0 +1,490 @@
+<HTML><TITLE>sysdep.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>sysdep.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// sysdep.cc<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Implementation of system-dependent interface.  Nachos uses the <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	routines defined here, rather than directly calling the UNIX library,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	to simplify porting between versions of UNIX, and even to<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	other systems, such as MSDOS.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	On UNIX, almost all of these routines are simple wrappers<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	for the underlying UNIX system calls.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	NOTE: all of these routines refer to operations on the underlying<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	host machine (e.g., the DECstation, SPARC, etc.), supporting the <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Nachos simulation code.  Nachos implements similar operations,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	(such as opening a file), but those are implemented in terms<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	of hardware devices, which are simulated by calls to the underlying<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	routines in the host workstation OS.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	This file includes lots of calls to C routines.  C++ requires<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	us to wrap all C definitions with a "extern "C" block".<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	This prevents the internal forms of the names from being<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	changed by the C++ compiler.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+
+extern "C" {
+<FONT COLOR="#007700">#include &lt;stdio.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;string.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;signal.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;sys/types.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;sys/time.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;sys/socket.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;sys/file.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;sys/un.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;sys/mman.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef HOST_i386<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;sys/time.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef HOST_SPARC<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;sys/time.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+
+<FONT COLOR="#990000">// UNIX routines called by procedures in this file <FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#if 1<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;unistd.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;stdlib.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;errno.h&gt;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#else<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef HOST_SNAKE<FONT COLOR="#000000">
+<FONT COLOR="#990000">// int creat(char *name, unsigned short mode);<FONT COLOR="#000000">
+<FONT COLOR="#990000">// int open(const char *name, int flags, ...);<FONT COLOR="#000000">
+<FONT COLOR="#007700">#else<FONT COLOR="#000000">
+int creat(const char *name, unsigned short mode);
+int open(const char *name, int flags, ...);
+<FONT COLOR="#990000">// void signal(int sig, VoidFunctionPtr func); -- this may work now&#33;<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef HOST_i386<FONT COLOR="#000000">
+int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
+             struct timeval *timeout);
+<FONT COLOR="#007700">#else<FONT COLOR="#000000">
+int select(int numBits, void *readFds, void *writeFds, void *exceptFds, 
+	struct timeval *timeout);
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+int unlink(char *name);
+int read(int filedes, char *buf, int numBytes);
+int write(int filedes, char *buf, int numBytes);
+int lseek(int filedes, int offset, int whence);
+int tell(int filedes);
+int close(int filedes);
+int unlink(char *name);
+
+<FONT COLOR="#990000">// definition varies slightly from platform to platform, so don't <FONT COLOR="#000000">
+<FONT COLOR="#990000">// define unless gcc complains<FONT COLOR="#000000">
+<FONT COLOR="#990000">// extern int recvfrom(int s, void *buf, int len, int flags, void *from, int *fromlen);<FONT COLOR="#000000">
+<FONT COLOR="#990000">// extern int sendto(int s, void *msg, int len, int flags, void *to, int tolen);<FONT COLOR="#000000">
+
+
+void srand(unsigned seed);
+int rand(void);
+unsigned sleep(unsigned);
+void abort();
+void exit();
+int mprotect(char *addr, int len, int prot);
+
+int socket(int, int, int);
+int bind (int, const void*, int);
+int recvfrom (int, void*, int, int, void*, int *);
+int sendto (int, const void*, int, int, void*, int);
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+}
+
+<FONT COLOR="#007700">#include "<A HREF="interrupt_h.html">interrupt.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+
+<A NAME="PollFile"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// PollFile<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Check open file or open socket to see if there are any <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	characters that can be read immediately.  If so, read them<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	in, and return TRUE.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	In the network case, if there are no threads for us to run,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	and no characters to be read,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	we need to give the other side a chance to get our host's CPU<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	(otherwise, we'll go really slowly, since UNIX time-slices<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	infrequently, and this would be like busy-waiting).  So we<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	delay for a short fixed time, before allowing ourselves to be<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	re-scheduled (sort of like a Yield, but cast in terms of UNIX).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"fd" -- the file descriptor of the file to be polled<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+bool PollFile(int fd)
+{
+    int rfd = (1 &lt&lt; fd), wfd = 0, xfd = 0, retVal;
+    struct timeval pollTime;
+
+<FONT COLOR="#990000">// decide how long to wait if there are no characters on the file<FONT COLOR="#000000">
+    pollTime.tv_sec = 0;
+    if (<A HREF="system_cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt_h.html#Interrupt.getStatus">getStatus</A>() == <A HREF="interrupt_h.html#IdleMode">IdleMode</A>)
+        pollTime.tv_usec = 20000;              	<FONT COLOR="#990000">// delay to let other nachos run<FONT COLOR="#000000">
+    else
+        pollTime.tv_usec = 0;                 	<FONT COLOR="#990000">// no delay<FONT COLOR="#000000">
+
+<FONT COLOR="#990000">// poll file or socket<FONT COLOR="#000000">
+<FONT COLOR="#007700">#ifdef HOST_i386<FONT COLOR="#000000">
+    retVal = select(32, (fd_set*)&amp;rfd, (fd_set*)&amp;wfd, (fd_set*)&amp;xfd, &amp;pollTime);
+<FONT COLOR="#007700">#else<FONT COLOR="#000000">
+    retVal = select(32, &amp;rfd, &amp;wfd, &amp;xfd, &amp;pollTime);
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>((retVal == 0) || (retVal == 1));
+    if (retVal == 0)
+	return FALSE;                 		<FONT COLOR="#990000">// no char waiting to be read<FONT COLOR="#000000">
+    return TRUE;
+}
+
+<A NAME="OpenForWrite"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// OpenForWrite<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Open a file for writing.  Create it if it doesn't exist; truncate it <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	if it does already exist.  Return the file descriptor.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"name" -- file name<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+int OpenForWrite(char *name)
+{
+    int fd = open(name, O_RDWR|O_CREAT|O_TRUNC, 0666);
+
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>(fd &gt;= 0); 
+    return fd;
+}
+
+<A NAME="OpenForReadWrite"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// OpenForReadWrite<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Open a file for reading or writing.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Return the file descriptor, or error if it doesn't exist.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"name" -- file name<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+int OpenForReadWrite(char *name, bool crashOnError)
+{
+    int fd = open(name, O_RDWR, 0);
+
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>(!crashOnError || fd &gt;= 0);
+    return fd;
+}
+
+<A NAME="Read"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Read<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Read characters from an open file.  Abort if read fails.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void Read(int fd, char *buffer, int nBytes)
+{
+    int retVal = read(fd, buffer, nBytes);
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>(retVal == nBytes);
+}
+
+<A NAME="ReadPartial"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// ReadPartial<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Read characters from an open file, returning as many as are<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	available.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+int ReadPartial(int fd, char *buffer, int nBytes)
+{
+    return read(fd, buffer, nBytes);
+}
+
+
+<A NAME="WriteFile"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// WriteFile<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Write characters to an open file.  Abort if write fails.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void WriteFile(int fd, char *buffer, int nBytes)
+{
+    int retVal = write(fd, buffer, nBytes);
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>(retVal == nBytes);
+}
+
+<A NAME="Lseek"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Lseek<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Change the location within an open file.  Abort on error.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void  Lseek(int fd, int offset, int whence)
+{
+    int retVal = lseek(fd, offset, whence);
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>(retVal &gt;= 0);
+}
+
+<A NAME="Tell"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Tell<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Report the current location within an open file.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+int  Tell(int fd)
+{
+<FONT COLOR="#007700">#ifdef HOST_i386<FONT COLOR="#000000">
+    return lseek(fd,0,SEEK_CUR); <FONT COLOR="#990000">// 386BSD doesn't have the tell() system call<FONT COLOR="#000000">
+<FONT COLOR="#007700">#else<FONT COLOR="#000000">
+    return tell(fd);
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+}
+
+
+<A NAME="Close"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Close<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Close a file.  Abort on error.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void  Close(int fd)
+{
+    int retVal = close(fd);
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>(retVal &gt;= 0); 
+}
+
+<A NAME="Unlink"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Unlink<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Delete a file.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+bool  Unlink(char *name)
+{
+    return unlink(name);
+}
+
+<A NAME="OpenSocket"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// OpenSocket<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Open an interprocess communication (IPC) connection.  For now, <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	just open a datagram port where other Nachos (simulating <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	workstations on a network) can send messages to this Nachos.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+int OpenSocket()
+{
+    int sockID;
+    
+    sockID = socket(AF_UNIX, SOCK_DGRAM, 0);
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>(sockID &gt;= 0);
+
+    return sockID;
+}
+
+<A NAME="CloseSocket"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// CloseSocket<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Close the IPC connection. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void CloseSocket(int sockID)
+{
+    (void) close(sockID);
+}
+
+<A NAME="InitSocketName"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// InitSocketName<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Initialize a UNIX socket address -- magical&#33;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+static void  InitSocketName(struct sockaddr_un *uname, char *name)
+{
+    uname-&gt;sun_family = AF_UNIX;
+    strcpy(uname-&gt;sun_path, name);
+}
+
+<A NAME="AssignNameToSocket"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// AssignNameToSocket<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Give a UNIX file name to the IPC port, so other instances of Nachos<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	can locate the port. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void AssignNameToSocket(char *socketName, int sockID)
+{
+    struct sockaddr_un uName;
+    int retVal;
+
+    (void) unlink(socketName);    <FONT COLOR="#990000">// in case it's still around from last time<FONT COLOR="#000000">
+
+    <A HREF="sysdep_cc.html#InitSocketName">InitSocketName</A>(&amp;uName, socketName);
+    retVal = bind(sockID, (struct sockaddr *) &amp;uName, sizeof(uName));
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>(retVal &gt;= 0);
+    <A HREF="utility_cc.html#DEBUG">DEBUG</A>('n', "Created socket %s\n", socketName);
+}
+
+<A NAME="DeAssignNameToSocket"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// DeAssignNameToSocket<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Delete the UNIX file name we assigned to our IPC port, on cleanup.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+void DeAssignNameToSocket(char *socketName)
+{
+    (void) unlink(socketName);
+}
+
+<A NAME="PollSocket"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// PollSocket<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Return TRUE if there are any messages waiting to arrive on the<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	IPC port.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+bool PollSocket(int sockID)
+{
+    return <A HREF="sysdep_cc.html#PollFile">PollFile</A>(sockID);	<FONT COLOR="#990000">// on UNIX, socket ID's are just file ID's<FONT COLOR="#000000">
+}
+
+<A NAME="ReadFromSocket"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// ReadFromSocket<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Read a fixed size packet off the IPC port.  Abort on error.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+void ReadFromSocket(int sockID, char *buffer, int packetSize)
+{
+    int retVal;
+    <FONT COLOR="#990000">/* extern int errno; */<FONT COLOR="#000000">
+    struct sockaddr_un uName;
+    unsigned int size = sizeof(uName);
+   
+    retVal = recvfrom(sockID, buffer, packetSize, 0,
+				   (struct sockaddr *) &amp;uName, &amp;size);
+
+    if (retVal != packetSize) {
+        perror("in recvfrom");
+        printf("called: %x, got back %d, %d\n", buffer, retVal, errno);
+    }
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>(retVal == packetSize);
+}
+
+<A NAME="SendToSocket"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// SendToSocket<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Transmit a fixed size packet to another Nachos' IPC port.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Abort on error.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+void SendToSocket(int sockID, char *buffer, int packetSize, char *toName)
+{
+    struct sockaddr_un uName;
+    int retVal;
+
+    <A HREF="sysdep_cc.html#InitSocketName">InitSocketName</A>(&amp;uName, toName);
+    retVal = sendto(sockID, buffer, packetSize, 0,
+			  (sockaddr *) &amp;uName, sizeof(uName));
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>(retVal == packetSize);
+}
+
+
+<A NAME="CallOnUserAbort"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// CallOnUserAbort<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Arrange that "func" will be called when the user aborts (e.g., by<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	hitting ctl-C.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void  CallOnUserAbort(<A HREF="utility_h.html#VoidNoArgFunctionPtr">VoidNoArgFunctionPtr</A> func)
+{
+    (void)signal(SIGINT, (<A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A>) func);
+}
+
+<A NAME="Delay"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Sleep<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Put the UNIX process running Nachos to sleep for x seconds,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	to give the user time to start up another invocation of Nachos<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	in a different UNIX shell.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void  Delay(int seconds)
+{
+    (void) sleep((unsigned) seconds);
+}
+
+<A NAME="Abort"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Abort<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Quit and drop core.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void  Abort()
+{
+    abort();
+}
+
+<A NAME="Exit"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Exit<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Quit without dropping core.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void  Exit(int exitCode)
+{
+    exit(exitCode);
+}
+
+<A NAME="RandomInit"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// RandomInit<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Initialize the pseudo-random number generator.  We use the<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	now obsolete "srand" and "rand" because they are more portable&#33;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void  RandomInit(unsigned seed)
+{
+    srand(seed);
+}
+
+<A NAME="Random"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Random<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Return a pseudo-random number.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+int  Random()
+{
+    return rand();
+}
+
+<A NAME="AllocBoundedArray"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// AllocBoundedArray<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Return an array, with the two pages just before <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	and after the array unmapped, to catch illegal references off<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	the end of the array.  Particularly useful for catching overflow<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	beyond fixed-size thread execution stacks.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Note: Just return the useful part&#33;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"size" -- amount of useful space needed (in bytes)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+char *  AllocBoundedArray(int size)
+{
+    int pgSize = getpagesize();
+    char *ptr = new char[pgSize * 2 + size];
+
+    mprotect(ptr, pgSize, 0);
+    mprotect(ptr + pgSize + size, pgSize, 0);
+    return ptr + pgSize;
+}
+
+<A NAME="DeallocBoundedArray"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// DeallocBoundedArray<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Deallocate an array of integers, unprotecting its two boundary pages.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"ptr" -- the array to be deallocated<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"size" -- amount of useful space in the array (in bytes)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void  DeallocBoundedArray(char *ptr, int size)
+{
+    int pgSize = getpagesize();
+
+    mprotect(ptr - pgSize, pgSize, PROT_READ | PROT_WRITE | PROT_EXEC);
+    mprotect(ptr + size, pgSize, PROT_READ | PROT_WRITE | PROT_EXEC);
+    delete [] (ptr - pgSize);
+}
+</PRE>
+</BODY></HTML>

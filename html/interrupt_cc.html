@@ -1,0 +1,378 @@
+<HTML><TITLE>interrupt.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>interrupt.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// interrupt.cc <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Routines to simulate hardware interrupts.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	The hardware provides a routine (SetLevel) to enable or disable<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	interrupts.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	In order to emulate the hardware, we need to keep track of all<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	interrupts the hardware devices would cause, and when they<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	are supposed to occur.  <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	This module also keeps track of simulated time.  Time advances<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	only when the following occur: <FONT COLOR="#000000">
+<FONT COLOR="#990000">//		interrupts are re-enabled<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		a user instruction is executed<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		there is nothing in the ready queue<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  DO NOT CHANGE -- part of the machine emulation<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="interrupt_h.html">interrupt.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+
+<A NAME="intLevelNames"></A><FONT COLOR="#990000">// String definitions for debugging messages<FONT COLOR="#000000">
+
+static char *intLevelNames[] = { "off", "on"};
+<A NAME="intTypeNames"></A>static char *intTypeNames[] = { "timer", "disk", "console write", 
+			"console read", "network send", "network recv"};
+
+<A NAME="PendingInterrupt.PendingInterrupt"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// PendingInterrupt::PendingInterrupt<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Initialize a hardware device interrupt that is to be scheduled <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	to occur in the near future.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"func" is the procedure to call when the interrupt occurs<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"param" is the argument to pass to the procedure<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"time" is when (in simulated time) the interrupt is to occur<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"kind" is the hardware device that generated the interrupt<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="interrupt_h.html#PendingInterrupt">PendingInterrupt</A>::PendingInterrupt(<A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A> func, int param, int time, 
+<A NAME="kind"></A>				<A HREF="interrupt_h.html#IntType">IntType</A> kind)
+{
+    <A HREF="interrupt_h.html#PendingInterrupt.handler">handler</A> = func;
+    <A HREF="interrupt_h.html#PendingInterrupt.arg">arg</A> = param;
+    <A HREF="interrupt_h.html#PendingInterrupt.when">when</A> = time;
+    <A HREF="interrupt_h.html#PendingInterrupt.type">type</A> = <A HREF="interrupt_cc.html#kind">kind</A>;
+}
+
+<A NAME="Interrupt.Interrupt"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Interrupt::Interrupt<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Initialize the simulation of hardware device interrupts.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Interrupts start disabled, with no interrupts pending, etc.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="interrupt_h.html#Interrupt">Interrupt</A>::Interrupt()
+{
+    <A HREF="interrupt_h.html#Interrupt.level">level</A> = <A HREF="interrupt_h.html#IntOff">IntOff</A>;
+    <A HREF="interrupt_h.html#Interrupt.pending">pending</A> = new <A HREF="list_h.html#List">List</A>();
+    <A HREF="interrupt_h.html#Interrupt.inHandler">inHandler</A> = FALSE;
+    <A HREF="interrupt_h.html#Interrupt.yieldOnReturn">yieldOnReturn</A> = FALSE;
+    <A HREF="interrupt_h.html#Interrupt.status">status</A> = <A HREF="interrupt_h.html#SystemMode">SystemMode</A>;
+}
+
+<A NAME="Interrupt.~Interrupt"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Interrupt::~Interrupt<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	De-allocate the data structures needed by the interrupt simulation.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="interrupt_h.html#Interrupt">Interrupt</A>::~Interrupt()
+{
+    while (!<A HREF="interrupt_h.html#Interrupt.pending">pending</A>-&gt;<A HREF="list_cc.html#List.IsEmpty">IsEmpty</A>())
+	delete <A HREF="interrupt_h.html#Interrupt.pending">pending</A>-&gt;<A HREF="list_cc.html#List.Remove">Remove</A>();
+    delete <A HREF="interrupt_h.html#Interrupt.pending">pending</A>;
+}
+
+<A NAME="Interrupt.ChangeLevel"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Interrupt::ChangeLevel<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Change interrupts to be enabled or disabled, without advancing <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	the simulated time (normally, enabling interrupts advances the time).<FONT COLOR="#000000">
+
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Interrupt::ChangeLevel<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Change interrupts to be enabled or disabled, without advancing <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	the simulated time (normally, enabling interrupts advances the time).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Used internally.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"old" -- the old interrupt status<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"now" -- the new interrupt status<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+void <A HREF="interrupt_h.html#Interrupt">Interrupt</A>::ChangeLevel(<A HREF="interrupt_h.html#IntStatus">IntStatus</A> old, <A HREF="interrupt_h.html#IntStatus">IntStatus</A> now)
+{
+    <A HREF="interrupt_h.html#Interrupt.level">level</A> = <A HREF="interrupt_h.html#Interrupt.now">now</A>;
+    <A HREF="utility_cc.html#DEBUG">DEBUG</A>('i',"\tinterrupts: %s -&gt; %s\n",<A HREF="interrupt_cc.html#intLevelNames">intLevelNames</A>[old],<A HREF="interrupt_cc.html#intLevelNames">intLevelNames</A>[<A HREF="interrupt_h.html#Interrupt.now">now</A>]);
+}
+
+<A NAME="Interrupt.SetLevel"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Interrupt::SetLevel<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Change interrupts to be enabled or disabled, and if interrupts<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	are being enabled, advance simulated time by calling OneTick().<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Returns:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	The old interrupt status.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Parameters:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"now" -- the new interrupt status<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="interrupt_h.html#IntStatus">IntStatus</A> <A HREF="interrupt_h.html#Interrupt">Interrupt</A>::SetLevel(<A HREF="interrupt_h.html#IntStatus">IntStatus</A> now)
+{
+    <A HREF="interrupt_h.html#IntStatus">IntStatus</A> old = <A HREF="interrupt_h.html#Interrupt.level">level</A>;
+    
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>((<A HREF="interrupt_h.html#Interrupt.now">now</A> == <A HREF="interrupt_h.html#IntOff">IntOff</A>) || (<A HREF="interrupt_h.html#Interrupt.inHandler">inHandler</A> == FALSE));<FONT COLOR="#990000">// interrupt handlers are <FONT COLOR="#000000">
+						<FONT COLOR="#990000">// prohibited from enabling <FONT COLOR="#000000">
+						<FONT COLOR="#990000">// interrupts<FONT COLOR="#000000">
+
+    <A HREF="interrupt_cc.html#Interrupt.ChangeLevel">ChangeLevel</A>(old, <A HREF="interrupt_h.html#Interrupt.now">now</A>);			<FONT COLOR="#990000">// change to new state<FONT COLOR="#000000">
+    if ((<A HREF="interrupt_h.html#Interrupt.now">now</A> == <A HREF="interrupt_h.html#IntOn">IntOn</A>) &amp&amp; (old == <A HREF="interrupt_h.html#IntOff">IntOff</A>))
+	<A HREF="interrupt_cc.html#Interrupt.OneTick">OneTick</A>();				<FONT COLOR="#990000">// advance simulated time<FONT COLOR="#000000">
+    return old;
+}
+
+<A NAME="Interrupt.Enable"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Interrupt::Enable<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Turn interrupts on.  Who cares what they used to be? <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Used in ThreadRoot, to turn interrupts on when first starting up<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	a thread.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+void <A HREF="interrupt_h.html#Interrupt">Interrupt</A>::Enable()
+{ 
+    (void) <A HREF="interrupt_cc.html#Interrupt.SetLevel">SetLevel</A>(<A HREF="interrupt_h.html#IntOn">IntOn</A>); 
+}
+
+<A NAME="Interrupt.OneTick"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Interrupt::OneTick<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Advance simulated time and check if there are any pending <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	interrupts to be called. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Two things can cause OneTick to be called:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		interrupts are re-enabled<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		a user instruction is executed<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+void <A HREF="interrupt_h.html#Interrupt">Interrupt</A>::OneTick()
+{
+    <A HREF="interrupt_h.html#MachineStatus">MachineStatus</A> old = <A HREF="interrupt_h.html#Interrupt.status">status</A>;
+
+<FONT COLOR="#990000">// advance simulated time<FONT COLOR="#000000">
+    if (<A HREF="interrupt_h.html#Interrupt.status">status</A> == <A HREF="interrupt_h.html#SystemMode">SystemMode</A>) {
+        <A HREF="system_cc.html#stats">stats</A>-&gt;<A HREF="stats_h.html#Statistics.totalTicks">totalTicks</A> += <A HREF="stats_h.html#SystemTick">SystemTick</A>;
+	<A HREF="system_cc.html#stats">stats</A>-&gt;<A HREF="stats_h.html#Statistics.systemTicks">systemTicks</A> += <A HREF="stats_h.html#SystemTick">SystemTick</A>;
+    } else {					<FONT COLOR="#990000">// USER_PROGRAM<FONT COLOR="#000000">
+	<A HREF="system_cc.html#stats">stats</A>-&gt;<A HREF="stats_h.html#Statistics.totalTicks">totalTicks</A> += <A HREF="stats_h.html#UserTick">UserTick</A>;
+	<A HREF="system_cc.html#stats">stats</A>-&gt;<A HREF="stats_h.html#Statistics.userTicks">userTicks</A> += <A HREF="stats_h.html#UserTick">UserTick</A>;
+    }
+    <A HREF="utility_cc.html#DEBUG">DEBUG</A>('i', "\n== Tick %d ==\n", <A HREF="system_cc.html#stats">stats</A>-&gt;<A HREF="stats_h.html#Statistics.totalTicks">totalTicks</A>);
+
+<FONT COLOR="#990000">// check any pending interrupts are now ready to fire<FONT COLOR="#000000">
+    <A HREF="interrupt_cc.html#Interrupt.ChangeLevel">ChangeLevel</A>(<A HREF="interrupt_h.html#IntOn">IntOn</A>, <A HREF="interrupt_h.html#IntOff">IntOff</A>);		<FONT COLOR="#990000">// first, turn off interrupts<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// (interrupt handlers run with<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// interrupts disabled)<FONT COLOR="#000000">
+    while (<A HREF="interrupt_cc.html#Interrupt.CheckIfDue">CheckIfDue</A>(FALSE))		<FONT COLOR="#990000">// check for pending interrupts<FONT COLOR="#000000">
+	;
+    <A HREF="interrupt_cc.html#Interrupt.ChangeLevel">ChangeLevel</A>(<A HREF="interrupt_h.html#IntOff">IntOff</A>, <A HREF="interrupt_h.html#IntOn">IntOn</A>);		<FONT COLOR="#990000">// re-enable interrupts<FONT COLOR="#000000">
+    if (<A HREF="interrupt_h.html#Interrupt.yieldOnReturn">yieldOnReturn</A>) {		<FONT COLOR="#990000">// if the timer device handler asked <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// for a context switch, ok to do it now<FONT COLOR="#000000">
+	<A HREF="interrupt_h.html#Interrupt.yieldOnReturn">yieldOnReturn</A> = FALSE;
+ 	<A HREF="interrupt_h.html#Interrupt.status">status</A> = <A HREF="interrupt_h.html#SystemMode">SystemMode</A>;		<FONT COLOR="#990000">// yield is a kernel routine<FONT COLOR="#000000">
+	<A HREF="system_cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread_cc.html#Thread.Yield">Yield</A>();
+	<A HREF="interrupt_h.html#Interrupt.status">status</A> = old;
+    }
+}
+
+<A NAME="Interrupt.YieldOnReturn"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Interrupt::YieldOnReturn<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Called from within an interrupt handler, to cause a context switch<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	(for example, on a time slice) in the interrupted thread,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	when the handler returns.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	We can't do the context switch here, because that would switch<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	out the interrupt handler, and we want to switch out the <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	interrupted thread.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="interrupt_h.html#Interrupt">Interrupt</A>::YieldOnReturn()
+{ 
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>(<A HREF="interrupt_h.html#Interrupt.inHandler">inHandler</A> == TRUE);  
+    <A HREF="interrupt_h.html#Interrupt.yieldOnReturn">yieldOnReturn</A> = TRUE; 
+}
+
+<A NAME="Interrupt.Idle"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Interrupt::Idle<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Routine called when there is nothing in the ready queue.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Since something has to be running in order to put a thread<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	on the ready queue, the only thing to do is to advance <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	simulated time until the next scheduled hardware interrupt.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	If there are no pending interrupts, stop.  There's nothing<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	more for us to do.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+void <A HREF="interrupt_h.html#Interrupt">Interrupt</A>::Idle()
+{
+    <A HREF="utility_cc.html#DEBUG">DEBUG</A>('i', "Machine idling; checking for interrupts.\n");
+    <A HREF="interrupt_h.html#Interrupt.status">status</A> = <A HREF="interrupt_h.html#IdleMode">IdleMode</A>;
+    if (<A HREF="interrupt_cc.html#Interrupt.CheckIfDue">CheckIfDue</A>(TRUE)) {		<FONT COLOR="#990000">// check for any pending interrupts<FONT COLOR="#000000">
+    	while (<A HREF="interrupt_cc.html#Interrupt.CheckIfDue">CheckIfDue</A>(FALSE))	<FONT COLOR="#990000">// check for any other pending <FONT COLOR="#000000">
+	    ;				<FONT COLOR="#990000">// interrupts<FONT COLOR="#000000">
+        <A HREF="interrupt_h.html#Interrupt.yieldOnReturn">yieldOnReturn</A> = FALSE;		<FONT COLOR="#990000">// since there's nothing in the<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// ready queue, the yield is automatic<FONT COLOR="#000000">
+        <A HREF="interrupt_h.html#Interrupt.status">status</A> = <A HREF="interrupt_h.html#SystemMode">SystemMode</A>;
+	return;				<FONT COLOR="#990000">// return in case there's now<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// a runnable thread<FONT COLOR="#000000">
+    }
+
+    <FONT COLOR="#990000">// if there are no pending interrupts, and nothing is on the ready<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// queue, it is time to stop.   If the console or the network is <FONT COLOR="#000000">
+    <FONT COLOR="#990000">// operating, there are *always* pending interrupts, so this code<FONT COLOR="#000000">
+    <FONT COLOR="#990000">// is not reached.  Instead, the halt must be invoked by the user program.<FONT COLOR="#000000">
+
+    <A HREF="utility_cc.html#DEBUG">DEBUG</A>('i', "Machine idle.  No interrupts to do.\n");
+    printf("No threads ready or runnable, and no pending interrupts.\n");
+    printf("Assuming the program completed.\n");
+    <A HREF="interrupt_cc.html#Interrupt.Halt">Halt</A>();
+}
+
+<A NAME="Interrupt.Halt"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Interrupt::Halt<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Shut down Nachos cleanly, printing out performance statistics.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+void <A HREF="interrupt_h.html#Interrupt">Interrupt</A>::Halt()
+{
+    printf("Machine halting&#33;\n\n");
+    <A HREF="system_cc.html#stats">stats</A>-&gt;<A HREF="stats_cc.html#Statistics.Print">Print</A>();
+    <A HREF="system_cc.html#Cleanup">Cleanup</A>();     <FONT COLOR="#990000">// Never returns.<FONT COLOR="#000000">
+}
+
+<A NAME="Interrupt.Schedule"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Interrupt::Schedule<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Arrange for the CPU to be interrupted when simulated time<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	reaches "now + when".<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Implementation: just put it on a sorted list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	NOTE: the Nachos kernel should not call this routine directly.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Instead, it is only called by the hardware device simulators.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"handler" is the procedure to call when the interrupt occurs<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"arg" is the argument to pass to the procedure<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"fromNow" is how far in the future (in simulated time) the <FONT COLOR="#000000">
+<FONT COLOR="#990000">//		 interrupt is to occur<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"type" is the hardware device that generated the interrupt<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+void <A HREF="interrupt_h.html#Interrupt">Interrupt</A>::Schedule(<A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A> handler, int arg, int fromNow, <A HREF="interrupt_h.html#IntType">IntType</A> type)
+{
+    int <A HREF="interrupt_h.html#Interrupt.when">when</A> = <A HREF="system_cc.html#stats">stats</A>-&gt;<A HREF="stats_h.html#Statistics.totalTicks">totalTicks</A> + fromNow;
+    <A HREF="interrupt_h.html#PendingInterrupt">PendingInterrupt</A> *toOccur = new <A HREF="interrupt_h.html#PendingInterrupt">PendingInterrupt</A>(handler, <A HREF="interrupt_h.html#Interrupt.arg">arg</A>, <A HREF="interrupt_h.html#Interrupt.when">when</A>, type);
+
+    <A HREF="utility_cc.html#DEBUG">DEBUG</A>('i', "Scheduling interrupt handler the %s at time = %d\n", 
+					<A HREF="interrupt_cc.html#intTypeNames">intTypeNames</A>[type], <A HREF="interrupt_h.html#Interrupt.when">when</A>);
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>(fromNow &gt; 0);
+
+    <A HREF="interrupt_h.html#Interrupt.pending">pending</A>-&gt;<A HREF="list_cc.html#List.SortedInsert">SortedInsert</A>(toOccur, <A HREF="interrupt_h.html#Interrupt.when">when</A>);
+}
+
+<A NAME="Interrupt.CheckIfDue"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Interrupt::CheckIfDue<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Check if an interrupt is scheduled to occur, and if so, fire it off.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Returns:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	TRUE, if we fired off any interrupt handlers<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Params:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"advanceClock" -- if TRUE, there is nothing in the ready queue,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		so we should simply advance the clock to when the next <FONT COLOR="#000000">
+<FONT COLOR="#990000">//		pending interrupt would occur (if any).  If the pending<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		interrupt is just the time-slice daemon, however, then <FONT COLOR="#000000">
+<FONT COLOR="#990000">//		we're done&#33;<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+bool <A HREF="interrupt_h.html#Interrupt">Interrupt</A>::CheckIfDue(bool advanceClock)
+{
+    <A HREF="interrupt_h.html#MachineStatus">MachineStatus</A> old = <A HREF="interrupt_h.html#Interrupt.status">status</A>;
+    int <A HREF="interrupt_h.html#Interrupt.when">when</A>;
+
+    <A HREF="utility_h.html#ASSERT">ASSERT</A>(<A HREF="interrupt_h.html#Interrupt.level">level</A> == <A HREF="interrupt_h.html#IntOff">IntOff</A>);		<FONT COLOR="#990000">// interrupts need to be disabled,<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// to invoke an interrupt handler<FONT COLOR="#000000">
+    if (<A HREF="utility_cc.html#DebugIsEnabled">DebugIsEnabled</A>('i'))
+	<A HREF="interrupt_cc.html#Interrupt.DumpState">DumpState</A>();
+    <A HREF="interrupt_h.html#PendingInterrupt">PendingInterrupt</A> *toOccur = 
+		(<A HREF="interrupt_h.html#PendingInterrupt">PendingInterrupt</A> *)<A HREF="interrupt_h.html#Interrupt.pending">pending</A>-&gt;<A HREF="list_cc.html#List.SortedRemove">SortedRemove</A>(&amp;<A HREF="interrupt_h.html#Interrupt.when">when</A>);
+
+    if (toOccur == NULL)		<FONT COLOR="#990000">// no pending interrupts<FONT COLOR="#000000">
+	return FALSE;			
+
+    if (advanceClock &amp&amp; <A HREF="interrupt_h.html#Interrupt.when">when</A> &gt; <A HREF="system_cc.html#stats">stats</A>-&gt;<A HREF="stats_h.html#Statistics.totalTicks">totalTicks</A>) {	<FONT COLOR="#990000">// advance the clock<FONT COLOR="#000000">
+	<A HREF="system_cc.html#stats">stats</A>-&gt;<A HREF="stats_h.html#Statistics.idleTicks">idleTicks</A> += (<A HREF="interrupt_h.html#Interrupt.when">when</A> - <A HREF="system_cc.html#stats">stats</A>-&gt;<A HREF="stats_h.html#Statistics.totalTicks">totalTicks</A>);
+	<A HREF="system_cc.html#stats">stats</A>-&gt;<A HREF="stats_h.html#Statistics.totalTicks">totalTicks</A> = <A HREF="interrupt_h.html#Interrupt.when">when</A>;
+    } else if (<A HREF="interrupt_h.html#Interrupt.when">when</A> &gt; <A HREF="system_cc.html#stats">stats</A>-&gt;<A HREF="stats_h.html#Statistics.totalTicks">totalTicks</A>) {	<FONT COLOR="#990000">// not time yet, put it back<FONT COLOR="#000000">
+	<A HREF="interrupt_h.html#Interrupt.pending">pending</A>-&gt;<A HREF="list_cc.html#List.SortedInsert">SortedInsert</A>(toOccur, <A HREF="interrupt_h.html#Interrupt.when">when</A>);
+	return FALSE;
+    }
+
+<FONT COLOR="#990000">// Check if there is nothing more to do, and if so, quit<FONT COLOR="#000000">
+    if (((<A HREF="interrupt_h.html#Interrupt.status">status</A> == <A HREF="interrupt_h.html#IdleMode">IdleMode</A>) &amp&amp; !(<A HREF="system_cc.html#nohalt">nohalt</A>)) &amp&amp; (toOccur-&gt;type == <A HREF="interrupt_h.html#TimerInt">TimerInt</A>) 
+				&amp&amp; <A HREF="interrupt_h.html#Interrupt.pending">pending</A>-&gt;<A HREF="list_cc.html#List.IsEmpty">IsEmpty</A>()) {
+	 <A HREF="interrupt_h.html#Interrupt.pending">pending</A>-&gt;<A HREF="list_cc.html#List.SortedInsert">SortedInsert</A>(toOccur, <A HREF="interrupt_h.html#Interrupt.when">when</A>);
+	 return FALSE;
+    }
+
+    <A HREF="utility_cc.html#DEBUG">DEBUG</A>('i', "Invoking interrupt handler for the %s at time %d\n", 
+			<A HREF="interrupt_cc.html#intTypeNames">intTypeNames</A>[toOccur-&gt;type], toOccur-&gt;when);
+<FONT COLOR="#007700">#ifdef USER_PROGRAM<FONT COLOR="#000000">
+    if (<A HREF="system_cc.html#machine">machine</A> != NULL)
+    	<A HREF="system_cc.html#machine">machine</A>-&gt;DelayedLoad(0, 0);
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+    <A HREF="interrupt_h.html#Interrupt.inHandler">inHandler</A> = TRUE;
+    <A HREF="interrupt_h.html#Interrupt.status">status</A> = <A HREF="interrupt_h.html#SystemMode">SystemMode</A>;			<FONT COLOR="#990000">// whatever we were doing,<FONT COLOR="#000000">
+						<FONT COLOR="#990000">// we are now going to be<FONT COLOR="#000000">
+						<FONT COLOR="#990000">// running in the kernel<FONT COLOR="#000000">
+    (*(toOccur-&gt;handler))(toOccur-&gt;arg);	<FONT COLOR="#990000">// call the interrupt handler<FONT COLOR="#000000">
+    <A HREF="interrupt_h.html#Interrupt.status">status</A> = old;				<FONT COLOR="#990000">// restore the machine status<FONT COLOR="#000000">
+    <A HREF="interrupt_h.html#Interrupt.inHandler">inHandler</A> = FALSE;
+    delete toOccur;
+    return TRUE;
+}
+
+<A NAME="PrintPending"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// PrintPending<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Print information about an interrupt that is scheduled to occur.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	When, where, why, etc.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+static void PrintPending(int arg)
+{
+    <A HREF="interrupt_h.html#PendingInterrupt">PendingInterrupt</A> *pend = (<A HREF="interrupt_h.html#PendingInterrupt">PendingInterrupt</A> *)arg;
+
+    printf("Interrupt handler %s, scheduled at %d\n", 
+	<A HREF="interrupt_cc.html#intTypeNames">intTypeNames</A>[pend-&gt;type], pend-&gt;when);
+}
+
+<A NAME="Interrupt.DumpState"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// DumpState<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Print the complete interrupt state - the status, and all interrupts<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	that are scheduled to occur in the future.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="interrupt_h.html#Interrupt">Interrupt</A>::DumpState()
+{
+    printf("Time: %d, interrupts %s\n", <A HREF="system_cc.html#stats">stats</A>-&gt;<A HREF="stats_h.html#Statistics.totalTicks">totalTicks</A>, 
+					<A HREF="interrupt_cc.html#intLevelNames">intLevelNames</A>[<A HREF="interrupt_h.html#Interrupt.level">level</A>]);
+    printf("Pending interrupts:\n");
+    fflush(stdout);
+    <A HREF="interrupt_h.html#Interrupt.pending">pending</A>-&gt;<A HREF="list_cc.html#List.Mapcar">Mapcar</A>(<A HREF="interrupt_cc.html#PrintPending">PrintPending</A>);
+    printf("End of pending interrupts\n");
+    fflush(stdout);
+}
+</PRE>
+</BODY></HTML>

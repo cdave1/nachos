@@ -1,0 +1,166 @@
+<HTML><TITLE>console.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>console.cc</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Thu May  1 13:33:49 NZST 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// console.cc <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Routines to simulate a serial port to a console device.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	A console has input (a keyboard) and output (a display).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	These are each simulated by operations on UNIX files.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	The simulated device is asynchronous,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	so we have to invoke the interrupt handler (after a simulated<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	delay), to signal that a byte has arrived and/or that a written<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	byte has departed.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//  DO NOT CHANGE -- part of the machine emulation<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="console_h.html">console.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+
+<A NAME="ConsoleReadPoll"></A><FONT COLOR="#990000">// Dummy functions because C++ is weird about pointers to member functions<FONT COLOR="#000000">
+static void ConsoleReadPoll(int c) 
+{ <A HREF="console_h.html#Console">Console</A> *<A HREF="progtest_cc.html#console">console</A> = (<A HREF="console_h.html#Console">Console</A> *)c; <A HREF="progtest_cc.html#console">console</A>-&gt;<A HREF="console_cc.html#Console.CheckCharAvail">CheckCharAvail</A>(); }
+<A NAME="ConsoleWriteDone"></A>static void ConsoleWriteDone(int c)
+{ <A HREF="console_h.html#Console">Console</A> *<A HREF="progtest_cc.html#console">console</A> = (<A HREF="console_h.html#Console">Console</A> *)c; <A HREF="progtest_cc.html#console">console</A>-&gt;<A HREF="console_cc.html#Console.WriteDone">WriteDone</A>(); }
+
+<A NAME="Console.Console"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Console::Console<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Initialize the simulation of a hardware console device.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"readFile" -- UNIX file simulating the keyboard (NULL -&gt; use stdin)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	"writeFile" -- UNIX file simulating the display (NULL -&gt; use stdout)<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	"readAvail" is the interrupt handler called when a character arrives<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		from the keyboard<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	"writeDone" is the interrupt handler called when a character has<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		been output, so that it is ok to request the next char be<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		output<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="console_h.html#Console">Console</A>::Console(char *readFile, char *writeFile, <A HREF="utility.h.html#VoidFunctionPtr">VoidFunctionPtr</A> <A HREF="syncconsole_h.html#readAvail">readAvail</A>, 
+<A NAME="writeDone"></A><A NAME="callArg"></A>		<A HREF="utility.h.html#VoidFunctionPtr">VoidFunctionPtr</A> writeDone, int callArg)
+{
+    if (readFile == NULL)
+	<A HREF="console_h.html#Console.readFileNo">readFileNo</A> = 0;					<FONT COLOR="#990000">// keyboard = stdin<FONT COLOR="#000000">
+    else
+    	<A HREF="console_h.html#Console.readFileNo">readFileNo</A> = <A HREF="sysdep.cc.html#OpenForReadWrite">OpenForReadWrite</A>(readFile, TRUE);	<FONT COLOR="#990000">// should be read-only<FONT COLOR="#000000">
+    if (writeFile == NULL)
+	<A HREF="console_h.html#Console.writeFileNo">writeFileNo</A> = 1;				<FONT COLOR="#990000">// display = stdout<FONT COLOR="#000000">
+    else
+    	<A HREF="console_h.html#Console.writeFileNo">writeFileNo</A> = <A HREF="sysdep.cc.html#OpenForWrite">OpenForWrite</A>(writeFile);
+
+    <FONT COLOR="#990000">// set up the stuff to emulate asynchronous interrupts<FONT COLOR="#000000">
+    <A HREF="console_h.html#Console.writeHandler">writeHandler</A> = <A HREF="syncconsole_h.html#writeDone">writeDone</A>;
+    <A HREF="console_h.html#Console.readHandler">readHandler</A> = <A HREF="syncconsole_h.html#readAvail">readAvail</A>;
+    <A HREF="console_h.html#Console.handlerArg">handlerArg</A> = <A HREF="console_h.html#Console.callArg">callArg</A>;
+    <A HREF="console_h.html#Console.putBusy">putBusy</A> = FALSE;
+    <A HREF="console_h.html#Console.incoming">incoming</A> = EOF;
+
+    <FONT COLOR="#990000">// start polling for incoming packets<FONT COLOR="#000000">
+    <A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.cc.html#Interrupt.Schedule">Schedule</A>(<A HREF="console_cc.html#ConsoleReadPoll">ConsoleReadPoll</A>, (int)this, <A HREF="stats.h.html#ConsoleTime">ConsoleTime</A>, <A HREF="interrupt.h.html#ConsoleReadInt">ConsoleReadInt</A>);
+}
+
+<A NAME="Console.~Console"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Console::~Console<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Clean up console emulation<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="console_h.html#Console">Console</A>::~Console()
+{
+    if (<A HREF="console_h.html#Console.readFileNo">readFileNo</A> != 0)
+	<A HREF="sysdep.cc.html#Close">Close</A>(<A HREF="console_h.html#Console.readFileNo">readFileNo</A>);
+    if (<A HREF="console_h.html#Console.writeFileNo">writeFileNo</A> != 1)
+	<A HREF="sysdep.cc.html#Close">Close</A>(<A HREF="console_h.html#Console.writeFileNo">writeFileNo</A>);
+}
+
+<A NAME="Console.CheckCharAvail"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Console::CheckCharAvail()<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Periodically called to check if a character is available for<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	input from the simulated keyboard (eg, has it been typed?).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Only read it in if there is buffer space for it (if the previous<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	character has been grabbed out of the buffer by the Nachos kernel).<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Invoke the "read" interrupt handler, once the character has been <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	put into the buffer. <FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="console_h.html#Console">Console</A>::CheckCharAvail()
+{
+    char c;
+
+    <FONT COLOR="#990000">// schedule the next time to poll for a packet<FONT COLOR="#000000">
+    <A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.cc.html#Interrupt.Schedule">Schedule</A>(<A HREF="console_cc.html#ConsoleReadPoll">ConsoleReadPoll</A>, (int)this, <A HREF="stats.h.html#ConsoleTime">ConsoleTime</A>, 
+			<A HREF="interrupt.h.html#ConsoleReadInt">ConsoleReadInt</A>);
+
+    <FONT COLOR="#990000">// do nothing if character is already buffered, or none to be read<FONT COLOR="#000000">
+    if ((<A HREF="console_h.html#Console.incoming">incoming</A> != EOF) || !<A HREF="sysdep.cc.html#PollFile">PollFile</A>(<A HREF="console_h.html#Console.readFileNo">readFileNo</A>))
+	return;	  
+
+    <FONT COLOR="#990000">// otherwise, read character and tell user about it<FONT COLOR="#000000">
+    <A HREF="sysdep.cc.html#Read">Read</A>(<A HREF="console_h.html#Console.readFileNo">readFileNo</A>, &amp;c, sizeof(char));
+    <A HREF="console_h.html#Console.incoming">incoming</A> = c ;
+    <A HREF="system.cc.html#stats">stats</A>-&gt;<A HREF="stats.h.html#Statistics.numConsoleCharsRead">numConsoleCharsRead</A>++;
+    (*<A HREF="console_h.html#Console.readHandler">readHandler</A>)(<A HREF="console_h.html#Console.handlerArg">handlerArg</A>);	
+}
+
+<A NAME="Console.WriteDone"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Console::WriteDone()<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Internal routine called when it is time to invoke the interrupt<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	handler to tell the Nachos kernel that the output character has<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	completed.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="console_h.html#Console">Console</A>::WriteDone()
+{
+    <A HREF="console_h.html#Console.putBusy">putBusy</A> = FALSE;
+    <A HREF="system.cc.html#stats">stats</A>-&gt;<A HREF="stats.h.html#Statistics.numConsoleCharsWritten">numConsoleCharsWritten</A>++;
+    (*<A HREF="console_h.html#Console.writeHandler">writeHandler</A>)(<A HREF="console_h.html#Console.handlerArg">handlerArg</A>);
+}
+
+<A NAME="Console.GetChar"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Console::GetChar()<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Read a character from the input buffer, if there is any there.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Either return the character, or EOF if none buffered.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+char <A HREF="console_h.html#Console">Console</A>::GetChar()
+{
+   char ch = <A HREF="console_h.html#Console.incoming">incoming</A>;
+
+   <A HREF="console_h.html#Console.incoming">incoming</A> = EOF;
+   return ch;
+}
+
+<A NAME="Console.PutChar"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Console::PutChar()<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Write a character to the simulated display, schedule an interrupt <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	to occur in the future, and return.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void <A HREF="console_h.html#Console">Console</A>::PutChar(char ch)
+{
+    <A HREF="utility.h.html#ASSERT">ASSERT</A>(<A HREF="console_h.html#Console.putBusy">putBusy</A> == FALSE);
+    <A HREF="sysdep.cc.html#WriteFile">WriteFile</A>(<A HREF="console_h.html#Console.writeFileNo">writeFileNo</A>, &amp;ch, sizeof(char));
+    <A HREF="console_h.html#Console.putBusy">putBusy</A> = TRUE;
+    <A HREF="system.cc.html#interrupt">interrupt</A>-&gt;<A HREF="interrupt.cc.html#Interrupt.Schedule">Schedule</A>(<A HREF="console_cc.html#ConsoleWriteDone">ConsoleWriteDone</A>, (int)this, <A HREF="stats.h.html#ConsoleTime">ConsoleTime</A>,
+					<A HREF="interrupt.h.html#ConsoleWriteInt">ConsoleWriteInt</A>);
+}
+</PRE>
+</BODY></HTML>

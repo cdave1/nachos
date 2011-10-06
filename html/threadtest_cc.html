@@ -1,0 +1,81 @@
+<HTML><TITLE>threadtest.cc</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>threadtest.cc</H1><TD ALIGN=RIGHT><I>/vol/mcs/courses/COMP305/2006T1-prvt/Projects/SystemCalls/base/html/
+<BR>Thu Mar 30 19:52:46 NZST 2006
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// threadtest.cc (revised)<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      John H. Hine<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Simple producer/consumer example for lab exercise 1.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="system_h.html">system.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="synchlist_h.html">synchlist.h</A>"<FONT COLOR="#000000">
+
+<A NAME="q"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Producer/Consumer<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      List q is global and shared between producer and consumer<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      threads.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Threads<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Loop 5 times, inserting/removing an item into/from the list<FONT COLOR="#000000">
+<FONT COLOR="#990000">//      and yielding the CPU to another ready thread each iteration.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+<A HREF="synchlist.h.html#SynchList">SynchList</A> *q;
+
+<A NAME="Producer"></A>void Producer(int which)
+{
+    int num;
+
+    for (num = 0; num &lt; 5; num++) {
+        int *n = new int;
+	*n = num;
+        <A HREF="threadtest_cc.html#q">q</A>-&gt;<A HREF="synchlist.cc.html#SynchList.Append">Append</A>(n);
+	printf("*** Producer appended %d to list\n", *n);
+        <A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread.cc.html#Thread.Yield">Yield</A>();
+    }
+}
+
+<A NAME="Consumer"></A>void Consumer(int which)
+{
+    int num;
+    int *n;
+    
+    for (num = 0; num &lt; 5; num++) {
+        n=(int *)<A HREF="threadtest_cc.html#q">q</A>-&gt;<A HREF="synchlist.cc.html#SynchList.Remove">Remove</A>();
+	printf("*** Consumer removed %d from list\n", *n);
+        <A HREF="system.cc.html#currentThread">currentThread</A>-&gt;<A HREF="thread.cc.html#Thread.Yield">Yield</A>();
+    }
+}
+
+<A NAME="ThreadTest"></A><FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+<FONT COLOR="#990000">// ThreadTest<FONT COLOR="#000000">
+<FONT COLOR="#990000">// 	Set up a ping-pong between two threads, by forking a thread <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	to call Consumer, and then calling Producer using this main thread.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//----------------------------------------------------------------------<FONT COLOR="#000000">
+
+void ThreadTest()
+{
+    <A HREF="utility.cc.html#DEBUG">DEBUG</A>('t', "Entering Producer/Consumer\n");
+
+    <A HREF="threadtest_cc.html#q">q</A> = new <A HREF="synchlist.h.html#SynchList">SynchList</A>();
+    <A HREF="thread.h.html#Thread">Thread</A> *t = new <A HREF="thread.h.html#Thread">Thread</A>("Consumer");
+
+    t-&gt;Fork(<A HREF="threadtest_cc.html#Consumer">Consumer</A>,0);
+    <A HREF="threadtest_cc.html#Producer">Producer</A>(1);
+}
+</PRE>
+</BODY></HTML>

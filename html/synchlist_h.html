@@ -1,0 +1,62 @@
+<HTML><TITLE>synchlist.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>synchlist.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// synchlist.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Data structures for synchronized access to a list.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Implemented by surrounding the List abstraction<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	with synchronization routines.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef SYNCHLIST_H<FONT COLOR="#000000">
+<A NAME="SYNCHLIST_H"></A><FONT COLOR="#007700">#define SYNCHLIST_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="list_h.html">list.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="synch_h.html">synch.h</A>"<FONT COLOR="#000000">
+
+<A NAME="SynchList"></A><FONT COLOR="#990000">// The following class defines a "synchronized list" -- a list for which:<FONT COLOR="#000000">
+<FONT COLOR="#990000">// these constraints hold:<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	1. Threads trying to remove an item from a list will<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	wait until the list has an element on it.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	2. One thread at a time can access list data structures<FONT COLOR="#000000">
+
+class SynchList {
+  public:
+    <A HREF="synchlist_cc.html#SynchList.SynchList">SynchList</A>();		<FONT COLOR="#990000">// initialize a synchronized list<FONT COLOR="#000000">
+    ~<A HREF="synchlist_cc.html#SynchList.~SynchList">SynchList</A>();		<FONT COLOR="#990000">// de-allocate a synchronized list<FONT COLOR="#000000">
+
+    void <A HREF="synchlist_cc.html#SynchList.Append">Append</A>(void *item);	<FONT COLOR="#990000">// append item to the end of the list,<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// and wake up any thread waiting in remove<FONT COLOR="#000000">
+    void *<A HREF="synchlist_cc.html#SynchList.Remove">Remove</A>();		<FONT COLOR="#990000">// remove the first item from the front of<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// the list, waiting if the list is empty<FONT COLOR="#000000">
+				<FONT COLOR="#990000">// apply function to every item in the list<FONT COLOR="#000000">
+    void <A HREF="synchlist_cc.html#SynchList.Mapcar">Mapcar</A>(<A HREF="utility_h.html#VoidFunctionPtr">VoidFunctionPtr</A> func);
+
+  private:
+    <A HREF="list_h.html#List">List</A> *<A NAME="SynchList.list">list</A>;			<FONT COLOR="#990000">// the unsynchronized list<FONT COLOR="#000000">
+    <A HREF="synch_h.html#Lock">Lock</A> *<A NAME="SynchList.lock">lock</A>;			<FONT COLOR="#990000">// enforce mutual exclusive access to the list<FONT COLOR="#000000">
+    <A HREF="synch_h.html#Condition">Condition</A> *<A NAME="SynchList.listEmpty">listEmpty</A>;	<FONT COLOR="#990000">// wait in Remove if the list is empty<FONT COLOR="#000000">
+};
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// SYNCHLIST_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

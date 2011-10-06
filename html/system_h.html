@@ -1,0 +1,73 @@
+<HTML><TITLE>system.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>system.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// system.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	All global variables used in Nachos are defined here.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef SYSTEM_H<FONT COLOR="#000000">
+<A NAME="SYSTEM_H"></A><FONT COLOR="#007700">#define SYSTEM_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="utility_h.html">utility.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="thread_h.html">thread.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="scheduler_h.html">scheduler.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="interrupt_h.html">interrupt.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="stats_h.html">stats.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="timer_h.html">timer.h</A>"<FONT COLOR="#000000">
+
+<FONT COLOR="#990000">// Initialization and cleanup routines<FONT COLOR="#000000">
+extern void <A HREF="system_cc.html#Initialize">Initialize</A>(int argc, char **argv); 	<FONT COLOR="#990000">// Initialization,<FONT COLOR="#000000">
+						<FONT COLOR="#990000">// called before anything else<FONT COLOR="#000000">
+extern void <A HREF="system_cc.html#Cleanup">Cleanup</A>();				<FONT COLOR="#990000">// Cleanup, called when<FONT COLOR="#000000">
+						<FONT COLOR="#990000">// Nachos is done.<FONT COLOR="#000000">
+
+extern <A HREF="thread_h.html#Thread">Thread</A> *<A HREF="system_cc.html#currentThread">currentThread</A>;			<FONT COLOR="#990000">// the thread holding the CPU<FONT COLOR="#000000">
+extern <A HREF="thread_h.html#Thread">Thread</A> *<A HREF="system_cc.html#threadToBeDestroyed">threadToBeDestroyed</A>;  		<FONT COLOR="#990000">// the thread that just finished<FONT COLOR="#000000">
+extern <A HREF="scheduler_h.html#Scheduler">Scheduler</A> *<A HREF="system_cc.html#scheduler">scheduler</A>;			<FONT COLOR="#990000">// the ready list<FONT COLOR="#000000">
+extern <A HREF="interrupt_h.html#Interrupt">Interrupt</A> *<A HREF="system_cc.html#interrupt">interrupt</A>;			<FONT COLOR="#990000">// interrupt status<FONT COLOR="#000000">
+extern <A HREF="stats_h.html#Statistics">Statistics</A> *<A HREF="system_cc.html#stats">stats</A>;			<FONT COLOR="#990000">// performance metrics<FONT COLOR="#000000">
+extern <A HREF="timer_h.html#Timer">Timer</A> *<A HREF="system_cc.html#timer">timer</A>;				<FONT COLOR="#990000">// the hardware alarm clock<FONT COLOR="#000000">
+extern bool <A HREF="system_cc.html#nohalt">nohalt</A>;                             <FONT COLOR="#990000">// stop nachos terminating<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef USER_PROGRAM<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "machine.h"<FONT COLOR="#000000">
+extern Machine* <A HREF="system_cc.html#machine">machine</A>;	<FONT COLOR="#990000">// user program memory and registers<FONT COLOR="#000000">
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef FILESYS_NEEDED 		<FONT COLOR="#990000">// FILESYS or FILESYS_STUB <FONT COLOR="#000000"><FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "filesys.h"<FONT COLOR="#000000">
+extern FileSystem  *<A HREF="system_cc.html#fileSystem">fileSystem</A>;
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef FILESYS<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "synchdisk.h"<FONT COLOR="#000000">
+extern SynchDisk   *<A HREF="system_cc.html#synchDisk">synchDisk</A>;
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifdef NETWORK<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "post.h"<FONT COLOR="#000000">
+extern PostOffice* <A HREF="system_cc.html#postOffice">postOffice</A>;
+<FONT COLOR="#007700">#endif<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// SYSTEM_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

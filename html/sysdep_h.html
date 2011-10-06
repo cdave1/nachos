@@ -1,0 +1,89 @@
+<HTML><TITLE>sysdep.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>sysdep.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// sysdep.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	System-dependent interface.  Nachos uses the routines defined<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	here, rather than directly calling the UNIX library functions, to<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	simplify porting between versions of UNIX, and even to<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	other systems, such as MSDOS and the Macintosh.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// of liability and disclaimer of warranty provisions.<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef SYSDEP_H<FONT COLOR="#000000">
+<A NAME="SYSDEP_H"></A><FONT COLOR="#007700">#define SYSDEP_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+
+<FONT COLOR="#990000">// Check file to see if there are any characters to be read.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// If no characters in the file, return without waiting.<FONT COLOR="#000000">
+extern bool <A HREF="sysdep_cc.html#PollFile">PollFile</A>(int fd);
+
+<FONT COLOR="#990000">// File operations: open/read/write/lseek/close, and check for error<FONT COLOR="#000000">
+<FONT COLOR="#990000">// For simulating the disk and the console devices.<FONT COLOR="#000000">
+extern int <A HREF="sysdep_cc.html#OpenForWrite">OpenForWrite</A>(char *name);
+extern int <A HREF="sysdep_cc.html#OpenForReadWrite">OpenForReadWrite</A>(char *name, bool crashOnError);
+extern void <A HREF="sysdep_cc.html#Read">Read</A>(int fd, char *buffer, int nBytes);
+extern int <A HREF="sysdep_cc.html#ReadPartial">ReadPartial</A>(int fd, char *buffer, int nBytes);
+extern void <A HREF="sysdep_cc.html#WriteFile">WriteFile</A>(int fd, char *buffer, int nBytes);
+extern void <A HREF="sysdep_cc.html#Lseek">Lseek</A>(int fd, int offset, int whence);
+extern int <A HREF="sysdep_cc.html#Tell">Tell</A>(int fd);
+extern void <A HREF="sysdep_cc.html#Close">Close</A>(int fd);
+extern bool <A HREF="sysdep_cc.html#Unlink">Unlink</A>(char *name);
+
+<FONT COLOR="#990000">// Interprocess communication operations, for simulating the network<FONT COLOR="#000000">
+extern int <A HREF="sysdep_cc.html#OpenSocket">OpenSocket</A>();
+extern void <A HREF="sysdep_cc.html#CloseSocket">CloseSocket</A>(int sockID);
+extern void <A HREF="sysdep_cc.html#AssignNameToSocket">AssignNameToSocket</A>(char *socketName, int sockID);
+extern void <A HREF="sysdep_cc.html#DeAssignNameToSocket">DeAssignNameToSocket</A>(char *socketName);
+extern bool <A HREF="sysdep_cc.html#PollSocket">PollSocket</A>(int sockID);
+extern void <A HREF="sysdep_cc.html#ReadFromSocket">ReadFromSocket</A>(int sockID, char *buffer, int packetSize);
+extern void <A HREF="sysdep_cc.html#SendToSocket">SendToSocket</A>(int sockID, char *buffer, int packetSize,char *toName);
+
+<FONT COLOR="#990000">// Process control: abort, exit, and sleep<FONT COLOR="#000000">
+extern void <A HREF="sysdep_cc.html#Abort">Abort</A>();
+extern void <A HREF="sysdep_cc.html#Exit">Exit</A>(int exitCode);
+extern void <A HREF="sysdep_cc.html#Delay">Delay</A>(int seconds);
+
+<FONT COLOR="#990000">// Initialize system so that cleanUp routine is called when user hits ctl-C<FONT COLOR="#000000">
+extern void <A HREF="sysdep_cc.html#CallOnUserAbort">CallOnUserAbort</A>(<A HREF="utility_h.html#VoidNoArgFunctionPtr">VoidNoArgFunctionPtr</A> cleanUp);
+
+<FONT COLOR="#990000">// Initialize the pseudo random number generator<FONT COLOR="#000000">
+extern void <A HREF="sysdep_cc.html#RandomInit">RandomInit</A>(unsigned seed);
+extern int <A HREF="sysdep_cc.html#Random">Random</A>();
+
+<FONT COLOR="#990000">// Allocate, de-allocate an array, such that de-referencing<FONT COLOR="#000000">
+<FONT COLOR="#990000">// just beyond either end of the array will cause an error<FONT COLOR="#000000">
+extern char *<A HREF="sysdep_cc.html#AllocBoundedArray">AllocBoundedArray</A>(int size);
+extern void <A HREF="sysdep_cc.html#DeallocBoundedArray">DeallocBoundedArray</A>(char *p, int size);
+
+<FONT COLOR="#990000">// Other C library routines that are used by Nachos.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// These are assumed to be portable, so we don't include a wrapper.<FONT COLOR="#000000">
+extern "C" {
+int atoi(const char *str);
+double atof(const char *str);
+int abs(int i);
+
+<FONT COLOR="#007700">#include &lt;stdio.h&gt;		<FONT COLOR="#990000">// for printf, fprintf<FONT COLOR="#000000"><FONT COLOR="#000000">
+<FONT COLOR="#007700">#include &lt;string.h&gt;		<FONT COLOR="#990000">// for DEBUG, etc.<FONT COLOR="#000000"><FONT COLOR="#000000">
+}
+
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// SYSDEP_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>

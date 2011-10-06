@@ -1,0 +1,160 @@
+<HTML><TITLE>synch.h</TITLE>
+<!-- Created by nachos-to-html utility -->
+<!-- Written by Benjamin Atkin for COMP305 -->
+<BODY BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#0000FF"
+ALINK="#FF0000">
+<TABLE><TR>
+<TD><A HREF="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Nachos/RoadMap/"><IMG SRC="http://www.mcs.vuw.ac.nz/courses/COMP305/2004T1/Images/Cap.jpg" BORDER=0 ALT="[image]"></A>
+</TR></TABLE>
+<TABLE WIDTH="100%">
+<TR VALIGN=TOP><TD><B>Comp 305 Lab 1</B><BR><H1>synch.h</H1><TD ALIGN=RIGHT><I>/home/lido1/petriedavi/305Comp/project2/nachos/html/
+<BR>Fri Apr  4 12:09:11 NZDT 2008
+
+
+</I></TABLE><HR SIZE=2 NOSHADE>
+<PRE>
+<FONT COLOR="#990000">// synch.h <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Data structures for synchronizing threads.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Three kinds of synchronization are defined here: semaphores,<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	locks, and condition variables.  The implementation for<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	semaphores is given; for the latter two, only the procedure<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	interface is given -- they are to be implemented as part of <FONT COLOR="#000000">
+<FONT COLOR="#990000">//	the first assignment.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Note that all the synchronization objects take a "name" as<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	part of the initialization.  This is solely for debugging purposes.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// Copyright (c) 1992-1993 The Regents of the University of California.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All rights reserved.  See copyright.h for copyright notice and limitation <FONT COLOR="#000000">
+<FONT COLOR="#990000">// synch.h -- synchronization primitives.  <FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#ifndef SYNCH_H<FONT COLOR="#000000">
+<A NAME="SYNCH_H"></A><FONT COLOR="#007700">#define SYNCH_H<FONT COLOR="#000000">
+
+<FONT COLOR="#007700">#include "<A HREF="copyright_h.html">copyright.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="thread_h.html">thread.h</A>"<FONT COLOR="#000000">
+<FONT COLOR="#007700">#include "<A HREF="list_h.html">list.h</A>"<FONT COLOR="#000000">
+
+
+<A NAME="Semaphore"></A><FONT COLOR="#990000">// The following class defines a "semaphore" whose value is a non-negative<FONT COLOR="#000000">
+<FONT COLOR="#990000">// integer.  The semaphore has only two operations P() and V():<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	P() -- waits until value &gt; 0, then decrement<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	V() -- increment, waking up a thread waiting in P() if necessary<FONT COLOR="#000000">
+<FONT COLOR="#990000">// <FONT COLOR="#000000">
+<FONT COLOR="#990000">// Note that the interface does *not* allow a thread to read the value of <FONT COLOR="#000000">
+<FONT COLOR="#990000">// the semaphore directly -- even if you did read the value, the<FONT COLOR="#000000">
+<FONT COLOR="#990000">// only thing you would know is what the value used to be.  You don't<FONT COLOR="#000000">
+<FONT COLOR="#990000">// know what the value is now, because by the time you get the value<FONT COLOR="#000000">
+<FONT COLOR="#990000">// into a register, a context switch might have occurred,<FONT COLOR="#000000">
+<FONT COLOR="#990000">// and some other thread might have called P or V, so the true value might<FONT COLOR="#000000">
+<FONT COLOR="#990000">// now be different.<FONT COLOR="#000000">
+
+class Semaphore {
+  public:
+    <A HREF="synch_cc.html#Semaphore.Semaphore">Semaphore</A>(char* debugName, int initialValue);	<FONT COLOR="#990000">// set initial value<FONT COLOR="#000000">
+    ~<A HREF="synch_cc.html#Semaphore.~Semaphore">Semaphore</A>();   					<FONT COLOR="#990000">// de-allocate semaphore<FONT COLOR="#000000">
+    char* <A NAME="Semaphore.getName">getName</A>() { return name;}			<FONT COLOR="#990000">// debugging assist<FONT COLOR="#000000">
+    
+    void <A HREF="synch_cc.html#Semaphore.P">P</A>();	 <FONT COLOR="#990000">// these are the only operations on a semaphore<FONT COLOR="#000000">
+    void <A HREF="synch_cc.html#Semaphore.V">V</A>();	 <FONT COLOR="#990000">// they are both *atomic*<FONT COLOR="#000000">
+    
+  private:
+    char* <A NAME="Semaphore.name">name</A>;        <FONT COLOR="#990000">// useful for debugging<FONT COLOR="#000000">
+    int <A NAME="Semaphore.value">value</A>;         <FONT COLOR="#990000">// semaphore value, always &gt;= 0<FONT COLOR="#000000">
+    <A HREF="list_h.html#List">List</A> *<A NAME="Semaphore.queue">queue</A>;       <FONT COLOR="#990000">// threads waiting in P() for the value to be &gt; 0<FONT COLOR="#000000">
+};
+
+<A NAME="Lock"></A><FONT COLOR="#990000">// The following class defines a "lock".  A lock can be BUSY or FREE.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// There are only two operations allowed on a lock: <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Acquire -- wait until the lock is FREE, then set it to BUSY<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Release -- set lock to be FREE, waking up a thread waiting<FONT COLOR="#000000">
+<FONT COLOR="#990000">//		in Acquire if necessary<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// In addition, by convention, only the thread that acquired the lock<FONT COLOR="#000000">
+<FONT COLOR="#990000">// may release it.  As with semaphores, you can't read the lock value<FONT COLOR="#000000">
+<FONT COLOR="#990000">// (because the value might change immediately after you read it).  <FONT COLOR="#000000">
+
+class Lock {
+  public:
+    <A HREF="synch_cc.html#Lock.Lock">Lock</A>(char* debugName);  		<FONT COLOR="#990000">// initialize lock to be FREE<FONT COLOR="#000000">
+    ~<A HREF="synch_cc.html#Lock.~Lock">Lock</A>();				<FONT COLOR="#990000">// deallocate lock<FONT COLOR="#000000">
+    char* <A NAME="Lock.getName">getName</A>() { return name; }	<FONT COLOR="#990000">// debugging assist<FONT COLOR="#000000">
+    <A HREF="thread_h.html#Thread">Thread</A>* <A HREF="synch_cc.html#Lock.getOwner">getOwner</A>();
+    void <A HREF="synch_cc.html#Lock.Acquire">Acquire</A>(); <FONT COLOR="#990000">// these are the only operations on a lock<FONT COLOR="#000000">
+    void <A HREF="synch_cc.html#Lock.Release">Release</A>(); <FONT COLOR="#990000">// they are both *atomic*<FONT COLOR="#000000">
+
+    bool <A HREF="synch_cc.html#Lock.isHeldByCurrentThread">isHeldByCurrentThread</A>();	<FONT COLOR="#990000">// true if the current thread<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// holds this lock.  Useful for<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// checking in Release, and in<FONT COLOR="#000000">
+					<FONT COLOR="#990000">// Condition variable ops below.<FONT COLOR="#000000">
+
+  private:
+    char* <A NAME="Lock.name">name</A>;				<FONT COLOR="#990000">// for debugging<FONT COLOR="#000000">
+    <A HREF="thread_h.html#Thread">Thread</A> *<A NAME="Lock.lockOwner">lockOwner</A>;                      <FONT COLOR="#990000">// remember who acquired the lock<FONT COLOR="#000000">
+    <A HREF="synch_h.html#Semaphore">Semaphore</A> *<A NAME="Lock.sem">sem</A>;                    <FONT COLOR="#990000">// use semaphore for the actual lock<FONT COLOR="#000000">
+};
+
+<A NAME="Condition"></A><FONT COLOR="#990000">// The following class defines a "condition variable".  A condition<FONT COLOR="#000000">
+<FONT COLOR="#990000">// variable does not have a value, but threads may be queued, waiting<FONT COLOR="#000000">
+<FONT COLOR="#990000">// on the variable.  These are only operations on a condition variable: <FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Wait() -- release the lock, relinquish the CPU until signaled, <FONT COLOR="#000000">
+<FONT COLOR="#990000">//		then re-acquire the lock<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Signal() -- wake up a thread, if there are any waiting on <FONT COLOR="#000000">
+<FONT COLOR="#990000">//		the condition<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">//	Broadcast() -- wake up all threads waiting on the condition<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// All operations on a condition variable must be made while<FONT COLOR="#000000">
+<FONT COLOR="#990000">// the current thread has acquired a lock.  Indeed, all accesses<FONT COLOR="#000000">
+<FONT COLOR="#990000">// to a given condition variable must be protected by the same lock.<FONT COLOR="#000000">
+<FONT COLOR="#990000">// In other words, mutual exclusion must be enforced among threads calling<FONT COLOR="#000000">
+<FONT COLOR="#990000">// the condition variable operations.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// In Nachos, condition variables are assumed to obey *Mesa*-style<FONT COLOR="#000000">
+<FONT COLOR="#990000">// semantics.  When a Signal or Broadcast wakes up another thread,<FONT COLOR="#000000">
+<FONT COLOR="#990000">// it simply puts the thread on the ready list, and it is the responsibility<FONT COLOR="#000000">
+<FONT COLOR="#990000">// of the woken thread to re-acquire the lock (this re-acquire is<FONT COLOR="#000000">
+<FONT COLOR="#990000">// taken care of within Wait()).  By contrast, some define condition<FONT COLOR="#000000">
+<FONT COLOR="#990000">// variables according to *Hoare*-style semantics -- where the signalling<FONT COLOR="#000000">
+<FONT COLOR="#990000">// thread gives up control over the lock and the CPU to the woken thread,<FONT COLOR="#000000">
+<FONT COLOR="#990000">// which runs immediately and gives back control over the lock to the <FONT COLOR="#000000">
+<FONT COLOR="#990000">// signaller when the woken thread leaves the critical section.<FONT COLOR="#000000">
+<FONT COLOR="#990000">//<FONT COLOR="#000000">
+<FONT COLOR="#990000">// The consequence of using Mesa-style semantics is that some other thread<FONT COLOR="#000000">
+<FONT COLOR="#990000">// can acquire the lock, and change data structures, before the woken<FONT COLOR="#000000">
+<FONT COLOR="#990000">// thread gets a chance to run.<FONT COLOR="#000000">
+
+class Condition {
+  public:
+    <A HREF="synch_cc.html#Condition.Condition">Condition</A>(char* debugName);		<FONT COLOR="#990000">// initialize condition to <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// "no one waiting"<FONT COLOR="#000000">
+    ~<A HREF="synch_cc.html#Condition.~Condition">Condition</A>();			<FONT COLOR="#990000">// deallocate the condition<FONT COLOR="#000000">
+    char* <A NAME="Condition.getName">getName</A>() { return (name); }
+    
+    void <A HREF="synch_cc.html#Condition.Wait">Wait</A>(<A HREF="synch_h.html#Lock">Lock</A> *conditionLock); 	<FONT COLOR="#990000">// these are the 3 operations on <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// condition variables; releasing the <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// lock and going to sleep are <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// *atomic* in Wait()<FONT COLOR="#000000">
+    void <A HREF="synch_cc.html#Condition.Signal">Signal</A>(<A HREF="synch_h.html#Lock">Lock</A> *conditionLock);   <FONT COLOR="#990000">// conditionLock must be held by<FONT COLOR="#000000">
+    void <A HREF="synch_cc.html#Condition.Broadcast">Broadcast</A>(<A HREF="synch_h.html#Lock">Lock</A> *conditionLock);<FONT COLOR="#990000">// the currentThread for all of <FONT COLOR="#000000">
+					<FONT COLOR="#990000">// these operations<FONT COLOR="#000000">
+
+  private:
+    char* <A NAME="Condition.name">name</A>;
+    <A HREF="list_h.html#List">List</A>* <A NAME="Condition.queue">queue</A>;  <FONT COLOR="#990000">// threads waiting on the condition<FONT COLOR="#000000">
+    <A HREF="synch_h.html#Lock">Lock</A>* <A NAME="Condition.lock">lock</A>;   <FONT COLOR="#990000">// debugging aid:  used to check correctness of<FONT COLOR="#000000">
+                  <FONT COLOR="#990000">// arguments to Wait, Signal and Broacast<FONT COLOR="#000000">
+};
+<FONT COLOR="#007700">#endif <FONT COLOR="#990000">// SYNCH_H<FONT COLOR="#000000"><FONT COLOR="#000000">
+</PRE>
+</BODY></HTML>
